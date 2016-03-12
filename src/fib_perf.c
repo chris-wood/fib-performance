@@ -7,51 +7,53 @@
 bool
 readLine(FILE *fp, char **result, int *len)
 {
-    *result = malloc(1);
+    char *string = malloc(1);
     char curr = fgetc(fp);
-    *len = 1;
-    *result[0] = curr;
-    while (curr != '\n' && curr != EOF) {
-        result = realloc(*result, *len + 1);
-        *result[*len] = curr;
-        *len++;
+    int number = 1;
+    while (!(curr == '\n' || curr == '\r') && curr != EOF) {
+        string = realloc(string, number + 1);
+        string[number - 1] = curr;
+        number++;
         curr = fgetc(fp);
     }
 
+    *len = number;
+    *result = string;
+
     if (curr == EOF) {
-        return false;
-    } else {
         return true;
+    } else {
+        return false;
     }
+}
+
+void usage() {
+    fprintf(stderr, "usage: fib_perf <uri_file> <n>\n");
+    fprintf(stderr, "   - uri_file = A file that contains a list of CCNx URIs\n");
+    fprintf(stderr, "   - n        = The maximum length prefix to use when inserting names into the FIB\n");
 }
 
 int main(int argc, char **argv)
 {
-    AthenaFIB *fib = athenaFIB_Create();
-    // CCNxName *testName1 = ccnxName_CreateFromURI("lci:/a/b/c");
-    // CCNxName *testName2 = ccnxName_CreateFromURI("lci:/a/b/a");
-    // CCNxName *testName3 = ccnxName_CreateFromURI("lci:/");
-    //
-    // PARCBitVector *testVector1 = parcBitVector_Create();
-    // parcBitVector_Set(testVector1, 0);
-    // PARCBitVector *testVector2 = parcBitVector_Create();
-    // parcBitVector_Set(testVector2, 42);
-    // PARCBitVector *testVector12 = parcBitVector_Create();
-    // parcBitVector_Set(testVector12, 0);
-    // parcBitVector_Set(testVector12, 42);
-    // PARCBitVector *testVector3 = parcBitVector_Create();
-    // parcBitVector_Set(testVector3, 23);
-    //
-    // athenaFIB_AddRoute(fib, testName1, testVector1);
-    // TODO: add the others later...
-    // printf("added.\n");
+    if (argc != 3) {
+        usage();
+        exit(-1);
+    }
 
     char *fname = argv[1];
     int N = atoi(argv[2]);
 
+    FILE *file = fopen(fname, "r");
+    if (file == NULL) {
+        perror("Could not open file");
+        usage();
+        exit(-1);
+    }
+
+    // Create the FIB and list to hold all of the names
+    AthenaFIB *fib = athenaFIB_Create();
     PARCLinkedList *nameList = parcLinkedList_Create();
 
-    FILE *file = fopen(fname, "r");
     char *line = NULL;
     int length = 0;
     bool done = false;
@@ -59,8 +61,11 @@ int main(int argc, char **argv)
     do {
         done = readLine(file, &line, &length);
 
+        printf("Read: %s\n", line);
+
         // Create the original name and store it for later
         CCNxName *name = ccnxName_CreateFromCString(line);
+
         parcLinkedList_Append(nameList, name);
 
         // Truncate to N components if necessary
