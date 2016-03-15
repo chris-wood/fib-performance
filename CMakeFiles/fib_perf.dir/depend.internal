@@ -3,6 +3,27 @@
 
 CMakeFiles/fib_perf.dir/src/fib_perf.c.o
  /Users/cwood/PARC/CCNx_Distillery/src/Athena/ccnx/forwarder/athena/athena_FIB.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_ContentObject.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_Interest.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_InterestPayloadId.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_InterestReturn.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_KeyLocator.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_Link.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_Manifest.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_ManifestHashGroup.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_Name.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_NameLabel.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_NameSegment.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_PayloadType.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_WireFormatMessage.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/codec/ccnxCodec_NetworkBuffer.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/internal/ccnx_ContentObjectInterface.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/internal/ccnx_InterestInterface.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/internal/ccnx_InterestPayloadIdMethod.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/internal/ccnx_ManifestInterface.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/internal/ccnx_MessageInterface.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/internal/ccnx_TlvDictionary.h
+ /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/internal/ccnx_WireFormatMessageInterface.h
  /Users/cwood/PARC/CCNx_Distillery/usr/include/LongBow/assertions.h
  /Users/cwood/PARC/CCNx_Distillery/usr/include/LongBow/debugging.h
  /Users/cwood/PARC/CCNx_Distillery/usr/include/LongBow/longBow_Backtrace.h
@@ -27,24 +48,6 @@ CMakeFiles/fib_perf.dir/src/fib_perf.c.o
  /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/api/control/cpi_NameRouteType.h
  /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/api/control/cpi_RouteEntry.h
  /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/api/notify/notify_Status.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_ContentObject.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_Interest.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_InterestPayloadId.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_InterestReturn.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_KeyLocator.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_Link.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_Name.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_NameLabel.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_NameSegment.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_PayloadType.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/ccnx_WireFormatMessage.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/codec/ccnxCodec_NetworkBuffer.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/internal/ccnx_ContentObjectInterface.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/internal/ccnx_InterestInterface.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/internal/ccnx_InterestPayloadIdMethod.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/internal/ccnx_MessageInterface.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/internal/ccnx_TlvDictionary.h
- /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/common/internal/ccnx_WireFormatMessageInterface.h
  /Users/cwood/PARC/CCNx_Distillery/usr/include/ccnx/transport/common/transport_MetaMessage.h
  /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/algol/parc_BitVector.h
  /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/algol/parc_Buffer.h

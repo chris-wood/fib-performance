@@ -12,6 +12,7 @@ set(CMAKE_C_COMPILER_ID "Clang")
 set(CMAKE_C_TARGET_INCLUDE_PATH
   "/usr/local/include"
   "/Users/cwood/PARC/CCNx_Distillery/src/Athena"
+  "/Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common"
   "/Users/cwood/PARC/CCNx_Distillery/usr/include"
   )
 

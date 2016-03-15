@@ -128,7 +128,7 @@ lci:/cn/net/mozilla/www/home
 lci:/net/llnwd/vo/myspace-139/00747/93/13/747983139_s.jpg
 lci:/com/yimg/dl1/us/download.yahoo.com/pgdownload8/msgup_us.yim
 lci:/cn/net/mozilla/www/home/images/grgrad.gif
-lci:/com/myspace/www/null
+lci:/com/myspace/www/nul
 lci:/com/yimg/dl1/us/download.yahoo.com/pgdownload8/msgup_us.yim
 lci:/com/xinhuanet/rss/rss/legal.xml
 lci:/com/365key/www/rssfeed.aspx

@@ -1,30 +1,26 @@
 #include <ccnx/forwarder/athena/athena_FIB.h>
 #include <parc/algol/parc_SafeMemory.h>
+#include <parc/algol/parc_BufferComposer.h>
 #include <parc/algol/parc_LinkedList.h>
 #include <parc/algol/parc_Iterator.h>
-#include <stdio.h>
 
-bool
-readLine(FILE *fp, char **result, int *len)
+#include <stdio.h>
+#include <ctype.h>
+
+PARCBufferComposer *
+readLine(FILE *fp)
 {
-    char *string = malloc(1);
+    PARCBufferComposer *composer = parcBufferComposer_Create();
     char curr = fgetc(fp);
-    int number = 1;
-    while (!(curr == '\n' || curr == '\r') && curr != EOF) {
-        string = realloc(string, number + 1);
-        string[number - 1] = curr;
-        number++;
+    while ((isalnum(curr) || curr == ':' || curr == '/' || curr == '.' ||
+            curr == '_' || curr == '(' || curr == ')' || curr == '[' ||
+            curr == ']' || curr == '-' || curr == '%' || curr == '+' ||
+            curr == '=' || curr == ';' || curr == '$' || curr == '\'') && curr != EOF) {
+        parcBufferComposer_PutChar(composer, curr);
         curr = fgetc(fp);
     }
 
-    *len = number;
-    *result = string;
-
-    if (curr == EOF) {
-        return true;
-    } else {
-        return false;
-    }
+    return composer;
 }
 
 void usage() {
@@ -54,17 +50,22 @@ int main(int argc, char **argv)
     AthenaFIB *fib = athenaFIB_Create();
     PARCLinkedList *nameList = parcLinkedList_Create();
 
-    char *line = NULL;
-    int length = 0;
-    bool done = false;
     int num = 0;
     do {
-        done = readLine(file, &line, &length);
 
-        printf("Read: %s\n", line);
+        PARCBufferComposer *composer = readLine(file);
+        PARCBuffer *bufferString = parcBufferComposer_ProduceBuffer(composer);
+        if (parcBuffer_Remaining(bufferString) == 0) {
+            break;
+        }
+
+        char *string = parcBuffer_ToString(bufferString);
+        parcBufferComposer_Release(&composer);
+
+        printf("Read: %s\n", string);
 
         // Create the original name and store it for later
-        CCNxName *name = ccnxName_CreateFromCString(line);
+        CCNxName *name = ccnxName_CreateFromCString(string);
 
         parcLinkedList_Append(nameList, name);
 
@@ -84,8 +85,6 @@ int main(int argc, char **argv)
 
         ccnxName_Release(&copy);
         parcBitVector_Release(&vector);
-
-        free(line);
     } while (!done);
 
     PARCIterator *iterator = parcLinkedList_CreateIterator(nameList);

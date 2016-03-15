@@ -6,5 +6,5 @@ C_FLAGS = -O3 -DNDEBUG   -Wall -pg
 
 C_DEFINES = 
 
-C_INCLUDES = -I/usr/local/include -I/Users/cwood/PARC/CCNx_Distillery/src/Athena -I/Users/cwood/PARC/CCNx_Distillery/usr/include 
+C_INCLUDES = -I/usr/local/include -I/Users/cwood/PARC/CCNx_Distillery/src/Athena -I/Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common -I/Users/cwood/PARC/CCNx_Distillery/usr/include 
 
