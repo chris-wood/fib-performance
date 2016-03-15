@@ -85,20 +85,25 @@ int main(int argc, char **argv)
 
         ccnxName_Release(&copy);
         parcBitVector_Release(&vector);
-    } while (!done);
+    } while (true);
 
     PARCIterator *iterator = parcLinkedList_CreateIterator(nameList);
 
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
-
     while (parcIterator_HasNext(iterator)) {
-        CCNxName *name = parcIterator_Next(iterator);
-        // Lookup and time it.
-    }
 
-    gettimeofday(&end, NULL);
-    printf ("Total time = %f seconds\n", (double) (end.tv_usec - start.tv_usec) / 1000000 + (double) (end.tv_sec - start.tv_sec));
+        CCNxName *name = parcIterator_Next(iterator);
+        PARCBitVector *vector = parcBitVector_Create();
+
+        struct timeval start, end;
+        gettimeofday(&start, NULL);
+
+        // Lookup and time it.
+        athenaFIB_Lookup(fib, name, vector);
+
+        parcBitVector_Release(&vector);
+        gettimeofday(&end, NULL);
+        printf ("%f\n", (double) (end.tv_usec - start.tv_usec) / 1000000 + (double) (end.tv_sec - start.tv_sec));
+    }
 
     athenaFIB_Release(&fib);
 
