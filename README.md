@@ -12,3 +12,8 @@ Procedure:
     - For each name N in L:
         - Measure the time to lookup N
     - Compute some statistics for the times
+
+
+Lookup test approach:
+- use a different data structure and algorithm?
+- ...

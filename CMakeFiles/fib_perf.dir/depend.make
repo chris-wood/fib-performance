@@ -70,6 +70,7 @@ CMakeFiles/fib_perf.dir/src/fib_perf.c.o: /Users/cwood/PARC/CCNx_Distillery/usr/
 CMakeFiles/fib_perf.dir/src/fib_perf.c.o: /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/algol/parc_URI.h
 CMakeFiles/fib_perf.dir/src/fib_perf.c.o: /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/algol/parc_URIPath.h
 CMakeFiles/fib_perf.dir/src/fib_perf.c.o: /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/algol/parc_URISegment.h
+CMakeFiles/fib_perf.dir/src/fib_perf.c.o: /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/developer/parc_StopWatch.h
 CMakeFiles/fib_perf.dir/src/fib_perf.c.o: /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/security/parc_CryptoHash.h
 CMakeFiles/fib_perf.dir/src/fib_perf.c.o: /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/security/parc_CryptoHashType.h
 CMakeFiles/fib_perf.dir/src/fib_perf.c.o: /Users/cwood/PARC/CCNx_Distillery/usr/include/parc/security/parc_CryptoHasher.h

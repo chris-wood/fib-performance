@@ -1,8 +1,10 @@
 #include <ccnx/forwarder/athena/athena_FIB.h>
+
 #include <parc/algol/parc_SafeMemory.h>
 #include <parc/algol/parc_BufferComposer.h>
 #include <parc/algol/parc_LinkedList.h>
 #include <parc/algol/parc_Iterator.h>
+#include <parc/developer/parc_StopWatch.h>
 
 #include <stdio.h>
 #include <ctype.h>
@@ -19,7 +21,6 @@ readLine(FILE *fp)
         parcBufferComposer_PutChar(composer, curr);
         curr = fgetc(fp);
     }
-
     return composer;
 }
 
@@ -94,26 +95,21 @@ int main(int argc, char **argv)
         CCNxName *name = parcIterator_Next(iterator);
         PARCBitVector *vector = parcBitVector_Create();
 
-        struct timeval start, end;
-        gettimeofday(&start, NULL);
+        PARCStopwatch *timer = parcStopwatch_Create();
 
         // Lookup and time it.
+        parcStopwatch_Start(timer);
         athenaFIB_Lookup(fib, name, vector);
+        parcStopwatch_Stop(timer);
+
+        uint64_t elapsedTime = parcStopwatch_ElapsedTime(timer);
+        printf("Time: %zums\n", elapsedTime);
 
         parcBitVector_Release(&vector);
-        gettimeofday(&end, NULL);
-        printf ("%f\n", (double) (end.tv_usec - start.tv_usec) / 1000000 + (double) (end.tv_sec - start.tv_sec));
+        parcStopwatch_Release(&timer);
     }
 
     athenaFIB_Release(&fib);
-
-    // ccnxName_Release(&testName1);
-    // ccnxName_Release(&testName2);
-    // ccnxName_Release(&testName3);
-    // parcBitVector_Release(&testVector1);
-    // parcBitVector_Release(&testVector2);
-    // parcBitVector_Release(&testVector12);
-    // parcBitVector_Release(&testVector3);
 
     return 0;
 }
