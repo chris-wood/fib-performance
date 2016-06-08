@@ -167,6 +167,33 @@ fib_perf/fast:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/build
 .PHONY : fib_perf/fast
 
+src/fib.o: src/fib.c.o
+
+.PHONY : src/fib.o
+
+# target to build an object file
+src/fib.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib.c.o
+.PHONY : src/fib.c.o
+
+src/fib.i: src/fib.c.i
+
+.PHONY : src/fib.i
+
+# target to preprocess a source file
+src/fib.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib.c.i
+.PHONY : src/fib.c.i
+
+src/fib.s: src/fib.c.s
+
+.PHONY : src/fib.s
+
+# target to generate assembly for a file
+src/fib.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib.c.s
+.PHONY : src/fib.c.s
+
 src/fib_perf.o: src/fib_perf.c.o
 
 .PHONY : src/fib_perf.o
@@ -194,6 +221,33 @@ src/fib_perf.c.s:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_perf.c.s
 .PHONY : src/fib_perf.c.s
 
+src/map.o: src/map.c.o
+
+.PHONY : src/map.o
+
+# target to build an object file
+src/map.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/map.c.o
+.PHONY : src/map.c.o
+
+src/map.i: src/map.c.i
+
+.PHONY : src/map.i
+
+# target to preprocess a source file
+src/map.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/map.c.i
+.PHONY : src/map.c.i
+
+src/map.s: src/map.c.s
+
+.PHONY : src/map.s
+
+# target to generate assembly for a file
+src/map.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/map.c.s
+.PHONY : src/map.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -207,9 +261,15 @@ help:
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... install/local"
+	@echo "... src/fib.o"
+	@echo "... src/fib.i"
+	@echo "... src/fib.s"
 	@echo "... src/fib_perf.o"
 	@echo "... src/fib_perf.i"
 	@echo "... src/fib_perf.s"
+	@echo "... src/map.o"
+	@echo "... src/map.i"
+	@echo "... src/map.s"
 .PHONY : help
 
 

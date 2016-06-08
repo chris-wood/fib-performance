@@ -1,6 +1,7 @@
 #include "map.h"
 #include "siphash24.h"
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -19,13 +20,18 @@ typedef struct {
 
 struct map {
     int numBuckets;
+    bool rehash;
+
+    MapMode mode;
+    MapOverflowStrategy strategy;
+
     _Bucket **buckets;
 };
 
 static uint8_t *
 _randomBytes(int n)
 {
-    FILE *f = fopen("/dev/urandom", "r")
+    FILE *f = fopen("/dev/urandom", "r");
     uint8_t *bytes = NULL;
     if (f != NULL) {
         bytes = (uint8_t *) malloc(n);
@@ -63,12 +69,17 @@ _bucket_Create(int capacity)
 }
 
 Map *
-map_Create(int initialBucketCount, int bucketCapacity)
+map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode, MapOverflowStrategy strategy)
 {
     Map *map = (Map *) malloc(sizeof(Map));
     if (map != NULL) {
         map->numBuckets = initialBucketCount;
+
         map->buckets = (_Bucket **) malloc(sizeof(_Bucket *) * initialBucketCount);
+        map->mode = mode;
+        map->strategy = strategy;
+        map->rehash = rehash;
+
         for (int i = 0; i < initialBucketCount; i++) {
             map->buckets[i] = _bucket_Create(bucketCapacity);
         }
@@ -112,11 +123,11 @@ void
 map_Insert(Map *map, PARCBuffer *key, void *item)
 {
     PARCBuffer *keyHash = key;
-    if (map->reHash) {
-        PARCBuffer *keyHash = _map_ComputeBucketKeyHash(map, key);
+    if (map->rehash) {
+        keyHash = _map_ComputeBucketKeyHash(map, key);
     }
 
-    int bucketNumber = _map_ComputeBucketNumberFromHash(keyHash, key);
+    int bucketNumber = _map_ComputeBucketNumberFromHash(map, keyHash);
     _map_InsertToBucket(map, bucketNumber, key, item);
 }
 

@@ -1,5 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/fib_perf.dir/src/fib_perf.c.o"
+  "CMakeFiles/fib_perf.dir/src/fib.c.o"
+  "CMakeFiles/fib_perf.dir/src/map.c.o"
   "fib_perf.pdb"
   "fib_perf"
 )

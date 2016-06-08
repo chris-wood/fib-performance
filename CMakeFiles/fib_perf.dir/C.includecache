@@ -103,6 +103,8 @@ parc/security/parc_Signature.h
 -
 
 /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common/ccnx/common/ccnx_Name.h
+parc/algol/parc_HashCode.h
+-
 ccnx/common/ccnx_NameSegment.h
 -
 
@@ -646,6 +648,16 @@ parc/security/parc_CryptoHashType.h
 parc/security/parc_CryptoSuite.h
 -
 
+/Users/cwood/Projects/fib-performance/src/fib.c
+fib.h
+/Users/cwood/Projects/fib-performance/src/fib.h
+
+/Users/cwood/Projects/fib-performance/src/fib.h
+parc/algol/parc_BitVector.h
+-
+ccnx/common/ccnx_Name.h
+-
+
 /Users/cwood/Projects/fib-performance/src/fib_perf.c
 ccnx/forwarder/athena/athena_FIB.h
 -
@@ -663,4 +675,22 @@ stdio.h
 -
 ctype.h
 -
+
+/Users/cwood/Projects/fib-performance/src/map.c
+map.h
+/Users/cwood/Projects/fib-performance/src/map.h
+siphash24.h
+/Users/cwood/Projects/fib-performance/src/siphash24.h
+stdio.h
+-
+stdint.h
+-
+stdlib.h
+-
+
+/Users/cwood/Projects/fib-performance/src/map.h
+parc/algol/parc_Buffer.h
+-
+
+/Users/cwood/Projects/fib-performance/src/siphash24.h
 

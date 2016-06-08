@@ -15,14 +15,18 @@ include_directories(
         /Users/cwood/PARC/CCNx_Distillery/usr/include/
     )
 
-set(perf_SOURCES src/fib_perf.c)
+set(fibtest_SOURCES
+    src/fib_perf.c
+    src/fib.c
+    src/map.c
+    )
 
 link_directories(
         /Users/cwood/PARC/CCNx_Distillery/usr/lib
         /usr/local/lib
     )
 
-add_executable(fib_perf ${perf_SOURCES})
+add_executable(fib_perf ${fibtest_SOURCES})
 set_target_properties(fib_perf PROPERTIES COMPILE_FLAGS "-Wall -pg")
 
 target_link_libraries(fib_perf longbow longbow-ansiterm parc ccnx_common ccnx_api_portal ccnx_api_notify ccnx_api_control ccnx_transport_rta athena)
