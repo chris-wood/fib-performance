@@ -30,7 +30,8 @@ void usage() {
     fprintf(stderr, "   - n        = The maximum length prefix to use when inserting names into the FIB\n");
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
     if (argc != 3) {
         usage();
