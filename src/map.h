@@ -1,5 +1,5 @@
-#ifndef fib_h_
-#define fib_h_
+#ifndef map_h_
+#define map_h_
 
 #include <parc/algol/parc_Buffer.h>
 
@@ -23,4 +23,4 @@ Map *map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode
 void map_Insert(Map *map, PARCBuffer *key, void *item);
 void *map_Get(Map *map, PARCBuffer *key);
 
-#endif // fib_h_
+#endif // map_h_

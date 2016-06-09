@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "fib.h"
+
 PARCBufferComposer *
 readLine(FILE *fp)
 {
@@ -49,8 +51,10 @@ main(int argc, char **argv)
     }
 
     // Create the FIB and list to hold all of the names
-    AthenaFIB *fib = athenaFIB_Create();
     PARCLinkedList *nameList = parcLinkedList_Create();
+
+    // Create the FIB table
+    FIB *fib = fib_Create(FIBAlgorithm_Naive, FIBMode_Hash);
 
     int num = 0;
     do {
@@ -83,7 +87,7 @@ main(int argc, char **argv)
         num = (num + 1) % 10;
 
         // Insert into the FIB
-        athenaFIB_AddRoute(fib, copy, vector);
+        fib_Insert(fib, copy, vector);
 
         ccnxName_Release(&copy);
         parcBitVector_Release(&vector);
@@ -97,20 +101,19 @@ main(int argc, char **argv)
         PARCBitVector *vector = parcBitVector_Create();
 
         PARCStopwatch *timer = parcStopwatch_Create();
+        parcStopwatch_Start(timer);
 
         // Lookup and time it.
-        parcStopwatch_Start(timer);
-        athenaFIB_Lookup(fib, name, vector);
-        parcStopwatch_Stop(timer);
+        uint64_t startTime = parcStopwatch_ElapsedTimeNanos(timer);
+        PARCBitVector *output = fib_Lookup(fib, name);
+        uint64_t endTime = parcStopwatch_ElapsedTimeNanos(timer);
 
-        uint64_t elapsedTime = parcStopwatch_ElapsedTime(timer);
-        printf("Time: %zums\n", elapsedTime);
+        uint64_t elapsedTime = endTime - startTime;
+        printf("Time: %zu ns\n", elapsedTime);
 
         parcBitVector_Release(&vector);
         parcStopwatch_Release(&timer);
     }
-
-    athenaFIB_Release(&fib);
 
     return 0;
 }

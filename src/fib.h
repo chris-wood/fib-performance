@@ -26,7 +26,7 @@ typedef struct fib {
     FIBAlgorithm algorithm;
 
     // Create a key for a given input name
-    PARCBuffer *(*Mint)(struct fib *map, const CCNxName *ccnxName);
+    // PARCBuffer *(*Mint)(struct fib *map, const CCNxName *ccnxName);
 
     // Perform the lookup operation and return the result
     PARCBitVector *(*Lookup)(struct fib *map, const CCNxName *ccnxName);
@@ -39,5 +39,7 @@ typedef struct fib {
 } FIB;
 
 FIB *fib_Create(FIBAlgorithm algorithm, FIBMode mode);
+PARCBitVector *fib_Lookup(FIB *map, const CCNxName *ccnxName);
+bool fib_Insert(FIB *map, const CCNxName *ccnxName, PARCBitVector *vector);
 
 #endif // fib_h_

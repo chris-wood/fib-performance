@@ -10,19 +10,21 @@ set(CMAKE_BUILD_TYPE Release)
 
 include_directories(
         /usr/local/include/
-        /Users/cwood/PARC/CCNx_Distillery/src/Athena/
-        /Users/cwood/PARC/CCNx_Distillery/src/Libccnx-common
-        /Users/cwood/PARC/CCNx_Distillery/usr/include/
+        /Users/cwood/PARC/side/Improvements/src/Athena/
+        /Users/cwood/PARC/side/Improvements/src/Libccnx-common
+        /Users/cwood/PARC/side/Improvements/usr/include/
     )
 
 set(fibtest_SOURCES
     src/fib_perf.c
     src/fib.c
     src/map.c
+    src/siphash24.c
+    src/random.c
     )
 
 link_directories(
-        /Users/cwood/PARC/CCNx_Distillery/usr/lib
+        /Users/cwood/PARC/side/Improvements/usr/lib
         /usr/local/lib
     )
 

@@ -32,7 +32,7 @@ if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspeci
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/fib_perf" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/fib_perf")
     execute_process(COMMAND /usr/bin/install_name_tool
-      -delete_rpath "/Users/cwood/PARC/CCNx_Distillery/usr/lib"
+      -delete_rpath "/Users/cwood/PARC/side/Improvements/usr/lib"
       "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/fib_perf")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/fib_perf")

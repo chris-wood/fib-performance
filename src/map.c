@@ -5,45 +5,36 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// Some defaults
 const int MapDefaultCapacity = 42;
+const int DefaultKeySize = 64 / 8;
+const int SiphashKeySize = 128 / 8;
 
 typedef struct {
     PARCBuffer *key;
     void *item;
 } _BucketEntry;
 
-typedef struct {
+struct bucket {
     int capacity;
     int numEntries;
     _BucketEntry **entries;
-} _Bucket;
+    struct bucket *overflow;
+};
+typedef struct bucket _Bucket;
 
 struct map {
     int numBuckets;
     bool rehash;
+
+    int keySize;
+    PARCBuffer *key;
 
     MapMode mode;
     MapOverflowStrategy strategy;
 
     _Bucket **buckets;
 };
-
-static uint8_t *
-_randomBytes(int n)
-{
-    FILE *f = fopen("/dev/urandom", "r");
-    uint8_t *bytes = NULL;
-    if (f != NULL) {
-        bytes = (uint8_t *) malloc(n);
-        int numRead = fread(bytes, sizeof(uint8_t), n, f);
-        if (numRead != n) {
-            fprintf(stderr, "Failed to read %d bytes, got %d instead", n, numRead);
-            free(bytes);
-        }
-        fclose(f);
-    }
-    return bytes;
-}
 
 _BucketEntry *
 _bucketEntry_Create(PARCBuffer *key, void *item)
@@ -72,8 +63,16 @@ Map *
 map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode, MapOverflowStrategy strategy)
 {
     Map *map = (Map *) malloc(sizeof(Map));
+
     if (map != NULL) {
         map->numBuckets = initialBucketCount;
+        map->keySize = DefaultKeySize;
+        map->key = parcBuffer_Allocate(SiphashKeySize);
+
+        // Populate the hashing key (since we're using Siphash)
+        uint8_t *randomKey = random_Bytes(SiphashKeySize);
+        parcBuffer_Flip(parcBuffer_PutArray(map->key, SiphashKeySize, randomKey));
+        free(randomKey);
 
         map->buckets = (_Bucket **) malloc(sizeof(_Bucket *) * initialBucketCount);
         map->mode = mode;
@@ -84,17 +83,58 @@ map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode
             map->buckets[i] = _bucket_Create(bucketCapacity);
         }
     }
+
     return map;
+}
+
+static void
+_bucket_AppendItem(_Bucket *bucket, PARCBuffer *key, void *item)
+{
+    if (bucket->capacity == -1) {
+        bucket->entries = realloc(bucket->entries, sizeof(_BucketEntry *) * (bucket->numEntries + 1));
+    }
+    bucket->entries[bucket->numEntries++] = _bucketEntry_Create(key, item);
+}
+
+static bool
+_bucket_InsertItem(_Bucket *bucket, PARCBuffer *key, void *item)
+{
+    if (bucket->numEntries < bucket->capacity || bucket->capacity == -1) {
+        _bucket_AppendItem(bucket, key, item);
+        return true;
+    }
+    return false;
+}
+
+static void
+_map_InsertToOverflowBucket(Map *map, _Bucket *bucket, PARCBuffer *key, void *item)
+{
+    if (bucket->overflow == NULL) {
+        bucket->overflow = _bucket_Create(-1);
+    }
+    _bucket_InsertItem(bucket->overflow, key, item);
+}
+
+static void
+_map_ExpandAndRehash(Map *map, PARCBuffer *key, void *item)
+{
+    // TODO
 }
 
 static void
 _map_InsertToBucket(Map *map, int bucketNumber, PARCBuffer *key, void *item)
 {
     _Bucket *bucket = map->buckets[bucketNumber];
-    if (bucket->numEntries < bucket->capacity) {
-        bucket->entries[bucket->numEntries++] = _bucketEntry_Create(key, item);
-    } else { // overflow
-        // TODO: add another bucket -- with linear or dynamic hashing? hmm...
+    bool full = _bucket_InsertItem(bucket, key, item);
+    if (full) {
+        switch (map->strategy) {
+            case MapOverflowStrategy_OverflowBucket:
+                _map_InsertToOverflowBucket(map, bucket, key, item);
+                break;
+            case MapOverflowStrategy_ExpandAndReHash:
+                // _map_ExpandAndRehash(map, key, item);
+                break;
+        }
     }
 }
 
@@ -115,8 +155,17 @@ _map_ComputeBucketNumberFromHash(Map *map, PARCBuffer *key)
 PARCBuffer *
 _map_ComputeBucketKeyHash(Map *map, PARCBuffer *key)
 {
-    // TODO: invoke SipHash here (as per Cisco paper)
-    return key;
+    PARCBuffer *buffer = parcBuffer_Allocate(map->keySize);
+    uint8_t *output = parcBuffer_Overlay(buffer, 0);
+
+    uint8_t *input = parcBuffer_Overlay(key, 0);
+    size_t length = parcBuffer_Remaining(key);
+
+    uint8_t *hashKey = parcBuffer_Overlay(map->key, 0);
+
+    int result = siphash(output, input, length, hashKey);
+
+    return buffer;
 }
 
 void

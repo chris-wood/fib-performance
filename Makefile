@@ -248,6 +248,60 @@ src/map.c.s:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/map.c.s
 .PHONY : src/map.c.s
 
+src/random.o: src/random.c.o
+
+.PHONY : src/random.o
+
+# target to build an object file
+src/random.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/random.c.o
+.PHONY : src/random.c.o
+
+src/random.i: src/random.c.i
+
+.PHONY : src/random.i
+
+# target to preprocess a source file
+src/random.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/random.c.i
+.PHONY : src/random.c.i
+
+src/random.s: src/random.c.s
+
+.PHONY : src/random.s
+
+# target to generate assembly for a file
+src/random.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/random.c.s
+.PHONY : src/random.c.s
+
+src/siphash24.o: src/siphash24.c.o
+
+.PHONY : src/siphash24.o
+
+# target to build an object file
+src/siphash24.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/siphash24.c.o
+.PHONY : src/siphash24.c.o
+
+src/siphash24.i: src/siphash24.c.i
+
+.PHONY : src/siphash24.i
+
+# target to preprocess a source file
+src/siphash24.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/siphash24.c.i
+.PHONY : src/siphash24.c.i
+
+src/siphash24.s: src/siphash24.c.s
+
+.PHONY : src/siphash24.s
+
+# target to generate assembly for a file
+src/siphash24.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/siphash24.c.s
+.PHONY : src/siphash24.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -270,6 +324,12 @@ help:
 	@echo "... src/map.o"
 	@echo "... src/map.i"
 	@echo "... src/map.s"
+	@echo "... src/random.o"
+	@echo "... src/random.i"
+	@echo "... src/random.s"
+	@echo "... src/siphash24.o"
+	@echo "... src/siphash24.i"
+	@echo "... src/siphash24.s"
 .PHONY : help
 
 
