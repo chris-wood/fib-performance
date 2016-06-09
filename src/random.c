@@ -4,19 +4,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-uint8_t *
-random_Bytes(int n)
+PARCBuffer *
+random_Bytes(PARCBuffer *buffer)
 {
     FILE *f = fopen("/dev/urandom", "r");
-    uint8_t *bytes = NULL;
     if (f != NULL) {
-        bytes = (uint8_t *) malloc(n);
-        int numRead = fread(bytes, sizeof(uint8_t), n, f);
-        if (numRead != n) {
-            fprintf(stderr, "Failed to read %d bytes, got %d instead", n, numRead);
-            free(bytes);
+        uint8_t *overlay = parcBuffer_Overlay(buffer, 0);
+        size_t length = parcBuffer_Remaining(buffer);
+        int numRead = fread(overlay, sizeof(uint8_t), length, f);
+        if (numRead != length) {
+            fprintf(stderr, "Failed to read %zu bytes, got %d instead", length, numRead);
         }
         fclose(f);
     }
-    return bytes;
+
+    return buffer;
 }

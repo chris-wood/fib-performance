@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
-uint8_t *random_Bytes(int n);
+#include <parc/algol/parc_Buffer.h>
+
+PARCBuffer *random_Bytes(PARCBuffer *buffer);
 
 #endif // random_h_

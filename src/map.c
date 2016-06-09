@@ -1,5 +1,6 @@
 #include "map.h"
 #include "siphash24.h"
+#include "random.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -67,12 +68,7 @@ map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode
     if (map != NULL) {
         map->numBuckets = initialBucketCount;
         map->keySize = DefaultKeySize;
-        map->key = parcBuffer_Allocate(SiphashKeySize);
-
-        // Populate the hashing key (since we're using Siphash)
-        uint8_t *randomKey = random_Bytes(SiphashKeySize);
-        parcBuffer_Flip(parcBuffer_PutArray(map->key, SiphashKeySize, randomKey));
-        free(randomKey);
+        map->key = random_Bytes(parcBuffer_Allocate(SiphashKeySize));
 
         map->buckets = (_Bucket **) malloc(sizeof(_Bucket *) * initialBucketCount);
         map->mode = mode;
