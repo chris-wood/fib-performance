@@ -55,7 +55,11 @@ _bucket_Create(int capacity)
     if (bucket != NULL) {
         bucket->numEntries = 0;
         bucket->capacity = capacity;
-        bucket->entries = (_BucketEntry **) malloc(sizeof(_BucketEntry *) * capacity);
+        if (capacity < 0) {
+            bucket->entries = NULL;
+        } else {
+            bucket->entries = (_BucketEntry **) malloc(sizeof(_BucketEntry *) * capacity);
+        }
     }
     return bucket;
 }
@@ -66,7 +70,6 @@ map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode
     Map *map = (Map *) malloc(sizeof(Map));
 
     if (map != NULL) {
-        map->numBuckets = initialBucketCount;
         map->keySize = DefaultKeySize;
         map->key = random_Bytes(parcBuffer_Allocate(SiphashKeySize));
 
@@ -74,6 +77,7 @@ map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode
         map->strategy = strategy;
         map->rehash = rehash;
 
+        map->numBuckets = initialBucketCount;
         map->buckets = (_Bucket **) malloc(sizeof(_Bucket *) * initialBucketCount);
         for (int i = 0; i < initialBucketCount; i++) {
             map->buckets[i] = _bucket_Create(bucketCapacity);
@@ -87,7 +91,11 @@ static void
 _bucket_AppendItem(_Bucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->capacity == -1) {
-        bucket->entries = realloc(bucket->entries, sizeof(_BucketEntry *) * (bucket->numEntries + 1));
+        if (bucket->entries == NULL) {
+            bucket->entries = malloc(sizeof(_BucketEntry *) * (bucket->numEntries + 1));
+        } else {
+            bucket->entries = realloc(bucket->entries, sizeof(_BucketEntry *) * (bucket->numEntries + 1));
+        }
     }
     bucket->entries[bucket->numEntries++] = _bucketEntry_Create(key, item);
 }
@@ -121,8 +129,8 @@ static void
 _map_InsertToBucket(Map *map, int bucketNumber, PARCBuffer *key, void *item)
 {
     _Bucket *bucket = map->buckets[bucketNumber];
-    bool full = _bucket_InsertItem(bucket, key, item);
-    if (full) {
+    bool wasAdded = _bucket_InsertItem(bucket, key, item);
+    if (!wasAdded) {
         switch (map->strategy) {
             case MapOverflowStrategy_OverflowBucket:
                 _map_InsertToOverflowBucket(map, bucket, key, item);
