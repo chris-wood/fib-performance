@@ -10,6 +10,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 include_directories(
         /usr/local/include/
+        /usr/local/ccnx/dependencies/build/include
         /Users/cwood/PARC/side/Improvements/src/Athena/
         /Users/cwood/PARC/side/Improvements/src/Libccnx-common
         /Users/cwood/PARC/side/Improvements/usr/include/

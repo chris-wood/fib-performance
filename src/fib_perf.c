@@ -1,5 +1,3 @@
-#include <ccnx/forwarder/athena/athena_FIB.h>
-
 #include <parc/algol/parc_SafeMemory.h>
 #include <parc/algol/parc_BufferComposer.h>
 #include <parc/algol/parc_LinkedList.h>
