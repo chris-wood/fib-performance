@@ -17,12 +17,13 @@ _fibNaive_Lookup(NaiveFIB *fib, const CCNxName *name)
 {
     size_t numSegments = ccnxName_GetSegmentCount(name);
     size_t count = numSegments > fib->numMaps ? fib->numMaps : numSegments;
-    PARCBitVector *vector = NULL;
 
-    for (size_t i = 0; i < count; i++) {
+    PARCBitVector *vector = NULL;
+    for (size_t i = 0; i < count - 1; i++) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
         char *nameString = ccnxName_ToString(copy);
         PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
+        // parcMemory_Deallocate(&nameString);
 
         PARCBitVector *result = map_Get(fib->maps[i], buffer);
         if (result == NULL) {
@@ -32,7 +33,12 @@ _fibNaive_Lookup(NaiveFIB *fib, const CCNxName *name)
         }
     }
 
-    return vector;
+    char *nameString = ccnxName_ToString(name);
+    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
+    // parcMemory_Deallocate(&nameString);
+
+    PARCBitVector *result = map_Get(fib->maps[numSegments - 1], buffer);
+    return result;
 }
 
 static Map *
@@ -45,17 +51,36 @@ static bool
 _fibNaive_Insert(NaiveFIB *fib, const CCNxName *name, PARCBitVector *vector)
 {
     size_t numSegments = ccnxName_GetSegmentCount(name);
+    printf("Segment count: %zu\n", numSegments);
     if (fib->numMaps < numSegments) {
-        fib->maps = realloc(fib->maps, numSegments * (sizeof(Map *)));
+        if (fib->maps == NULL) {
+            fib->maps = (Map **) malloc(100 * (sizeof(Map *)));
+        } else {
+            // fib->maps = (Map **) realloc(fib->maps, numSegments * (sizeof(Map *)));
+        }
+
         for (size_t i = fib->numMaps; i < numSegments; i++) {
             fib->maps[i] = _fibNative_CreateMap();
         }
+        fib->numMaps = 100;
+        printf("FIB maps = %d\n", fib->numMaps);
+    }
+
+    for (size_t i = 0; i < numSegments - 1; i++) {
+        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
+        char *nameString = ccnxName_ToString(copy);
+        PARCBuffer *buffer = parcBuffer_Flip(parcBuffer_AllocateCString(nameString));
+        // parcMemory_Deallocate(&nameString);
+        printf("inserting %s at %d\n", nameString, i);
+
+        map_Insert(fib->maps[i], buffer, (void *) vector);
+        parcBuffer_Release(&buffer);
     }
 
     char *nameString = ccnxName_ToString(name);
     PARCBuffer *buffer = parcBuffer_Flip(parcBuffer_AllocateCString(nameString));
+    // parcMemory_Deallocate(&nameString);
 
-    // TODO: map_Insert should return a boolean
     map_Insert(fib->maps[numSegments - 1], buffer, (void *) vector);
     parcBuffer_Release(&buffer);
 
@@ -70,7 +95,7 @@ _fibNative_Create(FIB *map)
 
     NaiveFIB *native = (NaiveFIB *) malloc(sizeof(NaiveFIB));
     native->numMaps = 0;
-    native->maps = (Map **) malloc(sizeof(Map *));
+    native->maps = NULL;
 
     map->context = (void *) native;
 }

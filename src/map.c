@@ -70,11 +70,11 @@ map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode
         map->keySize = DefaultKeySize;
         map->key = random_Bytes(parcBuffer_Allocate(SiphashKeySize));
 
-        map->buckets = (_Bucket **) malloc(sizeof(_Bucket *) * initialBucketCount);
         map->mode = mode;
         map->strategy = strategy;
         map->rehash = rehash;
 
+        map->buckets = (_Bucket **) malloc(sizeof(_Bucket *) * initialBucketCount);
         for (int i = 0; i < initialBucketCount; i++) {
             map->buckets[i] = _bucket_Create(bucketCapacity);
         }
