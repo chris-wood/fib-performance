@@ -110,6 +110,23 @@ _bucket_InsertItem(_Bucket *bucket, PARCBuffer *key, void *item)
     return false;
 }
 
+static void *
+_bucket_GetItem(_Bucket *bucket, PARCBuffer *key)
+{
+    for (int i = 0; i < bucket->numEntries; i++) {
+        _BucketEntry *target = bucket->entries[i];
+        if (parcBuffer_Equals(key, target->key)) {
+            return target->item;
+        }
+    }
+
+    if (bucket->overflow != NULL) {
+        return _bucket_GetItem(bucket->overflow, key);
+    } else {
+        return NULL;
+    }
+}
+
 static void
 _map_InsertToOverflowBucket(Map *map, _Bucket *bucket, PARCBuffer *key, void *item)
 {
@@ -140,6 +157,13 @@ _map_InsertToBucket(Map *map, int bucketNumber, PARCBuffer *key, void *item)
                 break;
         }
     }
+}
+
+static void *
+_map_GetFromBucket(Map *map, int bucketNumber, PARCBuffer *key)
+{
+    _Bucket *bucket = map->buckets[bucketNumber];
+    return _bucket_GetItem(bucket, key);
 }
 
 int
@@ -187,5 +211,11 @@ map_Insert(Map *map, PARCBuffer *key, void *item)
 void *
 map_Get(Map *map, PARCBuffer *key)
 {
-    return NULL;
+    PARCBuffer *keyHash = key;
+    if (map->rehash) {
+        keyHash = _map_ComputeBucketKeyHash(map, key);
+    }
+
+    int bucketNumber = _map_ComputeBucketNumberFromHash(map, keyHash);
+    return _map_GetFromBucket(map, bucketNumber, key);
 }

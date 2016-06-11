@@ -56,6 +56,7 @@ main(int argc, char **argv)
     FIB *fib = fib_Create(FIBAlgorithm_Naive, FIBMode_Hash);
 
     int num = 0;
+    int index = 0;
     do {
 
         PARCBufferComposer *composer = readLine(file);
@@ -67,11 +68,11 @@ main(int argc, char **argv)
         char *string = parcBuffer_ToString(bufferString);
         parcBufferComposer_Release(&composer);
 
-        printf("Read: %s\n", string);
-
         // Create the original name and store it for later
         CCNxName *name = ccnxName_CreateFromCString(string);
-
+        char *nameString = ccnxName_ToString(name);
+        printf("Read: %s\n", nameString);
+        parcMemory_Deallocate(&nameString);
         parcLinkedList_Append(nameList, name);
 
         // Truncate to N components if necessary
@@ -91,10 +92,12 @@ main(int argc, char **argv)
 
         ccnxName_Release(&copy);
         parcBitVector_Release(&vector);
-    } while (true);
+
+        index++;
+    } while (index < N);
 
     PARCIterator *iterator = parcLinkedList_CreateIterator(nameList);
-    size_t index = 0;
+    index = 0;
 
     while (parcIterator_HasNext(iterator)) {
 
@@ -109,7 +112,8 @@ main(int argc, char **argv)
         PARCBitVector *output = fib_Lookup(fib, name);
         uint64_t endTime = parcStopwatch_ElapsedTimeNanos(timer);
 
-        PARCBitVector *expected = parcLinkedList_GetAtIndex(expected, index++);
+        PARCBitVector *expected = parcLinkedList_GetAtIndex(vectorList, index++);
+        assertNotNull(output, "Expected a non-NULL output");
         assertTrue(parcBitVector_Equals(output, expected), "Expected the correct return vector");
 
         uint64_t elapsedTime = endTime - startTime;

@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include <parc/algol/parc_SafeMemory.h>
+
 typedef struct {
     int numMaps;
     Map **maps;
@@ -23,7 +25,7 @@ _fibNaive_Lookup(NaiveFIB *fib, const CCNxName *name)
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
         char *nameString = ccnxName_ToString(copy);
         PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        // parcMemory_Deallocate(&nameString);
+        parcMemory_Deallocate(&nameString);
 
         PARCBitVector *result = map_Get(fib->maps[i], buffer);
         if (result == NULL) {
@@ -35,9 +37,10 @@ _fibNaive_Lookup(NaiveFIB *fib, const CCNxName *name)
 
     char *nameString = ccnxName_ToString(name);
     PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-    // parcMemory_Deallocate(&nameString);
+    parcMemory_Deallocate(&nameString);
 
     PARCBitVector *result = map_Get(fib->maps[numSegments - 1], buffer);
+    result = result == NULL ? vector : result;
     return result;
 }
 
@@ -68,7 +71,7 @@ _fibNaive_Insert(NaiveFIB *fib, const CCNxName *name, PARCBitVector *vector)
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
         char *nameString = ccnxName_ToString(copy);
         PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        // parcMemory_Deallocate(&nameString);
+        parcMemory_Deallocate(&nameString);
 
         map_Insert(fib->maps[i], buffer, (void *) vector);
         parcBuffer_Release(&buffer);
@@ -76,7 +79,7 @@ _fibNaive_Insert(NaiveFIB *fib, const CCNxName *name, PARCBitVector *vector)
 
     char *nameString = ccnxName_ToString(name);
     PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-    // parcMemory_Deallocate(&nameString);
+    parcMemory_Deallocate(&nameString);
 
     map_Insert(fib->maps[numSegments - 1], buffer, (void *) vector);
     parcBuffer_Release(&buffer);
