@@ -50,6 +50,7 @@ main(int argc, char **argv)
 
     // Create the FIB and list to hold all of the names
     PARCLinkedList *nameList = parcLinkedList_Create();
+    PARCLinkedList *vectorList = parcLinkedList_Create();
 
     // Create the FIB table
     FIB *fib = fib_Create(FIBAlgorithm_Naive, FIBMode_Hash);
@@ -86,12 +87,14 @@ main(int argc, char **argv)
 
         // Insert into the FIB
         fib_Insert(fib, copy, vector);
+        parcLinkedList_Append(vectorList, vector);
 
         ccnxName_Release(&copy);
         parcBitVector_Release(&vector);
     } while (true);
 
     PARCIterator *iterator = parcLinkedList_CreateIterator(nameList);
+    size_t index = 0;
 
     while (parcIterator_HasNext(iterator)) {
 
@@ -105,6 +108,9 @@ main(int argc, char **argv)
         uint64_t startTime = parcStopwatch_ElapsedTimeNanos(timer);
         PARCBitVector *output = fib_Lookup(fib, name);
         uint64_t endTime = parcStopwatch_ElapsedTimeNanos(timer);
+
+        PARCBitVector *expected = parcLinkedList_GetAtIndex(expected, index++);
+        assertTrue(parcBitVector_Equals(output, expected), "Expected the correct return vector");
 
         uint64_t elapsedTime = endTime - startTime;
         printf("Time: %zu ns\n", elapsedTime);
