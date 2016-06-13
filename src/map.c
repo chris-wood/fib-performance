@@ -14,15 +14,15 @@ const int SiphashKeySize = 128 / 8;
 typedef struct {
     PARCBuffer *key;
     void *item;
-} _BucketEntry;
+} _LinkedBucketEntry;
 
 struct bucket {
     int capacity;
     int numEntries;
-    _BucketEntry **entries;
+    _LinkedBucketEntry **entries;
     struct bucket *overflow;
 };
-typedef struct bucket _Bucket;
+typedef struct bucket _LinkedBucket;
 
 struct map {
     int numBuckets;
@@ -34,13 +34,13 @@ struct map {
     MapMode mode;
     MapOverflowStrategy strategy;
 
-    _Bucket **buckets;
+    _LinkedBucket **buckets;
 };
 
-_BucketEntry *
+_LinkedBucketEntry *
 _bucketEntry_Create(PARCBuffer *key, void *item)
 {
-    _BucketEntry *entry = (_BucketEntry *) malloc(sizeof(_BucketEntry));
+    _LinkedBucketEntry *entry = (_LinkedBucketEntry *) malloc(sizeof(_LinkedBucketEntry));
     if (entry != NULL) {
         entry->key = parcBuffer_Acquire(key);
         entry->item = item;
@@ -48,17 +48,17 @@ _bucketEntry_Create(PARCBuffer *key, void *item)
     return entry;
 }
 
-_Bucket *
+_LinkedBucket *
 _bucket_Create(int capacity)
 {
-    _Bucket *bucket = (_Bucket *) malloc(sizeof(_Bucket));
+    _LinkedBucket *bucket = (_LinkedBucket *) malloc(sizeof(_LinkedBucket));
     if (bucket != NULL) {
         bucket->numEntries = 0;
         bucket->capacity = capacity;
         if (capacity < 0) {
             bucket->entries = NULL;
         } else {
-            bucket->entries = (_BucketEntry **) malloc(sizeof(_BucketEntry *) * capacity);
+            bucket->entries = (_LinkedBucketEntry **) malloc(sizeof(_LinkedBucketEntry *) * capacity);
         }
     }
     return bucket;
@@ -78,7 +78,7 @@ map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode
         map->rehash = rehash;
 
         map->numBuckets = initialBucketCount;
-        map->buckets = (_Bucket **) malloc(sizeof(_Bucket *) * initialBucketCount);
+        map->buckets = (_LinkedBucket **) malloc(sizeof(_LinkedBucket *) * initialBucketCount);
         for (int i = 0; i < initialBucketCount; i++) {
             map->buckets[i] = _bucket_Create(bucketCapacity);
         }
@@ -88,20 +88,20 @@ map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode
 }
 
 static void
-_bucket_AppendItem(_Bucket *bucket, PARCBuffer *key, void *item)
+_bucket_AppendItem(_LinkedBucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->capacity == -1) {
         if (bucket->entries == NULL) {
-            bucket->entries = malloc(sizeof(_BucketEntry *) * (bucket->numEntries + 1));
+            bucket->entries = malloc(sizeof(_LinkedBucketEntry *) * (bucket->numEntries + 1));
         } else {
-            bucket->entries = realloc(bucket->entries, sizeof(_BucketEntry *) * (bucket->numEntries + 1));
+            bucket->entries = realloc(bucket->entries, sizeof(_LinkedBucketEntry *) * (bucket->numEntries + 1));
         }
     }
     bucket->entries[bucket->numEntries++] = _bucketEntry_Create(key, item);
 }
 
 static bool
-_bucket_InsertItem(_Bucket *bucket, PARCBuffer *key, void *item)
+_bucket_InsertItem(_LinkedBucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->numEntries < bucket->capacity || bucket->capacity == -1) {
         _bucket_AppendItem(bucket, key, item);
@@ -111,10 +111,10 @@ _bucket_InsertItem(_Bucket *bucket, PARCBuffer *key, void *item)
 }
 
 static void *
-_bucket_GetItem(_Bucket *bucket, PARCBuffer *key)
+_bucket_GetItem(_LinkedBucket *bucket, PARCBuffer *key)
 {
     for (int i = 0; i < bucket->numEntries; i++) {
-        _BucketEntry *target = bucket->entries[i];
+        _LinkedBucketEntry *target = bucket->entries[i];
         if (parcBuffer_Equals(key, target->key)) {
             return target->item;
         }
@@ -128,7 +128,7 @@ _bucket_GetItem(_Bucket *bucket, PARCBuffer *key)
 }
 
 static void
-_map_InsertToOverflowBucket(Map *map, _Bucket *bucket, PARCBuffer *key, void *item)
+_map_InsertToOverflowBucket(Map *map, _LinkedBucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->overflow == NULL) {
         bucket->overflow = _bucket_Create(-1);
@@ -145,7 +145,7 @@ _map_ExpandAndRehash(Map *map, PARCBuffer *key, void *item)
 static void
 _map_InsertToBucket(Map *map, int bucketNumber, PARCBuffer *key, void *item)
 {
-    _Bucket *bucket = map->buckets[bucketNumber];
+    _LinkedBucket *bucket = map->buckets[bucketNumber];
     bool wasAdded = _bucket_InsertItem(bucket, key, item);
     if (!wasAdded) {
         switch (map->strategy) {
@@ -162,7 +162,7 @@ _map_InsertToBucket(Map *map, int bucketNumber, PARCBuffer *key, void *item)
 static void *
 _map_GetFromBucket(Map *map, int bucketNumber, PARCBuffer *key)
 {
-    _Bucket *bucket = map->buckets[bucketNumber];
+    _LinkedBucket *bucket = map->buckets[bucketNumber];
     return _bucket_GetItem(bucket, key);
 }
 
