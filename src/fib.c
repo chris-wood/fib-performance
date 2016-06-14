@@ -135,12 +135,12 @@ _fibCisco_CreateEntry(PARCBitVector *vector, int depth)
 static PARCBitVector *
 _fibCisco_Lookup(CiscoFIB *fib, const CCNxName *name)
 {
-    size_t numSegments = ccnxName_GetSegmentCount(name);
-    size_t prefixCount = numSegments < fib->M ? numSegments : fib->M;
-    size_t startPrefix = 0;
+    int numSegments = ccnxName_GetSegmentCount(name);
+    int prefixCount = numSegments < fib->M ? numSegments - 1 : fib->M;
+    int startPrefix = numSegments - 1;
     CiscoFIBEntry *firstEntryMatch = NULL;
 
-    for (size_t i = prefixCount; prefixCount > 0; i--) {
+    for (int i = prefixCount; i >= 0; i--) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
         char *nameString = ccnxName_ToString(copy);
         PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
@@ -149,15 +149,17 @@ _fibCisco_Lookup(CiscoFIB *fib, const CCNxName *name)
         CiscoFIBEntry *entry = map_Get(fib->maps[i], buffer);
         if (entry != NULL) {
             if (entry->maxDepth > fib->M && numSegments > fib->M) {
-                startPrefix = numSegments < entry->maxDepth ? numSegments : entry->maxDepth;
+                startPrefix = numSegments < entry->maxDepth ? numSegments - 1: entry->maxDepth;
                 firstEntryMatch = entry;
                 break;
+            } else if (!entry->isVirtual) {
+                return entry->vector;
             }
         }
         parcBuffer_Release(&buffer);
     }
 
-    for (size_t i = startPrefix; startPrefix > 0; i--) {
+    for (int i = startPrefix; i >= 0; i--) {
         if (startPrefix == fib->M) {
             CiscoFIBEntry *entry = firstEntryMatch;
             if (!entry->isVirtual) {
@@ -173,7 +175,7 @@ _fibCisco_Lookup(CiscoFIB *fib, const CCNxName *name)
         CiscoFIBEntry *entry = map_Get(fib->maps[i], buffer);
         if (entry != NULL) {
             if (!entry->isVirtual) {
-                return entry;
+                return entry->vector;
             }
         }
         parcBuffer_Release(&buffer);
@@ -202,31 +204,26 @@ _fibCisco_Insert(CiscoFIB *fib, const CCNxName *name, PARCBitVector *vector)
     }
 
     size_t maximumDepth = numSegments;
-    size_t virtualStartLength = numSegments / fib->M;
 
-    while (virtualStartLength > 0) {
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (virtualStartLength + 1));
+    if (numSegments < fib->M) {
+        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (fib->M + 1));
         char *nameString = ccnxName_ToString(copy);
         PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
         parcMemory_Deallocate(&nameString);
 
         CiscoFIBEntry *entry = _fibCisco_CreateVirtualEntry(numSegments);
-        map_Insert(fib->maps[virtualStartLength], buffer, (void *) entry);
-        parcBuffer_Release(&buffer);
-
-        virtualStartLength -= fib->M;
-    }
-
-    for (size_t i = 0; i < numSegments - 1; i++) {
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
-        char *nameString = ccnxName_ToString(copy);
-        PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        parcMemory_Deallocate(&nameString);
-
-        CiscoFIBEntry *entry = _fibCisco_CreateEntry(vector, numSegments);
-        map_Insert(fib->maps[i], buffer, (void *) entry);
+        map_Insert(fib->maps[fib->M], buffer, (void *) entry);
         parcBuffer_Release(&buffer);
     }
+
+    char *nameString = ccnxName_ToString(name);
+    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
+    parcMemory_Deallocate(&nameString);
+
+    // printf("inserting the real entry at %zu\n", numSegments - 1);
+    CiscoFIBEntry *entry = _fibCisco_CreateEntry(vector, numSegments);
+    map_Insert(fib->maps[numSegments - 1], buffer, (void *) entry);
+    parcBuffer_Release(&buffer);
 
     return false;
 }
@@ -237,7 +234,12 @@ _fibCisco_Create(FIB *map)
     map->Lookup = _fibCisco_Lookup;
     map->Insert = _fibCisco_Insert;
 
-    // TODO
+    CiscoFIB *native = (CiscoFIB *) malloc(sizeof(CiscoFIB));
+    native->numMaps = 0;
+    native->maps = NULL;
+    native->M = 3;
+
+    map->context = (void *) native;
 }
 
 FIB *

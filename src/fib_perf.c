@@ -53,7 +53,7 @@ main(int argc, char **argv)
     PARCLinkedList *vectorList = parcLinkedList_Create();
 
     // Create the FIB table
-    FIB *fib = fib_Create(FIBAlgorithm_Naive, FIBMode_Hash);
+    FIB *fib = fib_Create(FIBAlgorithm_Cisco, FIBMode_Hash);
 
     int num = 0;
     int index = 0;
@@ -71,7 +71,7 @@ main(int argc, char **argv)
         // Create the original name and store it for later
         CCNxName *name = ccnxName_CreateFromCString(string);
         char *nameString = ccnxName_ToString(name);
-        printf("Read: %s\n", nameString);
+        printf("Read %d: %s\n", index, nameString);
         parcMemory_Deallocate(&nameString);
         parcLinkedList_Append(nameList, name);
 
@@ -117,7 +117,7 @@ main(int argc, char **argv)
         assertTrue(parcBitVector_Equals(output, expected), "Expected the correct return vector");
 
         uint64_t elapsedTime = endTime - startTime;
-        printf("Time: %zu ns\n", elapsedTime);
+        printf("Time %d: %zu ns\n", index, elapsedTime);
 
         parcBitVector_Release(&vector);
         parcStopwatch_Release(&timer);
