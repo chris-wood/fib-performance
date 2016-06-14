@@ -14,8 +14,7 @@ include_directories(
         /Users/cwood/PARC/side/Improvements/usr/include/
     )
 
-set(fibtest_SOURCES
-    src/fib_perf.c
+set(libfib_SOURCES
     src/fib.c
     src/map.c
     src/siphash24.c
@@ -27,9 +26,31 @@ link_directories(
         /usr/local/lib
     )
 
+set(fibtest_SOURCES
+    ${libfib_SOURCES}
+    src/fib_perf.c)
+
+set(FIBTEST_LIBRARIES
+       ccnx_common
+       ccnx_api_portal
+       ccnx_api_notify
+       ccnx_transport_rta
+       ccnx_api_control
+       ccnx_common
+       parc
+       longbow
+       longbow-ansiterm
+       check)
+
+macro(AddTest testFile)
+    add_executable(${ARGV0} src/test/${ARGV0}.c ${libfib_SOURCES})
+    target_link_libraries(${ARGV0} ${FIBTEST_LIBRARIES})
+    add_test(${ARGV0} ${ARGV0})
+endmacro(AddTest)
+
 add_executable(fib_perf ${fibtest_SOURCES})
 set_target_properties(fib_perf PROPERTIES COMPILE_FLAGS "-Wall -pg")
-
-target_link_libraries(fib_perf longbow longbow-ansiterm parc ccnx_common ccnx_api_portal ccnx_api_notify ccnx_api_control ccnx_transport_rta athena)
-
+target_link_libraries(fib_perf ${FIBTEST_LIBRARIES})
 install(TARGETS fib_perf DESTINATION bin)
+
+AddTest(test_map)

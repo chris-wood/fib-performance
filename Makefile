@@ -167,6 +167,19 @@ fib_perf/fast:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/build
 .PHONY : fib_perf/fast
 
+#=============================================================================
+# Target rules for targets named test_map
+
+# Build rule for target.
+test_map: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_map
+.PHONY : test_map
+
+# fast build rule for target.
+test_map/fast:
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/build
+.PHONY : test_map/fast
+
 src/fib.o: src/fib.c.o
 
 .PHONY : src/fib.o
@@ -174,6 +187,7 @@ src/fib.o: src/fib.c.o
 # target to build an object file
 src/fib.c.o:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib.c.o
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib.c.o
 .PHONY : src/fib.c.o
 
 src/fib.i: src/fib.c.i
@@ -183,6 +197,7 @@ src/fib.i: src/fib.c.i
 # target to preprocess a source file
 src/fib.c.i:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib.c.i
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib.c.i
 .PHONY : src/fib.c.i
 
 src/fib.s: src/fib.c.s
@@ -192,6 +207,7 @@ src/fib.s: src/fib.c.s
 # target to generate assembly for a file
 src/fib.c.s:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib.c.s
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib.c.s
 .PHONY : src/fib.c.s
 
 src/fib_perf.o: src/fib_perf.c.o
@@ -228,6 +244,7 @@ src/map.o: src/map.c.o
 # target to build an object file
 src/map.c.o:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/map.c.o
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/map.c.o
 .PHONY : src/map.c.o
 
 src/map.i: src/map.c.i
@@ -237,6 +254,7 @@ src/map.i: src/map.c.i
 # target to preprocess a source file
 src/map.c.i:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/map.c.i
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/map.c.i
 .PHONY : src/map.c.i
 
 src/map.s: src/map.c.s
@@ -246,6 +264,7 @@ src/map.s: src/map.c.s
 # target to generate assembly for a file
 src/map.c.s:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/map.c.s
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/map.c.s
 .PHONY : src/map.c.s
 
 src/random.o: src/random.c.o
@@ -255,6 +274,7 @@ src/random.o: src/random.c.o
 # target to build an object file
 src/random.c.o:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/random.c.o
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/random.c.o
 .PHONY : src/random.c.o
 
 src/random.i: src/random.c.i
@@ -264,6 +284,7 @@ src/random.i: src/random.c.i
 # target to preprocess a source file
 src/random.c.i:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/random.c.i
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/random.c.i
 .PHONY : src/random.c.i
 
 src/random.s: src/random.c.s
@@ -273,6 +294,7 @@ src/random.s: src/random.c.s
 # target to generate assembly for a file
 src/random.c.s:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/random.c.s
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/random.c.s
 .PHONY : src/random.c.s
 
 src/siphash24.o: src/siphash24.c.o
@@ -282,6 +304,7 @@ src/siphash24.o: src/siphash24.c.o
 # target to build an object file
 src/siphash24.c.o:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/siphash24.c.o
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/siphash24.c.o
 .PHONY : src/siphash24.c.o
 
 src/siphash24.i: src/siphash24.c.i
@@ -291,6 +314,7 @@ src/siphash24.i: src/siphash24.c.i
 # target to preprocess a source file
 src/siphash24.c.i:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/siphash24.c.i
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/siphash24.c.i
 .PHONY : src/siphash24.c.i
 
 src/siphash24.s: src/siphash24.c.s
@@ -300,7 +324,35 @@ src/siphash24.s: src/siphash24.c.s
 # target to generate assembly for a file
 src/siphash24.c.s:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/siphash24.c.s
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/siphash24.c.s
 .PHONY : src/siphash24.c.s
+
+src/test/test_map.o: src/test/test_map.c.o
+
+.PHONY : src/test/test_map.o
+
+# target to build an object file
+src/test/test_map.c.o:
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/test/test_map.c.o
+.PHONY : src/test/test_map.c.o
+
+src/test/test_map.i: src/test/test_map.c.i
+
+.PHONY : src/test/test_map.i
+
+# target to preprocess a source file
+src/test/test_map.c.i:
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/test/test_map.c.i
+.PHONY : src/test/test_map.c.i
+
+src/test/test_map.s: src/test/test_map.c.s
+
+.PHONY : src/test/test_map.s
+
+# target to generate assembly for a file
+src/test/test_map.c.s:
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/test/test_map.c.s
+.PHONY : src/test/test_map.c.s
 
 # Help Target
 help:
@@ -313,6 +365,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... install"
+	@echo "... test_map"
 	@echo "... list_install_components"
 	@echo "... install/local"
 	@echo "... src/fib.o"
@@ -330,6 +383,9 @@ help:
 	@echo "... src/siphash24.o"
 	@echo "... src/siphash24.i"
 	@echo "... src/siphash24.s"
+	@echo "... src/test/test_map.o"
+	@echo "... src/test/test_map.i"
+	@echo "... src/test/test_map.s"
 .PHONY : help
 
 
