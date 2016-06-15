@@ -25,7 +25,6 @@ struct bucket {
 typedef struct bucket _LinkedBucket;
 
 struct map {
-    int numBuckets;
     bool rehash;
 
     int keySize;
@@ -34,8 +33,18 @@ struct map {
     MapMode mode;
     MapOverflowStrategy strategy;
 
+    int numBuckets;
     _LinkedBucket **buckets;
 };
+
+void
+_bucketEntry_Destroy(_LinkedBucketEntry **entryPtr)
+{
+    _LinkedBucketEntry *entry = *entryPtr;
+    parcBuffer_Release(&entry->key);
+    free(entry);
+    *entryPtr = NULL;
+}
 
 _LinkedBucketEntry *
 _bucketEntry_Create(PARCBuffer *key, void *item)
@@ -47,6 +56,24 @@ _bucketEntry_Create(PARCBuffer *key, void *item)
     }
     return entry;
 }
+
+void
+_bucket_Destory(_LinkedBucket **bucketPtr)
+{
+    _LinkedBucket *bucket = *bucketPtr;
+
+    for (int i = 0; i < bucket->numEntries; i++) {
+        _LinkedBucketEntry *entry = bucket->entries[i];
+        _bucketEntry_Destroy(&entry);
+    }
+    if (bucket->overflow != NULL) {
+        _bucket_Destory(&bucket->overflow);
+    }
+
+    free(bucket);
+    *bucketPtr = NULL;
+}
+
 
 _LinkedBucket *
 _bucket_Create(int capacity)
@@ -62,6 +89,19 @@ _bucket_Create(int capacity)
         }
     }
     return bucket;
+}
+
+void
+map_Destroy(Map **mapPtr)
+{
+    Map *map = *mapPtr;
+    parcBuffer_Release(&map->key);
+    for (int i = 0; i < map->numBuckets; i++) {
+        _LinkedBucket *current = map->buckets[i];
+        _bucket_Destory(&current);
+    }
+    free(map);
+    *mapPtr = NULL;
 }
 
 Map *

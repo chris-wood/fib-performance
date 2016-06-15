@@ -49,7 +49,8 @@ LONGBOW_TEST_CASE(Core, map_Create)
 {
     Map *map = map_Create(MapDefaultCapacity, 100, true, MapMode_LinkedBuckets, MapOverflowStrategy_OverflowBucket);
     assertNotNull(map, "Expected a non-NULL map to be created");
-    // TODO: release the map
+    map_Destroy(&map);
+    assertNull(map, "Expected a NULL map after map_Destroy");
 }
 
 int
