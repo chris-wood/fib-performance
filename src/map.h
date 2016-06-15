@@ -18,7 +18,7 @@ typedef enum {
 
 extern const int MapDefaultCapacity;
 
-Map *map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode, MapOverflowStrategy strategy);
+Map *map_Create(MapMode mode, MapOverflowStrategy strategy, bool rehash);
 void map_Destroy(Map **map);
 
 void map_Insert(Map *map, PARCBuffer *key, void *item);

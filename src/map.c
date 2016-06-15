@@ -10,6 +10,7 @@
 const int MapDefaultCapacity = 42;
 const int DefaultKeySize = 64 / 8;
 const int SiphashKeySize = 128 / 8;
+const int LinkedBucketDefaultCapacity = 100;
 
 typedef struct {
     PARCBuffer *key;
@@ -105,7 +106,7 @@ map_Destroy(Map **mapPtr)
 }
 
 Map *
-map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode, MapOverflowStrategy strategy)
+map_Create(MapMode mode, MapOverflowStrategy strategy, bool rehash)
 {
     Map *map = (Map *) malloc(sizeof(Map));
 
@@ -117,10 +118,11 @@ map_Create(int initialBucketCount, int bucketCapacity, bool rehash, MapMode mode
         map->strategy = strategy;
         map->rehash = rehash;
 
-        map->numBuckets = initialBucketCount;
-        map->buckets = (_LinkedBucket **) malloc(sizeof(_LinkedBucket *) * initialBucketCount);
-        for (int i = 0; i < initialBucketCount; i++) {
-            map->buckets[i] = _bucket_Create(bucketCapacity);
+        // TODO: switch on the map mode here
+        map->numBuckets = MapDefaultCapacity;
+        map->buckets = (_LinkedBucket **) malloc(sizeof(_LinkedBucket *) * MapDefaultCapacity);
+        for (int i = 0; i < MapDefaultCapacity; i++) {
+            map->buckets[i] = _bucket_Create(LinkedBucketDefaultCapacity);
         }
     }
 

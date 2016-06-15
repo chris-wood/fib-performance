@@ -55,7 +55,7 @@ _fibNaive_Lookup(NaiveFIB *fib, const CCNxName *name)
 static Map *
 _fibNative_CreateMap()
 {
-    return map_Create(MapDefaultCapacity, 100, true, MapMode_LinkedBuckets, MapOverflowStrategy_OverflowBucket);
+    return map_Create(MapMode_LinkedBuckets, MapOverflowStrategy_OverflowBucket, true);
 }
 
 static bool
