@@ -39,17 +39,6 @@ _fibCisco_CreateEntry(PARCBitVector *vector, int depth)
     return entry;
 }
 
-FIBCisco *
-fibCisco_Create()
-{
-    FIBCisco *native = (FIBCisco *) malloc(sizeof(FIBCisco));
-    native->numMaps = 0;
-    native->maps = NULL;
-    native->M = 3;
-    return native;
-}
-
-
 PARCBitVector *
 fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
 {
@@ -109,27 +98,25 @@ _fibCisco_CreateMap()
     return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
 }
 
+static void
+_fibCisco_ExpandMapsToSize(FIBCisco *fib, int number)
+{
+    if (fib->numMaps < number) {
+        fib->maps = (Map **) realloc(fib->maps, number * (sizeof(Map *)));
+        for (size_t i = fib->numMaps; i < number; i++) {
+            fib->maps[i] = _fibCisco_CreateMap();
+        }
+        fib->numMaps = number;
+    }
+}
+
 bool
 fibCisco_Insert(FIBCisco *fib, const CCNxName *name, PARCBitVector *vector)
 {
     size_t numSegments = ccnxName_GetSegmentCount(name);
-
-    // TODO: pull this out into a function
-    if (fib->numMaps < numSegments) {
-        if (fib->maps == NULL) {
-            fib->maps = (Map **) malloc(numSegments * (sizeof(Map *)));
-        } else {
-            fib->maps = (Map **) realloc(fib->maps, numSegments * (sizeof(Map *)));
-        }
-
-        for (size_t i = fib->numMaps; i < numSegments; i++) {
-            fib->maps[i] = _fibCisco_CreateMap();
-        }
-        fib->numMaps = numSegments;
-    }
+    _fibCisco_ExpandMapsToSize(fib, numSegments);
 
     size_t maximumDepth = numSegments;
-
     if (numSegments < fib->M) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (fib->M + 1));
         char *nameString = ccnxName_ToString(copy);
@@ -167,4 +154,18 @@ fibCisco_Insert(FIBCisco *fib, const CCNxName *name, PARCBitVector *vector)
     parcBuffer_Release(&buffer);
 
     return false;
+}
+
+FIBCisco *
+fibCisco_Create()
+{
+    FIBCisco *native = (FIBCisco *) malloc(sizeof(FIBCisco));
+    if (native != NULL) {
+        native->M = 3;
+        native->maps = (Map **) malloc(sizeof(Map *));
+        native->numMaps = 1;
+        native->maps[0] = _fibCisco_CreateMap();
+    }
+
+    return native;
 }

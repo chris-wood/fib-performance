@@ -17,6 +17,7 @@ _fibNaive_LookupName(FIBNaive *fib, const CCNxName *name)
     parcMemory_Deallocate(&nameString);
 
     PARCBitVector *result = map_Get(fib->maps[numSegments - 1], buffer);
+    parcBuffer_Release(&buffer);
     return result;
 }
 
@@ -46,22 +47,23 @@ _fibNative_CreateMap()
     return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
 }
 
+static void
+_fibNative_ExpandMapsToSize(FIBNaive *fib, int number)
+{
+    if (fib->numMaps < number) {
+        fib->maps = (Map **) realloc(fib->maps, number * (sizeof(Map *)));
+        for (size_t i = fib->numMaps; i < number; i++) {
+            fib->maps[i] = _fibNative_CreateMap();
+        }
+        fib->numMaps = number;
+    }
+}
+
 bool
 fibNaive_Insert(FIBNaive *fib, const CCNxName *name, PARCBitVector *vector)
 {
     size_t numSegments = ccnxName_GetSegmentCount(name);
-    if (fib->numMaps < numSegments) {
-        if (fib->maps == NULL) {
-            fib->maps = (Map **) malloc(numSegments * (sizeof(Map *)));
-        } else {
-            fib->maps = (Map **) realloc(fib->maps, numSegments * (sizeof(Map *)));
-        }
-
-        for (size_t i = fib->numMaps; i < numSegments; i++) {
-            fib->maps[i] = _fibNative_CreateMap();
-        }
-        fib->numMaps = numSegments;
-    }
+    _fibNative_ExpandMapsToSize(fib, numSegments);
 
     for (size_t i = 0; i < numSegments; i++) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
@@ -79,11 +81,11 @@ fibNaive_Insert(FIBNaive *fib, const CCNxName *name, PARCBitVector *vector)
 FIBNaive *
 fibNative_Create()
 {
-    // map->LPM = (PARCBitVector *(*)(struct fib *, const CCNxName *)) _fibNaive_LPM;
-    // map->Insert = (bool (*)(struct fib *, const CCNxName *, PARCBitVector *)) _fibNaive_Insert;
-
     FIBNaive *native = (FIBNaive *) malloc(sizeof(FIBNaive));
-    native->numMaps = 0;
-    native->maps = NULL;
+    if (native != NULL) {
+        native->numMaps = 1;
+        native->maps = (Map **) malloc(sizeof(Map *));
+        native->maps[0] = _fibNative_CreateMap();
+    }
     return native;
 }
