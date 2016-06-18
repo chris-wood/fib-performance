@@ -23,19 +23,28 @@ typedef struct {
 } CiscoFIB;
 
 static PARCBitVector *
-_fibNaive_Lookup(NaiveFIB *fib, const CCNxName *name)
+_fibNaive_LookupName(NaiveFIB *fib, const CCNxName *name)
 {
-    size_t numSegments = ccnxName_GetSegmentCount(name);
-    size_t count = numSegments > fib->numMaps ? fib->numMaps : numSegments;
+    int numSegments = ccnxName_GetSegmentCount(name);
+    char *nameString = ccnxName_ToString(name);
+    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
+    parcMemory_Deallocate(&nameString);
+
+    PARCBitVector *result = map_Get(fib->maps[numSegments - 1], buffer);
+    return result;
+}
+
+// TODO: rename to LPM
+static PARCBitVector *
+_fibNaive_LPM(NaiveFIB *fib, const CCNxName *name)
+{
+    int numSegments = ccnxName_GetSegmentCount(name);
+    int count = numSegments > fib->numMaps ? fib->numMaps : numSegments;
 
     PARCBitVector *vector = NULL;
-    for (size_t i = 0; i < count - 1; i++) {
+    for (int i = 0; i < count; i++) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
-        char *nameString = ccnxName_ToString(copy);
-        PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        parcMemory_Deallocate(&nameString);
-
-        PARCBitVector *result = map_Get(fib->maps[i], buffer);
+        PARCBitVector *result = _fibNaive_LookupName(fib, copy);
         if (result == NULL) {
             return vector;
         } else {
@@ -43,13 +52,7 @@ _fibNaive_Lookup(NaiveFIB *fib, const CCNxName *name)
         }
     }
 
-    char *nameString = ccnxName_ToString(name);
-    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-    parcMemory_Deallocate(&nameString);
-
-    PARCBitVector *result = map_Get(fib->maps[numSegments - 1], buffer);
-    result = result == NULL ? vector : result;
-    return result;
+    return vector;
 }
 
 static Map *
@@ -75,7 +78,7 @@ _fibNaive_Insert(NaiveFIB *fib, const CCNxName *name, PARCBitVector *vector)
         fib->numMaps = numSegments;
     }
 
-    for (size_t i = 0; i < numSegments - 1; i++) {
+    for (size_t i = 0; i < numSegments; i++) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
         char *nameString = ccnxName_ToString(copy);
         PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
@@ -85,20 +88,13 @@ _fibNaive_Insert(NaiveFIB *fib, const CCNxName *name, PARCBitVector *vector)
         parcBuffer_Release(&buffer);
     }
 
-    char *nameString = ccnxName_ToString(name);
-    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-    parcMemory_Deallocate(&nameString);
-
-    map_Insert(fib->maps[numSegments - 1], buffer, (void *) vector);
-    parcBuffer_Release(&buffer);
-
     return true;
 }
 
 static void
 _fibNative_Create(FIB *map)
 {
-    map->Lookup = (PARCBitVector *(*)(struct fib *, const CCNxName *)) _fibNaive_Lookup;
+    map->LPM = (PARCBitVector *(*)(struct fib *, const CCNxName *)) _fibNaive_LPM;
     map->Insert = (bool (*)(struct fib *, const CCNxName *, PARCBitVector *)) _fibNaive_Insert;
 
     NaiveFIB *native = (NaiveFIB *) malloc(sizeof(NaiveFIB));
@@ -133,7 +129,7 @@ _fibCisco_CreateEntry(PARCBitVector *vector, int depth)
 }
 
 static PARCBitVector *
-_fibCisco_Lookup(CiscoFIB *fib, const CCNxName *name)
+_fibCisco_LPM(CiscoFIB *fib, const CCNxName *name)
 {
     int numSegments = ccnxName_GetSegmentCount(name);
     int prefixCount = numSegments < fib->M ? numSegments - 1 : fib->M;
@@ -149,7 +145,6 @@ _fibCisco_Lookup(CiscoFIB *fib, const CCNxName *name)
         CiscoFIBEntry *entry = map_Get(fib->maps[i], buffer);
         if (entry != NULL) {
             if (entry->maxDepth > fib->M && numSegments > fib->M) {
-                // CAW: replace with >
                 startPrefix = numSegments <= entry->maxDepth ? startPrefix : entry->maxDepth - 1;
                 firstEntryMatch = entry;
                 break;
@@ -249,7 +244,7 @@ _fibCisco_Insert(CiscoFIB *fib, const CCNxName *name, PARCBitVector *vector)
 static void
 _fibCisco_Create(FIB *map)
 {
-    map->Lookup = (PARCBitVector *(*)(struct fib *, const CCNxName *)) _fibCisco_Lookup;
+    map->LPM = (PARCBitVector *(*)(struct fib *, const CCNxName *)) _fibCisco_LPM;
     map->Insert = (bool (*)(struct fib *, const CCNxName *, PARCBitVector *)) _fibCisco_Insert;
 
     CiscoFIB *native = (CiscoFIB *) malloc(sizeof(CiscoFIB));
@@ -287,13 +282,17 @@ fib_Create(FIBAlgorithm algorithm, FIBMode mode)
 }
 
 PARCBitVector *
-fib_Lookup(FIB *map, const CCNxName *ccnxName)
+fib_LPM(FIB *map, const CCNxName *ccnxName)
 {
-    return map->Lookup(map->context, ccnxName);
+    return map->LPM(map->context, ccnxName);
 }
 
 bool
 fib_Insert(FIB *map, const CCNxName *ccnxName, PARCBitVector *vector)
 {
-    return map->Insert(map->context, ccnxName, vector);
+    bool absent = fib_LPM(map, ccnxName) == NULL;
+    if (absent) {
+        return map->Insert(map->context, ccnxName, vector);
+    }
+    return absent;
 }

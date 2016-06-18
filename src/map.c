@@ -40,11 +40,10 @@ struct map {
     void (*destroy)(void **);
     void *(*insert)(void *, PARCBuffer *, void *);
     void *(*get)(void *, PARCBuffer *);
-    int (*computeBucketNumberFromHash)(void *map, PARCBuffer *);
 };
 
 void
-_bucketEntry_Destroy(_LinkedBucketEntry **entryPtr)
+_linkedBucketEntry_Destroy(_LinkedBucketEntry **entryPtr)
 {
     _LinkedBucketEntry *entry = *entryPtr;
     parcBuffer_Release(&entry->key);
@@ -53,7 +52,7 @@ _bucketEntry_Destroy(_LinkedBucketEntry **entryPtr)
 }
 
 _LinkedBucketEntry *
-_bucketEntry_Create(PARCBuffer *key, void *item)
+_linkedBucketEntry_Create(PARCBuffer *key, void *item)
 {
     _LinkedBucketEntry *entry = (_LinkedBucketEntry *) malloc(sizeof(_LinkedBucketEntry));
     if (entry != NULL) {
@@ -64,16 +63,16 @@ _bucketEntry_Create(PARCBuffer *key, void *item)
 }
 
 void
-_bucket_Destory(_LinkedBucket **bucketPtr)
+_linkedBucket_Destory(_LinkedBucket **bucketPtr)
 {
     _LinkedBucket *bucket = *bucketPtr;
 
     for (int i = 0; i < bucket->numEntries; i++) {
         _LinkedBucketEntry *entry = bucket->entries[i];
-        _bucketEntry_Destroy(&entry);
+        _linkedBucketEntry_Destroy(&entry);
     }
     if (bucket->overflow != NULL) {
-        _bucket_Destory(&bucket->overflow);
+        _linkedBucket_Destory(&bucket->overflow);
     }
 
     free(bucket);
@@ -82,7 +81,7 @@ _bucket_Destory(_LinkedBucket **bucketPtr)
 
 
 _LinkedBucket *
-_bucket_Create(int capacity)
+_linkedBucket_Create(int capacity)
 {
     _LinkedBucket *bucket = (_LinkedBucket *) malloc(sizeof(_LinkedBucket));
     if (bucket != NULL) {
@@ -103,7 +102,7 @@ _bucketMap_Destroy(_BucketMap **mapPtr)
     _BucketMap *map = *mapPtr;
     for (int i = 0; i < map->numBuckets; i++) {
         _LinkedBucket *current = map->buckets[i];
-        _bucket_Destory(&current);
+        _linkedBucket_Destory(&current);
     }
 }
 
@@ -115,7 +114,7 @@ _bucketMap_Create(MapOverflowStrategy strategy)
     map->numBuckets = MapDefaultCapacity;
     map->buckets = (_LinkedBucket **) malloc(sizeof(_LinkedBucket *) * MapDefaultCapacity);
     for (int i = 0; i < MapDefaultCapacity; i++) {
-        map->buckets[i] = _bucket_Create(LinkedBucketDefaultCapacity);
+        map->buckets[i] = _linkedBucket_Create(LinkedBucketDefaultCapacity);
     }
     return map;
 }
@@ -135,7 +134,7 @@ _bucketMap_ComputeBucketNumberFromHash(_BucketMap *map, PARCBuffer *key)
 }
 
 static void
-_bucket_AppendItem(_LinkedBucket *bucket, PARCBuffer *key, void *item)
+_linkedBucket_AppendItem(_LinkedBucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->capacity == -1) {
         if (bucket->entries == NULL) {
@@ -144,21 +143,21 @@ _bucket_AppendItem(_LinkedBucket *bucket, PARCBuffer *key, void *item)
             bucket->entries = realloc(bucket->entries, sizeof(_LinkedBucketEntry *) * (bucket->numEntries + 1));
         }
     }
-    bucket->entries[bucket->numEntries++] = _bucketEntry_Create(key, item);
+    bucket->entries[bucket->numEntries++] = _linkedBucketEntry_Create(key, item);
 }
 
 static bool
-_bucket_InsertItem(_LinkedBucket *bucket, PARCBuffer *key, void *item)
+_linkedBucket_InsertItem(_LinkedBucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->numEntries < bucket->capacity || bucket->capacity == -1) {
-        _bucket_AppendItem(bucket, key, item);
+        _linkedBucket_AppendItem(bucket, key, item);
         return true;
     }
     return false;
 }
 
 static void *
-_bucket_GetItem(_LinkedBucket *bucket, PARCBuffer *key)
+_linkedBucket_GetItem(_LinkedBucket *bucket, PARCBuffer *key)
 {
     for (int i = 0; i < bucket->numEntries; i++) {
         _LinkedBucketEntry *target = bucket->entries[i];
@@ -168,19 +167,27 @@ _bucket_GetItem(_LinkedBucket *bucket, PARCBuffer *key)
     }
 
     if (bucket->overflow != NULL) {
-        return _bucket_GetItem(bucket->overflow, key);
+        return _linkedBucket_GetItem(bucket->overflow, key);
     } else {
         return NULL;
     }
+}
+
+static void *
+_bucketMap_Get(_BucketMap *map, PARCBuffer *key)
+{
+    int bucketNumber = _bucketMap_ComputeBucketNumberFromHash(map, key);
+    _LinkedBucket *bucket = map->buckets[bucketNumber];
+    return _linkedBucket_GetItem(bucket, key);
 }
 
 static void
 _bucketMap_InsertToOverflowBucket(_BucketMap *map, _LinkedBucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->overflow == NULL) {
-        bucket->overflow = _bucket_Create(-1);
+        bucket->overflow = _linkedBucket_Create(-1);
     }
-    _bucket_InsertItem(bucket->overflow, key, item);
+    _linkedBucket_InsertItem(bucket->overflow, key, item);
 }
 
 static void
@@ -195,7 +202,7 @@ _bucketMap_InsertToBucket(_BucketMap *map, PARCBuffer *key, void *item)
     int bucketNumber = _bucketMap_ComputeBucketNumberFromHash(map, key);
 
     _LinkedBucket *bucket = map->buckets[bucketNumber];
-    bool wasAdded = _bucket_InsertItem(bucket, key, item);
+    bool wasAdded = _linkedBucket_InsertItem(bucket, key, item);
     if (!wasAdded) {
         switch (map->strategy) {
             case MapOverflowStrategy_OverflowBucket:
@@ -207,14 +214,6 @@ _bucketMap_InsertToBucket(_BucketMap *map, PARCBuffer *key, void *item)
                 break;
         }
     }
-}
-
-static void *
-_bucketMap_Get(_BucketMap *map, PARCBuffer *key)
-{
-    int bucketNumber = _bucketMap_ComputeBucketNumberFromHash(map, key);
-    _LinkedBucket *bucket = map->buckets[bucketNumber];
-    return _bucket_GetItem(bucket, key);
 }
 
 void
@@ -242,7 +241,6 @@ map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash)
         map->destroy = (void (*)(void **)) _bucketMap_Destroy;
         map->insert = (void *(*)(void *, PARCBuffer *, void *)) _bucketMap_InsertToBucket;
         map->get = (void *(*)(void *, PARCBuffer *)) _bucketMap_Get;
-        map->computeBucketNumberFromHash = (int (*)(void *map, PARCBuffer *)) _bucketMap_ComputeBucketNumberFromHash;
     }
 
     return map;
