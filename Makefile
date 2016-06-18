@@ -210,6 +210,66 @@ src/fib.c.s:
 	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib.c.s
 .PHONY : src/fib.c.s
 
+src/fib_cisco.o: src/fib_cisco.c.o
+
+.PHONY : src/fib_cisco.o
+
+# target to build an object file
+src/fib_cisco.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_cisco.c.o
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib_cisco.c.o
+.PHONY : src/fib_cisco.c.o
+
+src/fib_cisco.i: src/fib_cisco.c.i
+
+.PHONY : src/fib_cisco.i
+
+# target to preprocess a source file
+src/fib_cisco.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_cisco.c.i
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib_cisco.c.i
+.PHONY : src/fib_cisco.c.i
+
+src/fib_cisco.s: src/fib_cisco.c.s
+
+.PHONY : src/fib_cisco.s
+
+# target to generate assembly for a file
+src/fib_cisco.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_cisco.c.s
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib_cisco.c.s
+.PHONY : src/fib_cisco.c.s
+
+src/fib_naive.o: src/fib_naive.c.o
+
+.PHONY : src/fib_naive.o
+
+# target to build an object file
+src/fib_naive.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_naive.c.o
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib_naive.c.o
+.PHONY : src/fib_naive.c.o
+
+src/fib_naive.i: src/fib_naive.c.i
+
+.PHONY : src/fib_naive.i
+
+# target to preprocess a source file
+src/fib_naive.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_naive.c.i
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib_naive.c.i
+.PHONY : src/fib_naive.c.i
+
+src/fib_naive.s: src/fib_naive.c.s
+
+.PHONY : src/fib_naive.s
+
+# target to generate assembly for a file
+src/fib_naive.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_naive.c.s
+	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib_naive.c.s
+.PHONY : src/fib_naive.c.s
+
 src/fib_perf.o: src/fib_perf.c.o
 
 .PHONY : src/fib_perf.o
@@ -371,6 +431,12 @@ help:
 	@echo "... src/fib.o"
 	@echo "... src/fib.i"
 	@echo "... src/fib.s"
+	@echo "... src/fib_cisco.o"
+	@echo "... src/fib_cisco.i"
+	@echo "... src/fib_cisco.s"
+	@echo "... src/fib_naive.o"
+	@echo "... src/fib_naive.i"
+	@echo "... src/fib_naive.s"
 	@echo "... src/fib_perf.o"
 	@echo "... src/fib_perf.i"
 	@echo "... src/fib_perf.s"

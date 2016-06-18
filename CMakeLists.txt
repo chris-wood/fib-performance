@@ -16,6 +16,8 @@ include_directories(
 
 set(libfib_SOURCES
     src/fib.c
+    src/fib_cisco.c
+    src/fib_naive.c
     src/map.c
     src/siphash24.c
     src/random.c

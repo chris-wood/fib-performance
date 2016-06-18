@@ -25,11 +25,8 @@ typedef struct fib {
     FIBMode mode;
     FIBAlgorithm algorithm;
 
-    // Perform the lookup operation and return the result
+    // Perform LPM to retrieve the name
     PARCBitVector *(*LPM)(struct fib *map, const CCNxName *ccnxName);
-    // lookup = _internalLookup (mint name)
-    //    _internalLookup - algorithm-specific lookup
-    //    mint - algorithm/mode-specific key creation function
 
     // Insert a new name into the FIB
     bool (*Insert)(struct fib *map, const CCNxName *ccnxName, PARCBitVector *vector);
