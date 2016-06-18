@@ -47,7 +47,7 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(Core)
 
 LONGBOW_TEST_CASE(Core, map_Create)
 {
-    Map *map = map_Create(MapMode_LinkedBuckets, MapOverflowStrategy_OverflowBucket, true);
+    Map *map = map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
     assertNotNull(map, "Expected a non-NULL map to be created");
     map_Destroy(&map);
     assertNull(map, "Expected a NULL map after map_Destroy");

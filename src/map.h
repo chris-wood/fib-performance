@@ -7,18 +7,14 @@ struct map;
 typedef struct map Map;
 
 typedef enum {
-    MapMode_LinkedBuckets,
-    MapMode_CompactBuckets,
-} MapMode;
-
-typedef enum {
     MapOverflowStrategy_OverflowBucket,
     MapOverflowStrategy_ExpandAndReHash,
 } MapOverflowStrategy;
 
 extern const int MapDefaultCapacity;
 
-Map *map_Create(MapMode mode, MapOverflowStrategy strategy, bool rehash);
+Map *map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash);
+Map *map_CreateWithCompactArray(MapOverflowStrategy strategy, bool rehash);
 void map_Destroy(Map **map);
 
 void map_Insert(Map *map, PARCBuffer *key, void *item);

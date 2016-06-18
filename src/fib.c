@@ -55,7 +55,7 @@ _fibNaive_Lookup(NaiveFIB *fib, const CCNxName *name)
 static Map *
 _fibNative_CreateMap()
 {
-    return map_Create(MapMode_LinkedBuckets, MapOverflowStrategy_OverflowBucket, true);
+    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
 }
 
 static bool
@@ -98,8 +98,8 @@ _fibNaive_Insert(NaiveFIB *fib, const CCNxName *name, PARCBitVector *vector)
 static void
 _fibNative_Create(FIB *map)
 {
-    map->Lookup = _fibNaive_Lookup;
-    map->Insert = _fibNaive_Insert;
+    map->Lookup = (PARCBitVector *(*)(struct fib *, const CCNxName *)) _fibNaive_Lookup;
+    map->Insert = (bool (*)(struct fib *, const CCNxName *, PARCBitVector *)) _fibNaive_Insert;
 
     NaiveFIB *native = (NaiveFIB *) malloc(sizeof(NaiveFIB));
     native->numMaps = 0;
@@ -249,8 +249,8 @@ _fibCisco_Insert(CiscoFIB *fib, const CCNxName *name, PARCBitVector *vector)
 static void
 _fibCisco_Create(FIB *map)
 {
-    map->Lookup = _fibCisco_Lookup;
-    map->Insert = _fibCisco_Insert;
+    map->Lookup = (PARCBitVector *(*)(struct fib *, const CCNxName *)) _fibCisco_Lookup;
+    map->Insert = (bool (*)(struct fib *, const CCNxName *, PARCBitVector *)) _fibCisco_Insert;
 
     CiscoFIB *native = (CiscoFIB *) malloc(sizeof(CiscoFIB));
     native->numMaps = 0;
