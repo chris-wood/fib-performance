@@ -16,14 +16,9 @@ typedef enum {
     FIBAlgorithm_Song
 } FIBAlgorithm;
 
-struct fib;
-typedef struct fib {
+typedef struct {
     // The algorithm-specific structure
     void *context;
-
-    // The algorithm operations
-    FIBMode mode;
-    FIBAlgorithm algorithm;
 
     // Perform LPM to retrieve the name
     PARCBitVector *(*LPM)(struct fib *map, const CCNxName *ccnxName);

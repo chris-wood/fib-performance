@@ -7,7 +7,7 @@
 struct fib_cisco;
 typedef struct fib_cisco FIBCisco;
 
-FIBCisco *fibCisco_Create();
+FIBCisco *fibCisco_Create(int M);
 
 bool fibCisco_Insert(FIBCisco *fib, const CCNxName *name, PARCBitVector *vector);
 PARCBitVector *fibCisco_LPM(FIBCisco *fib, const CCNxName *name);

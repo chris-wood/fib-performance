@@ -30,6 +30,12 @@ void usage() {
     fprintf(stderr, "   - n        = The maximum length prefix to use when inserting names into the FIB\n");
 }
 
+// Rewrite this code as follows:
+// 1. read list of names from file (single function)
+// 2. create FIB load from list of names
+// 3. insert FIB names into the FIB
+// 4. lookup every name in the original name list
+
 int
 main(int argc, char **argv)
 {

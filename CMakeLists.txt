@@ -48,6 +48,7 @@ macro(AddTest testFile)
     add_executable(${ARGV0} src/test/${ARGV0}.c ${libfib_SOURCES})
     target_link_libraries(${ARGV0} ${FIBTEST_LIBRARIES})
     add_test(${ARGV0} ${ARGV0})
+    install(TARGETS ${ARGV0} DESTINATION bin)
 endmacro(AddTest)
 
 add_executable(fib_perf ${fibtest_SOURCES})

@@ -5,13 +5,10 @@
 #include <parc/algol/parc_SafeMemory.h>
 
 FIB *
-fib_Create(FIBAlgorithm algorithm, FIBMode mode)
+fib_Create()
 {
     FIB *map = (FIB *) malloc(sizeof(FIB));
     if (map != NULL) {
-        map->algorithm = algorithm;
-        map->mode = mode;
-
         switch (algorithm) {
             case FIBAlgorithm_Naive:
                 map->context = fibNative_Create();

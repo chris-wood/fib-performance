@@ -66,14 +66,6 @@ fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
         parcBuffer_Release(&buffer);
     }
 
-    // if (startPrefix == fib->M) {
-    //     _FIBCiscoEntry *entry = firstEntryMatch;
-    //     if (!entry->isVirtual) {
-    //         printf("not virtual: %s\n", parcBitVector_ToString(entry->vector));
-    //         return entry;
-    //     }
-    // }
-
     for (int i = startPrefix; i >= 0; i--) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
         char *nameString = ccnxName_ToString(copy);
@@ -157,11 +149,11 @@ fibCisco_Insert(FIBCisco *fib, const CCNxName *name, PARCBitVector *vector)
 }
 
 FIBCisco *
-fibCisco_Create()
+fibCisco_Create(int M)
 {
     FIBCisco *native = (FIBCisco *) malloc(sizeof(FIBCisco));
     if (native != NULL) {
-        native->M = 3;
+        native->M = M;
         native->maps = (Map **) malloc(sizeof(Map *));
         native->numMaps = 1;
         native->maps[0] = _fibCisco_CreateMap();
