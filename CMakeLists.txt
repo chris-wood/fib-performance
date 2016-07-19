@@ -24,7 +24,7 @@ set(libfib_SOURCES
     )
 
 link_directories(
-        /Users/cwood/PARC/side/Improvements/usr/lib
+        /Users/cwood/PARC/side/HashCodec/usr/lib
         /usr/local/lib
     )
 

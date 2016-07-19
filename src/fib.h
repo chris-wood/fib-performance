@@ -16,18 +16,18 @@ typedef enum {
     FIBAlgorithm_Song
 } FIBAlgorithm;
 
-typedef struct {
-    // The algorithm-specific structure
-    void *context;
+struct fib;
+typedef struct fib FIB;
 
+typedef struct {
     // Perform LPM to retrieve the name
-    PARCBitVector *(*LPM)(struct fib *map, const CCNxName *ccnxName);
+    PARCBitVector *(*LPM)(void *instance, const CCNxName *ccnxName);
 
     // Insert a new name into the FIB
-    bool (*Insert)(struct fib *map, const CCNxName *ccnxName, PARCBitVector *vector);
-} FIB;
+    bool (*Insert)(void *instance, const CCNxName *ccnxName, PARCBitVector *vector);
+} FIBInterface;
 
-FIB *fib_Create(FIBAlgorithm algorithm, FIBMode mode);
+FIB *fib_Create(void *instance, FIBInterface *interface);
 PARCBitVector *fib_Lookup(FIB *map, const CCNxName *ccnxName);
 bool fib_Insert(FIB *map, const CCNxName *ccnxName, PARCBitVector *vector);
 

@@ -8,6 +8,8 @@
 #include <ctype.h>
 
 #include "fib.h"
+#include "fib_naive.h"
+#include "fib_cisco.h"
 
 PARCBufferComposer *
 readLine(FILE *fp)
@@ -59,7 +61,8 @@ main(int argc, char **argv)
     PARCLinkedList *vectorList = parcLinkedList_Create();
 
     // Create the FIB table
-    FIB *fib = fib_Create(FIBAlgorithm_Naive, FIBMode_Hash);
+    FIBNaive *nativeFIB = fibNative_Create();
+    FIB *fib = fib_Create(nativeFIB, NativeFIBAsFIB);
 
     int num = 0;
     int index = 0;
