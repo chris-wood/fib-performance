@@ -33,5 +33,8 @@
 
 # Exe
 fib_perf
+test_map
 
 CMakeFiles/
+
+*.swp

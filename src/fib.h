@@ -28,7 +28,7 @@ typedef struct {
 } FIBInterface;
 
 FIB *fib_Create(void *instance, FIBInterface *interface);
-PARCBitVector *fib_Lookup(FIB *map, const CCNxName *ccnxName);
+PARCBitVector *fib_LPM(FIB *map, const CCNxName *ccnxName);
 bool fib_Insert(FIB *map, const CCNxName *ccnxName, PARCBitVector *vector);
 
 #endif // fib_h_

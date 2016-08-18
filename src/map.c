@@ -87,6 +87,7 @@ _linkedBucket_Create(int capacity)
     if (bucket != NULL) {
         bucket->numEntries = 0;
         bucket->capacity = capacity;
+        bucket->overflow = NULL;
         if (capacity < 0) {
             bucket->entries = NULL;
         } else {
@@ -138,7 +139,7 @@ _linkedBucket_AppendItem(_LinkedBucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->capacity == -1) {
         if (bucket->entries == NULL) {
-            bucket->entries = malloc(sizeof(_LinkedBucketEntry *) * (bucket->numEntries + 1));
+            bucket->entries = malloc(sizeof(_LinkedBucketEntry *));
         } else {
             bucket->entries = realloc(bucket->entries, sizeof(_LinkedBucketEntry *) * (bucket->numEntries + 1));
         }
@@ -200,8 +201,8 @@ static void
 _bucketMap_InsertToBucket(_BucketMap *map, PARCBuffer *key, void *item)
 {
     int bucketNumber = _bucketMap_ComputeBucketNumberFromHash(map, key);
-
     _LinkedBucket *bucket = map->buckets[bucketNumber];
+
     bool wasAdded = _linkedBucket_InsertItem(bucket, key, item);
     if (!wasAdded) {
         switch (map->strategy) {

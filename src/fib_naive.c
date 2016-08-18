@@ -94,3 +94,4 @@ FIBInterface *NativeFIBAsFIB = &(FIBInterface) {
     .LPM = (PARCBitVector *(*)(void *instance, const CCNxName *ccnxName)) fibNaive_Insert,
     .Insert = (bool (*)(void *instance, const CCNxName *ccnxName, PARCBitVector *vector)) fibNaive_LPM,
 };
+

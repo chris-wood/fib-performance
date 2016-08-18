@@ -27,9 +27,10 @@ readLine(FILE *fp)
 }
 
 void usage() {
-    fprintf(stderr, "usage: fib_perf <uri_file> <n>\n");
+    fprintf(stderr, "usage: fib_perf <uri_file> <n> <alg>\n");
     fprintf(stderr, "   - uri_file = A file that contains a list of CCNx URIs\n");
     fprintf(stderr, "   - n        = The maximum length prefix to use when inserting names into the FIB\n");
+    fprintf(stderr, "   - alg      = The FIB data structure to use: ['naive', 'cisco']\n");
 }
 
 // Rewrite this code as follows:
@@ -41,13 +42,14 @@ void usage() {
 int
 main(int argc, char **argv)
 {
-    if (argc != 3) {
+    if (argc != 4) {
         usage();
         exit(-1);
     }
 
     char *fname = argv[1];
     int N = atoi(argv[2]);
+    char *alg = argv[3];
 
     FILE *file = fopen(fname, "r");
     if (file == NULL) {
@@ -60,9 +62,20 @@ main(int argc, char **argv)
     PARCLinkedList *nameList = parcLinkedList_Create();
     PARCLinkedList *vectorList = parcLinkedList_Create();
 
+
     // Create the FIB table
-    FIBNaive *nativeFIB = fibNative_Create();
-    FIB *fib = fib_Create(nativeFIB, NativeFIBAsFIB);
+    FIB *fib = NULL;
+    if (strcmp(alg, "cisco") == 0) {
+        FIBCisco *ciscoFIB = fibCisco_Create(3);
+        fib = fib_Create(ciscoFIB, CiscoFIBAsFIB);
+    } else if (strcmp(alg, "naive") == 0) {
+        FIBNaive *nativeFIB = fibNative_Create();
+        fib = fib_Create(nativeFIB, NativeFIBAsFIB);    
+    } else {
+        perror("Invalid algorithm specified\n");
+        usage();
+        exit(-1);
+    }
 
     int num = 0;
     int index = 0;
@@ -123,10 +136,10 @@ main(int argc, char **argv)
 
         PARCBitVector *expected = parcLinkedList_GetAtIndex(vectorList, index++);
         assertNotNull(output, "Expected a non-NULL output");
-        // assertTrue(parcBitVector_Equals(output, expected), "Expected the correct return vector");
+        //assertTrue(parcBitVector_Equals(output, expected), "Expected the correct return vector");
 
         uint64_t elapsedTime = endTime - startTime;
-        printf("Time %d: %zu ns\n", index, elapsedTime);
+        printf("Time %d: %llu ns\n", index, elapsedTime);
 
         parcBitVector_Release(&vector);
         parcStopwatch_Release(&timer);

@@ -4,8 +4,12 @@
 #include <parc/algol/parc_BitVector.h>
 #include <ccnx/common/ccnx_Name.h>
 
+#include "fib.h"
+
 struct fib_cisco;
 typedef struct fib_cisco FIBCisco;
+
+extern FIBInterface *CiscoFIBAsFIB;
 
 FIBCisco *fibCisco_Create(int M);
 

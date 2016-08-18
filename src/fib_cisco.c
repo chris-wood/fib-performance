@@ -161,3 +161,8 @@ fibCisco_Create(int M)
 
     return native;
 }
+
+FIBInterface *CiscoFIBAsFIB = &(FIBInterface) {
+    .LPM = (PARCBitVector *(*)(void *instance, const CCNxName *ccnxName)) fibCisco_Insert,
+    .Insert = (bool (*)(void *instance, const CCNxName *ccnxName, PARCBitVector *vector)) fibCisco_LPM,
+};
