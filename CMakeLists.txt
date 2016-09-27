@@ -30,7 +30,7 @@ link_directories(
 
 set(fibtest_SOURCES
     ${libfib_SOURCES}
-    src/fib_perf.c)
+    src/fib-perf.c)
 
 set(FIBTEST_LIBRARIES
        ccnx_common

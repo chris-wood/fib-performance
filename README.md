@@ -17,3 +17,9 @@ Procedure:
 Goal:
 - Support different FIB algorithms
 - Support parallel and sequential lookup algorithms
+
+Algorithms:
+- Naive hash table [done]
+- (hash table - Cisco) So et al. [done]
+- (patricia trie with name compression) Song et al. [in progress]
+- (bloom filter with hash table - Caesar) Perino et al. [in progress]

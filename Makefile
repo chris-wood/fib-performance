@@ -180,6 +180,33 @@ test_map/fast:
 	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/build
 .PHONY : test_map/fast
 
+src/fib-perf.o: src/fib-perf.c.o
+
+.PHONY : src/fib-perf.o
+
+# target to build an object file
+src/fib-perf.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib-perf.c.o
+.PHONY : src/fib-perf.c.o
+
+src/fib-perf.i: src/fib-perf.c.i
+
+.PHONY : src/fib-perf.i
+
+# target to preprocess a source file
+src/fib-perf.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib-perf.c.i
+.PHONY : src/fib-perf.c.i
+
+src/fib-perf.s: src/fib-perf.c.s
+
+.PHONY : src/fib-perf.s
+
+# target to generate assembly for a file
+src/fib-perf.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib-perf.c.s
+.PHONY : src/fib-perf.c.s
+
 src/fib.o: src/fib.c.o
 
 .PHONY : src/fib.o
@@ -269,33 +296,6 @@ src/fib_naive.c.s:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_naive.c.s
 	$(MAKE) -f CMakeFiles/test_map.dir/build.make CMakeFiles/test_map.dir/src/fib_naive.c.s
 .PHONY : src/fib_naive.c.s
-
-src/fib_perf.o: src/fib_perf.c.o
-
-.PHONY : src/fib_perf.o
-
-# target to build an object file
-src/fib_perf.c.o:
-	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_perf.c.o
-.PHONY : src/fib_perf.c.o
-
-src/fib_perf.i: src/fib_perf.c.i
-
-.PHONY : src/fib_perf.i
-
-# target to preprocess a source file
-src/fib_perf.c.i:
-	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_perf.c.i
-.PHONY : src/fib_perf.c.i
-
-src/fib_perf.s: src/fib_perf.c.s
-
-.PHONY : src/fib_perf.s
-
-# target to generate assembly for a file
-src/fib_perf.c.s:
-	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/fib_perf.c.s
-.PHONY : src/fib_perf.c.s
 
 src/map.o: src/map.c.o
 
@@ -428,6 +428,9 @@ help:
 	@echo "... test_map"
 	@echo "... list_install_components"
 	@echo "... install/local"
+	@echo "... src/fib-perf.o"
+	@echo "... src/fib-perf.i"
+	@echo "... src/fib-perf.s"
 	@echo "... src/fib.o"
 	@echo "... src/fib.i"
 	@echo "... src/fib.s"
@@ -437,9 +440,6 @@ help:
 	@echo "... src/fib_naive.o"
 	@echo "... src/fib_naive.i"
 	@echo "... src/fib_naive.s"
-	@echo "... src/fib_perf.o"
-	@echo "... src/fib_perf.i"
-	@echo "... src/fib_perf.s"
 	@echo "... src/map.o"
 	@echo "... src/map.i"
 	@echo "... src/map.s"
