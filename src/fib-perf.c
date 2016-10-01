@@ -161,10 +161,12 @@ main(int argc, char **argv)
 
         PARCBitVector *vector = parcBitVector_Create();
         parcBitVector_Set(vector, num);
-        num = (num + 1) % 10;
+        num = (num + 1) % 10; // 10 is not special -- the bit vectors don't actually matter here...
 
         // Insert into the FIB
+        printf("%p\n", vector);
         fib_Insert(fib, copy, vector);
+        printf("done\n");
         parcLinkedList_Append(vectorList, vector);
 
         ccnxName_Release(&copy);
@@ -201,5 +203,5 @@ main(int argc, char **argv)
         index++;
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
