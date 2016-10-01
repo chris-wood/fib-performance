@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <getopt.h>
 
 #include "fib.h"
 #include "fib_naive.h"
@@ -28,10 +29,83 @@ readLine(FILE *fp)
 
 void usage() {
     fprintf(stderr, "usage: fib_perf <uri_file> <n> <alg>\n");
-    fprintf(stderr, "   - uri_file = A file that contains a list of CCNx URIs\n");
-    fprintf(stderr, "   - n        = The maximum length prefix to use when inserting names into the FIB\n");
-    fprintf(stderr, "   - alg      = The FIB data structure to use: ['naive', 'cisco']\n");
+    fprintf(stderr, "   - uri_file  = A file that contains a list of CCNx URIs\n");
+    fprintf(stderr, "   - n         = The maximum length prefix to use when inserting names into the FIB\n");
+    fprintf(stderr, "   - alg       = The FIB data structure to use: ['naive', 'cisco']\n");
 }
+
+typedef struct {
+    char *uriFile;
+    FIB *fib;
+    uint32_t maxNameLength;
+    bool preProcessed;
+} FIBOptions;
+
+FIBOptions *
+parseCommandLineOptions(int argc, char **argv)
+{
+    static struct option longopts[] = {
+            { "uri_file",   required_argument,  NULL, 'f' },
+            { "n",          required_argument,  NULL, 'n' },
+            { "alg",        required_argument,  NULL, 'a' },
+            { "pre_processed", no_argument, NULL, 'p'},
+            { "help",       no_argument,        NULL, 'h'},
+            { NULL,0,NULL,0}
+    };
+
+    if (argc < 5) {
+        usage();
+        exit(EXIT_FAILURE);
+    }
+
+    FIBOptions *options = malloc(sizeof(FIBOptions));
+    options->uriFile = NULL;
+    options->fib = NULL;
+    options->maxNameLength = 0;
+    options->preProcessed = false;
+
+    int c;
+    while (optind < argc) {
+        if ((c = getopt_long(argc, argv, "phf:n:a:", longopts, NULL)) != -1) {
+            switch(c) {
+                case 'p':
+                    options->preProcessed = true;
+                    break;
+                case 'f':
+                    options->uriFile = malloc(strlen(optarg));
+                    strcpy(options->uriFile, optarg);
+                    break;
+                case 'n':
+                    sscanf(optarg, "%u", &(options->maxNameLength));
+                    break;
+                case 'a': {
+                    FIB *fib = NULL;
+                    if (strcmp(optarg, "cisco") == 0) {
+                        FIBCisco *ciscoFIB = fibCisco_Create(3);
+                        fib = fib_Create(ciscoFIB, CiscoFIBAsFIB);
+                    } else if (strcmp(optarg, "naive") == 0) {
+                        FIBNaive *nativeFIB = fibNative_Create();
+                        fib = fib_Create(nativeFIB, NativeFIBAsFIB);    
+                    } else {
+                        perror("Invalid algorithm specified\n");
+                        usage();
+                        exit(EXIT_FAILURE);
+                    }
+                    options->fib = fib;
+                    break;
+                }
+                case 'h':
+                    usage();
+                    exit(EXIT_SUCCESS);
+                default:
+                    break;
+            }
+        } 
+    }
+
+    return options;
+}
+
 
 // Rewrite this code as follows:
 // 1. read list of names from file (single function)
@@ -42,45 +116,26 @@ void usage() {
 int
 main(int argc, char **argv)
 {
-    if (argc != 4) {
-        usage();
-        exit(-1);
-    }
+    FIBOptions *options = parseCommandLineOptions(argc, argv);
 
-    char *fname = argv[1];
-    int N = atoi(argv[2]);
-    char *alg = argv[3];
-
-    FILE *file = fopen(fname, "r");
+    FILE *file = fopen(options->uriFile, "r");
     if (file == NULL) {
         perror("Could not open file");
         usage();
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     // Create the FIB and list to hold all of the names
     PARCLinkedList *nameList = parcLinkedList_Create();
     PARCLinkedList *vectorList = parcLinkedList_Create();
 
-
-    // Create the FIB table
-    FIB *fib = NULL;
-    if (strcmp(alg, "cisco") == 0) {
-        FIBCisco *ciscoFIB = fibCisco_Create(3);
-        fib = fib_Create(ciscoFIB, CiscoFIBAsFIB);
-    } else if (strcmp(alg, "naive") == 0) {
-        FIBNaive *nativeFIB = fibNative_Create();
-        fib = fib_Create(nativeFIB, NativeFIBAsFIB);    
-    } else {
-        perror("Invalid algorithm specified\n");
-        usage();
-        exit(-1);
-    }
+    // Extract options
+    FIB *fib = options->fib;
+    int N = options->maxNameLength;
 
     int num = 0;
     int index = 0;
     do {
-
         PARCBufferComposer *composer = readLine(file);
         PARCBuffer *bufferString = parcBufferComposer_ProduceBuffer(composer);
         if (parcBuffer_Remaining(bufferString) == 0) {
@@ -134,8 +189,8 @@ main(int argc, char **argv)
         PARCBitVector *output = fib_LPM(fib, name);
         uint64_t endTime = parcStopwatch_ElapsedTimeNanos(timer);
 
-        PARCBitVector *expected = parcLinkedList_GetAtIndex(vectorList, index++);
         assertNotNull(output, "Expected a non-NULL output");
+        //PARCBitVector *expected = parcLinkedList_GetAtIndex(vectorList, index++);
         //assertTrue(parcBitVector_Equals(output, expected), "Expected the correct return vector");
 
         uint64_t elapsedTime = endTime - startTime;
@@ -143,6 +198,7 @@ main(int argc, char **argv)
 
         parcBitVector_Release(&vector);
         parcStopwatch_Release(&timer);
+        index++;
     }
 
     return 0;
