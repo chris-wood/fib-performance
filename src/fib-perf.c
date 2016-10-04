@@ -164,9 +164,7 @@ main(int argc, char **argv)
         num = (num + 1) % 10; // 10 is not special -- the bit vectors don't actually matter here...
 
         // Insert into the FIB
-        printf("%p\n", vector);
         fib_Insert(fib, copy, vector);
-        printf("done\n");
         parcLinkedList_Append(vectorList, vector);
 
         ccnxName_Release(&copy);
