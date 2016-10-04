@@ -251,11 +251,14 @@ PARCBuffer *
 _map_ComputeBucketKeyHash(Map *map, PARCBuffer *key)
 {
     PARCBuffer *buffer = parcBuffer_Allocate(map->keySize);
+    assertNotNull(buffer, "Expected a non-NULL buffer to be allocated");
     uint8_t *output = parcBuffer_Overlay(buffer, 0);
 
+    assertNotNull(key, "Expected a non-NULL key to be provided");
     uint8_t *input = parcBuffer_Overlay(key, 0);
     size_t length = parcBuffer_Remaining(key);
 
+    assertNotNull(map->key, "Expected a non-NULL map key to be provided for SIPHASH");
     uint8_t *hashKey = parcBuffer_Overlay(map->key, 0);
 
     int result = siphash(output, input, length, hashKey);

@@ -44,16 +44,20 @@ fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
 {
     int numSegments = ccnxName_GetSegmentCount(name);
     int prefixCount = numSegments < fib->M ? numSegments - 1 : fib->M;
+    prefixCount = prefixCount > fib->numMaps ? fib->numMaps : prefixCount;
     int startPrefix = numSegments - 1;
-    _FIBCiscoEntry *firstEntryMatch = NULL;
+    startPrefix = startPrefix > fib->numMaps ? fib->numMaps : startPrefix;
 
-    for (int i = prefixCount; i >= 0; i--) {
+    // printf("%d %d\n", prefixCount, startPrefix);
+
+    _FIBCiscoEntry *firstEntryMatch = NULL;
+    for (int i = prefixCount; i > 0; i--) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
         char *nameString = ccnxName_ToString(copy);
         PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
         parcMemory_Deallocate(&nameString);
 
-        _FIBCiscoEntry *entry = map_Get(fib->maps[i], buffer);
+        _FIBCiscoEntry *entry = map_Get(fib->maps[i - 1], buffer);
         if (entry != NULL) {
             if (entry->maxDepth > fib->M && numSegments > fib->M) {
                 startPrefix = numSegments <= entry->maxDepth ? startPrefix : entry->maxDepth - 1;
@@ -66,13 +70,13 @@ fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
         parcBuffer_Release(&buffer);
     }
 
-    for (int i = startPrefix; i >= 0; i--) {
+    for (int i = startPrefix; i > 0; i--) {
         CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
         char *nameString = ccnxName_ToString(copy);
         PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
         parcMemory_Deallocate(&nameString);
 
-        _FIBCiscoEntry *entry = map_Get(fib->maps[i], buffer);
+        _FIBCiscoEntry *entry = map_Get(fib->maps[i - 1], buffer);
         if (entry != NULL) {
             if (!entry->isVirtual) {
                 return entry->vector;
@@ -95,7 +99,7 @@ _fibCisco_ExpandMapsToSize(FIBCisco *fib, int number)
 {
     if (fib->numMaps < number) {
         fib->maps = (Map **) realloc(fib->maps, number * (sizeof(Map *)));
-        for (size_t i = fib->numMaps; i < number; i++) {
+        for (size_t i = fib->numMaps; i <= number; i++) {
             fib->maps[i] = _fibCisco_CreateMap();
         }
         fib->numMaps = number;

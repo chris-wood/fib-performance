@@ -85,7 +85,7 @@ parseCommandLineOptions(int argc, char **argv)
                         fib = fib_Create(ciscoFIB, CiscoFIBAsFIB);
                     } else if (strcmp(optarg, "naive") == 0) {
                         FIBNaive *nativeFIB = fibNative_Create();
-                        fib = fib_Create(nativeFIB, NativeFIBAsFIB);    
+                        fib = fib_Create(nativeFIB, NativeFIBAsFIB);
                     } else {
                         perror("Invalid algorithm specified\n");
                         usage();
@@ -100,7 +100,7 @@ parseCommandLineOptions(int argc, char **argv)
                 default:
                     break;
             }
-        } 
+        }
     }
 
     return options;
