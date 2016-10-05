@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "fib_cisco.h"
 #include "map.h"
 
@@ -6,6 +8,7 @@
 typedef struct {
     bool isVirtual;
     int maxDepth;
+    PARCBuffer *buffer;
     PARCBitVector *vector;
 } _FIBCiscoEntry;
 
@@ -23,23 +26,59 @@ _fibCisco_CreateVirtualEntry(int depth)
         entry->isVirtual = true;
         entry->maxDepth = depth;
         entry->vector = NULL;
+        entry->buffer = NULL;
     }
     return entry;
 }
 
 static _FIBCiscoEntry *
-_fibCisco_CreateEntry(PARCBitVector *vector, int depth)
+_fibCisco_CreateEntry(PARCBitVector *vector, PARCBuffer *buffer, int depth)
 {
     _FIBCiscoEntry *entry = (_FIBCiscoEntry *) malloc(sizeof(_FIBCiscoEntry));
     if (entry != NULL) {
         entry->isVirtual = false;
         entry->maxDepth = depth;
         entry->vector = parcBitVector_Acquire(vector);;
+        entry->buffer = buffer;
     }
     return entry;
 }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+static PARCBuffer *
+_computeNameBuffer(FIBCisco *fib, const CCNxName *prefix, int numSegments)
+{
+    CCNxName *copy = ccnxName_Copy(prefix);
+    int length = ccnxName_GetSegmentCount(copy);
+    if (length > numSegments) {
+        ccnxName_Trim(copy, length - numSegments);
+    }
+
+    char *nameString = ccnxName_ToString(copy);
+    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
+    parcMemory_Deallocate(&nameString);
+    ccnxName_Release(&copy);
+   
+    return buffer;
+}
+
+static _FIBCiscoEntry *
+_lookupNamePrefix(FIBCisco *fib, const CCNxName *prefix, int numSegments)
+{
+    PARCBuffer *buffer = _computeNameBuffer(fib, prefix, numSegments);
+    _FIBCiscoEntry *entry = map_Get(fib->maps[numSegments - 1], buffer);
+    parcBuffer_Release(&buffer);
+    return entry;
+}
+
+static void
+_insertNamePrefix(FIBCisco *fib, const CCNxName *prefix, int numSegments, _FIBCiscoEntry *entry)
+{
+    PARCBuffer *buffer = _computeNameBuffer(fib, prefix, numSegments);
+    map_Insert(fib->maps[numSegments - 1], buffer, entry);
+    parcBuffer_Release(&buffer);
+}
 
 PARCBitVector *
 fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
@@ -48,18 +87,12 @@ fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
 
     // prefixCount = min(numSegments, M)
     int prefixCount = MIN(MIN(fib->M, numSegments), fib->numMaps);
-    int startPrefix = MIN(numSegments - 1, fib->numMaps);
-
-    printf("%d %d %d\n", fib->numMaps, prefixCount, startPrefix);
+    int startPrefix = MIN(numSegments, fib->numMaps);
 
     _FIBCiscoEntry *firstEntryMatch = NULL;
     for (int i = prefixCount; i > 0; i--) {
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - i);
-        char *nameString = ccnxName_ToString(copy);
-        PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        parcMemory_Deallocate(&nameString);
+        _FIBCiscoEntry *entry = _lookupNamePrefix(fib, name, i); 
 
-        _FIBCiscoEntry *entry = map_Get(fib->maps[i - 1], buffer);
         if (entry != NULL) {
             if (entry->maxDepth > fib->M && numSegments > fib->M) {
                 startPrefix = MIN(numSegments, entry->maxDepth); 
@@ -67,24 +100,27 @@ fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
                 break;
             } else if (!entry->isVirtual) {
                 return entry->vector;
-            }
+            } 
         }
-        parcBuffer_Release(&buffer);
     }
 
-    for (int i = startPrefix; i > 0; i--) {
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
-        char *nameString = ccnxName_ToString(copy);
-        PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        parcMemory_Deallocate(&nameString);
+    if (firstEntryMatch == NULL) {
+        return NULL;
+    }
 
-        _FIBCiscoEntry *entry = map_Get(fib->maps[i - 1], buffer);
-        if (entry != NULL) {
+    _FIBCiscoEntry *entry = NULL;
+    for (int i = startPrefix; i > 0; i--) {
+        if (startPrefix == fib->M) {
+            entry = firstEntryMatch;
             if (!entry->isVirtual) {
                 return entry->vector;
             }
         }
-        parcBuffer_Release(&buffer);
+
+        _FIBCiscoEntry *targetEntry = _lookupNamePrefix(fib, name, i); 
+        if (targetEntry != NULL && !targetEntry->isVirtual) {
+            return targetEntry->vector;
+        } 
     }
 
     return NULL;
@@ -112,51 +148,41 @@ bool
 fibCisco_Insert(FIBCisco *fib, const CCNxName *name, PARCBitVector *vector)
 {
     size_t numSegments = ccnxName_GetSegmentCount(name);
-    _fibCisco_ExpandMapsToSize(fib, numSegments);
+    _FIBCiscoEntry *entry = fibCisco_LPM(fib, name);
+    if (entry != NULL) {
+        entry->isVirtual = false;
+        entry->maxDepth = numSegments;
+        return true;
+    }
 
-    printf("numMaps = %d\n", fib->numMaps);
+    _fibCisco_ExpandMapsToSize(fib, numSegments);
 
     // Check to see if we need to create a virtual FIB entry.
     // This occurs when numSegments > M
     size_t maximumDepth = numSegments;
     if (numSegments > fib->M) {
-        // numSegments = 4
-        // M = 3
-        // 4 - 3 = 1, trimmed
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - fib->M);
-        char *nameString = ccnxName_ToString(copy);
-        PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        parcMemory_Deallocate(&nameString);
+        _FIBCiscoEntry *entry = _lookupNamePrefix(fib, name, fib->M); 
 
-        _FIBCiscoEntry *entry = map_Get(fib->maps[fib->M - 1], buffer);
         if (entry == NULL) {
             entry = _fibCisco_CreateVirtualEntry(maximumDepth);
-            map_Insert(fib->maps[fib->M], buffer, (void *) entry);
+            _insertNamePrefix(fib, name, fib->M, entry);
         } else if (entry->maxDepth < maximumDepth) {
             entry->maxDepth = maximumDepth;
         }
-        parcBuffer_Release(&buffer);
     }
 
-    for (size_t i = 0; i < numSegments; i++) {
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
-        char *nameString = ccnxName_ToString(copy);
-        PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        parcMemory_Deallocate(&nameString);
-
-        _FIBCiscoEntry *entry = map_Get(fib->maps[i], buffer);
+    // Update the maximum depth for all segments smaller
+    for (size_t i = 1; i < numSegments; i++) {
+        _FIBCiscoEntry *entry = _lookupNamePrefix(fib, name, i); 
         if (entry != NULL) {
             entry->maxDepth = maximumDepth;
         }
     }
 
-    char *nameString = ccnxName_ToString(name);
-    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-    parcMemory_Deallocate(&nameString);
-
-    _FIBCiscoEntry *entry = _fibCisco_CreateEntry(vector, maximumDepth);
-    map_Insert(fib->maps[numSegments - 1], buffer, (void *) entry);
+    PARCBuffer *buffer = _computeNameBuffer(fib, name, numSegments);
+    entry = _fibCisco_CreateEntry(vector, buffer, maximumDepth);
     parcBuffer_Release(&buffer);
+    _insertNamePrefix(fib, name, numSegments, entry);
 
     return false;
 }

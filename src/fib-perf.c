@@ -168,6 +168,7 @@ main(int argc, char **argv)
         parcLinkedList_Append(vectorList, vector);
 
         ccnxName_Release(&copy);
+        ccnxName_Release(&name);
         parcBitVector_Release(&vector);
 
         index++;
@@ -178,13 +179,14 @@ main(int argc, char **argv)
 
     while (parcIterator_HasNext(iterator)) {
 
-        CCNxName *name = parcIterator_Next(iterator);
+        CCNxName *name = (CCNxName *) parcIterator_Next(iterator);
         PARCBitVector *vector = parcBitVector_Create();
 
         PARCStopwatch *timer = parcStopwatch_Create();
         parcStopwatch_Start(timer);
 
         // Lookup and time it.
+        printf("Looking for: %s\n", ccnxName_ToString(name));
         uint64_t startTime = parcStopwatch_ElapsedTimeNanos(timer);
         PARCBitVector *output = fib_LPM(fib, name);
         uint64_t endTime = parcStopwatch_ElapsedTimeNanos(timer);

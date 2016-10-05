@@ -28,8 +28,8 @@ fibNaive_LPM(FIBNaive *fib, const CCNxName *name)
     int count = numSegments > fib->numMaps ? fib->numMaps : numSegments;
 
     PARCBitVector *vector = NULL;
-    for (int i = 0; i < count; i++) {
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
+    for (int i = count; i > 0; i--) {
+        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - i);
         PARCBitVector *result = _fibNaive_LookupName(fib, copy);
         if (result == NULL) {
             return vector;
@@ -52,7 +52,7 @@ _fibNative_ExpandMapsToSize(FIBNaive *fib, int number)
 {
     if (fib->numMaps < number) {
         fib->maps = (Map **) realloc(fib->maps, number * (sizeof(Map *)));
-        for (size_t i = fib->numMaps; i < number; i++) {
+        for (size_t i = fib->numMaps; i <= number; i++) {
             fib->maps[i] = _fibNative_CreateMap();
         }
         fib->numMaps = number;
@@ -62,6 +62,12 @@ _fibNative_ExpandMapsToSize(FIBNaive *fib, int number)
 bool
 fibNaive_Insert(FIBNaive *fib, const CCNxName *name, PARCBitVector *vector)
 {
+    PARCBitVector *lookup = fibNaive_LPM(fib, name);
+    if (vector != NULL) {
+        parcBitVector_SetVector(lookup, vector);
+        return true;
+    }
+
     size_t numSegments = ccnxName_GetSegmentCount(name);
     _fibNative_ExpandMapsToSize(fib, numSegments);
 

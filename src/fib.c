@@ -50,9 +50,5 @@ fib_LPM(FIB *map, const CCNxName *ccnxName)
 bool
 fib_Insert(FIB *map, const CCNxName *ccnxName, PARCBitVector *vector)
 {
-    bool absent = fib_LPM(map, ccnxName) == NULL;
-    if (absent) {
-        return map->interface->Insert(map->instance, ccnxName, vector);
-    }
-    return absent;
+    return map->interface->Insert(map->instance, ccnxName, vector);
 }
