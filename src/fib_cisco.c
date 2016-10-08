@@ -39,7 +39,7 @@ _fibCisco_CreateEntry(PARCBitVector *vector, PARCBuffer *buffer, int depth)
         entry->isVirtual = false;
         entry->maxDepth = depth;
         entry->vector = parcBitVector_Acquire(vector);;
-        entry->buffer = buffer;
+        entry->buffer = parcBuffer_Acquire(buffer);
     }
     return entry;
 }
