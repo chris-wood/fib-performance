@@ -2,6 +2,8 @@
 #include "fib_cisco.h"
 #include "fib_naive.h"
 
+#include <stdint.h>
+
 #include <parc/algol/parc_SafeMemory.h>
 
 struct fib {

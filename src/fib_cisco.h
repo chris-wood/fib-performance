@@ -1,10 +1,10 @@
 #ifndef fib_cisco_h
 #define fib_cisco_h
 
+#include "fib.h"
+
 #include <parc/algol/parc_BitVector.h>
 #include <ccnx/common/ccnx_Name.h>
-
-#include "fib.h"
 
 struct fib_cisco;
 typedef struct fib_cisco FIBCisco;

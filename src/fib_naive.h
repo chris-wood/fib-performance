@@ -1,10 +1,10 @@
 #ifndef fib_naive_h
 #define fib_naive_h
 
+#include "fib.h"
+
 #include <parc/algol/parc_BitVector.h>
 #include <ccnx/common/ccnx_Name.h>
-
-#include "fib.h"
 
 struct fib_naive;
 typedef struct fib_naive FIBNaive;

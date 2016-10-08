@@ -1,6 +1,9 @@
 #ifndef fib_h_
 #define fib_h_
 
+#include <stdint.h>
+#include <stddef.h>
+
 #include <parc/algol/parc_BitVector.h>
 #include <ccnx/common/ccnx_Name.h>
 
