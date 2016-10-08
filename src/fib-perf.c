@@ -138,14 +138,13 @@ main(int argc, char **argv)
     do {
         PARCBufferComposer *composer = readLine(file);
         PARCBuffer *bufferString = parcBufferComposer_ProduceBuffer(composer);
+        parcBufferComposer_Release(&composer);
         if (parcBuffer_Remaining(bufferString) == 0) {
             break;
         }
 
-        char *string = parcBuffer_ToString(bufferString);
-        parcBufferComposer_Release(&composer);
-
         // Create the original name and store it for later
+        char *string = parcBuffer_ToString(bufferString);
         CCNxName *name = ccnxName_CreateFromCString(string);
         char *nameString = ccnxName_ToString(name);
         printf("Read %d: %s\n", index, nameString);

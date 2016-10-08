@@ -45,6 +45,7 @@ _fibCisco_CreateEntry(PARCBitVector *vector, PARCBuffer *buffer, int depth)
 }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 static PARCBuffer *
 _computeNameBuffer(FIBCisco *fib, const CCNxName *prefix, int numSegments)
@@ -109,7 +110,7 @@ fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
     }
 
     _FIBCiscoEntry *entry = NULL;
-    for (int i = startPrefix; i > 0; i--) {
+    for (int i = startPrefix; i >= 1; i--) {
         if (startPrefix == fib->M) {
             entry = firstEntryMatch;
             if (!entry->isVirtual) {
@@ -148,17 +149,21 @@ bool
 fibCisco_Insert(FIBCisco *fib, const CCNxName *name, PARCBitVector *vector)
 {
     size_t numSegments = ccnxName_GetSegmentCount(name);
-    _FIBCiscoEntry *entry = fibCisco_LPM(fib, name);
+
+    /*
+    PARCBitVector *entry = fibCisco_LPM(fib, name);
     if (entry != NULL) {
         entry->isVirtual = false;
         entry->maxDepth = numSegments;
         return true;
     }
+    */
 
     _fibCisco_ExpandMapsToSize(fib, numSegments);
 
     // Check to see if we need to create a virtual FIB entry.
     // This occurs when numSegments > M
+    // If a FIB entry already exists for M segments, real or virtual, update the MD
     size_t maximumDepth = numSegments;
     if (numSegments > fib->M) {
         _FIBCiscoEntry *entry = _lookupNamePrefix(fib, name, fib->M); 
@@ -167,22 +172,37 @@ fibCisco_Insert(FIBCisco *fib, const CCNxName *name, PARCBitVector *vector)
             entry = _fibCisco_CreateVirtualEntry(maximumDepth);
             _insertNamePrefix(fib, name, fib->M, entry);
         } else if (entry->maxDepth < maximumDepth) {
-            entry->maxDepth = maximumDepth;
+            entry->maxDepth = MAX(entry->maxDepth, maximumDepth);
         }
     }
 
-    // Update the maximum depth for all segments smaller
+    // Update the MD for all segments smaller
+    /*
     for (size_t i = 1; i < numSegments; i++) {
-        _FIBCiscoEntry *entry = _lookupNamePrefix(fib, name, i); 
+        _FIBCiscoEntry *entry = _lookupNamePrefix(fib, name, i);
         if (entry != NULL) {
-            entry->maxDepth = maximumDepth;
+            entry->maxDepth = MAX(entry->maxDepth, maximumDepth);
         }
     }
+    */
 
     PARCBuffer *buffer = _computeNameBuffer(fib, name, numSegments);
-    entry = _fibCisco_CreateEntry(vector, buffer, maximumDepth);
+    _FIBCiscoEntry *entry = _fibCisco_CreateEntry(vector, buffer, maximumDepth);
     parcBuffer_Release(&buffer);
-    _insertNamePrefix(fib, name, numSegments, entry);
+    
+    // If there is an existing entry, make sure it's *NOT* virtual and update its MD if necessary
+    _FIBCiscoEntry *existingEntry = _lookupNamePrefix(fib, name, numSegments);
+    if (existingEntry != NULL) {
+        existingEntry->isVirtual = false;
+        existingEntry->maxDepth = MAX(numSegments, existingEntry->maxDepth);
+        if (existingEntry->vector == NULL) {
+            existingEntry->vector = parcBitVector_Acquire(vector);
+        } else {
+            parcBitVector_SetVector(existingEntry->vector, vector);
+        }
+    } else {
+        _insertNamePrefix(fib, name, numSegments, entry);
+    }
 
     return false;
 }
