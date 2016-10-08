@@ -8,10 +8,16 @@ set(CMAKE_BUILD_TYPE Release)
 #set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 #set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
 
+set(CCNX_INCLUDE $ENV{CCNX_HOME}/include)
+set(CCNX_LIB $ENV{CCNX_HOME}/lib)
+
+MESSAGE("${CCNX_INCLUDE}")
+MESSAGE("${CCNX_LIB}")
+
 include_directories(
         /usr/local/include/
-        /usr/local/ccnx/dependencies/build/include
-        /Users/cwood/PARC/side/Improvements/usr/include/
+        /usr/local/ccnx/dependencies/build/include/
+        ${CCNX_INCLUDE}
     )
 
 set(libfib_SOURCES
@@ -24,7 +30,7 @@ set(libfib_SOURCES
     )
 
 link_directories(
-        /Users/cwood/PARC/side/HashCodec/usr/lib
+        ${CCNX_LIB}
         /usr/local/lib
     )
 
