@@ -1,0 +1,4 @@
+quan et al., "TB2F: Tree-bitmap and bloom-filter for a scalable and efficient name lookup in content-centric networking"
+perino et al., "Caesar: a content router for high-speed forwarding on content names"
+song et al., "Scalable name-based packet forwarding: From millions to billions"
+wang et al., "Namefilter: Achieving fast name lookup with low memory cost via applying two-stage bloom filters"
