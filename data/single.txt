@@ -1,1 +1,2 @@
-ccnx:/com/tribalfusion/cdn5/media/261216
+ccnx:/a/b/c/d/e
+ccnx:/a/b/c
