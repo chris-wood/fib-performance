@@ -4,11 +4,11 @@
 
 struct _patricia_node;
 typedef struct {
-    PARCBuffer *label;;
+    PARCBuffer *label;
     bool isLeaf;
 
     int numEdges;
-    struct _patricia_node *edges;
+    struct _patricia_node **edges;
 } _PatriciaNode;
 
 _PatriciaNode *
@@ -18,15 +18,22 @@ _patriciaNode_CreateLeaf(PARCBuffer *label)
     if (node != NULL) {
         node->label = parcBuffer_Acquire(label); // key used to get here..
         node->isLeaf = true;
+        node->numEdges = 0;
         node->edges = NULL;
     }
     return node;
 }
 
 void
-_patriciaNode_AddEdge(uint8_t label) 
+_patriciaNode_AddEdge(_PatriciaNode *node, _PatriciaNode *edge) 
 {
-    // XXX
+    node->numEdges++;
+    if (node->edges == NULL) { 
+        node->edges = (_PatriciaNode **) malloc(sizeof(_PatriciaNode *) * mode->numEdges);
+    } else {
+        node->edges = (_PatriciaNode **) realloc(node->edges, sizeof(_PatriciaNode *) * mode->numEdges);
+    }
+    node->edges[node->numEdges - 1] = edge;   
 }
 
 struct patricia {
@@ -65,6 +72,7 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
     _PatriciaNode *prev = NULL;
     _PatriciaNode *current = trie->head;
 
+    // Search until we can make no further progress.
     PARCBuffer *prefix = parcBuffer_Copy(key);
     while (current != NULL && !current->isLeaf && elementsFound < labelLength) {
         for (int i = 0; i < current->numEdges; i++) {
@@ -83,12 +91,16 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
         }
     }
  
+    // Handle the insertion into the trie
     if (current == NULL && prev == NULL) {
-        // XXX
-    } else if (current == NULL) {
-        // XXX
+        // 1. Add new edge at the root
+        _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(key);
+        _patriciaNode_AddEdge(trie->head, newEdge);
+    } else if (current == NULL) { // or we could split...
+        _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix);
+        _patriciaNode_AddEdge(prev, newEdge);
     } else {
-        // XXX
+        // XXX: redundant case
     }
 }
 
