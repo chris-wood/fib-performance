@@ -25,6 +25,7 @@ set(libfib_SOURCES
     src/fib_cisco.c
     src/fib_naive.c
     src/map.c
+    src/patricia.c
     src/siphash24.c
     src/random.c
     )
@@ -63,3 +64,4 @@ target_link_libraries(fib_perf ${FIBTEST_LIBRARIES})
 install(TARGETS fib_perf DESTINATION bin)
 
 AddTest(test_map)
+AddTest(test_patricia)
