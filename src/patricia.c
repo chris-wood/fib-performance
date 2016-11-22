@@ -2,6 +2,8 @@
 #include <stdio.h>
 
 #include <parc/algol/parc_Memory.h>
+#include <parc/algol/parc_SafeMemory.h>
+
 #include "patricia.h"
 
 struct _patricia_node;
@@ -153,9 +155,6 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
         current = NULL;   
     }
 
-    printf("BEFORE\n");
-    _patricia_Display(trie);
-
     // Search until we can make no further progress.
     PARCBuffer *prefix = parcBuffer_Copy(key);
     while (current != NULL && !current->isLeaf && elementsFound < labelLength) {
@@ -166,8 +165,6 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
 
             int prefixCount = parcBuffer_Remaining(prefix);
             int sharedCount = _sharedPrefix(prefix, next->label);
-
-            printf("Checking prefix: %s %s\n", parcBuffer_ToString(prefix), parcBuffer_ToString(next->label));
 
             if (prefixCount == sharedCount) { // jump to the next level
                 prevEdgeIndex = i;
@@ -189,8 +186,6 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
                 
                 _PatriciaNode *splitRight = _patriciaNode_CreateLeaf(rightPrefix, item);
                 _PatriciaNode *splitLeft = _patriciaNode_CreateLeaf(sharedPrefix, NULL); // no item goes here
-
-                printf("%s %s %s\n", parcBuffer_ToString(sharedPrefix), parcBuffer_ToString(leftPrefix), parcBuffer_ToString(rightPrefix));
                 
                 curr->edges[i] = splitLeft;
                 // Add the left node to the split
@@ -203,10 +198,6 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
                 prev = splitLeft;
                 current = splitRight;
                 parcBuffer_SetPosition(prefix, parcBuffer_Position(prefix) + parcBuffer_Remaining(prefix));
-
-                printf("AFTER\n");
-                _patricia_Display(trie);
-
                 return;
             } else { // nothing in common
                 current = NULL; // does nothing.
@@ -218,12 +209,10 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
     if (current == NULL) { 
         _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix, item);
         _PatriciaNode *target = prev == NULL ? trie->head : prev;
-        printf("Adding %s to HEAD\n", parcBuffer_ToString(prefix));
         _patriciaNode_AddEdge(target, newEdge);
     } else if (current->isLeaf) {
         _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix, item);
         _patriciaNode_AddEdge(current, newEdge);
-        printf("Adding %s to trie\n", parcBuffer_ToString(prefix));
     }
 }
 
@@ -234,22 +223,14 @@ patricia_Get(Patricia *trie, PARCBuffer *key)
     size_t labelLength = parcBuffer_Remaining(key);
     _PatriciaNode *current = trie->head;
 
-    printf("GETTING %s\n", parcBuffer_ToString(key));
-    _patricia_Display(trie);
-
     PARCBuffer *prefix = parcBuffer_Copy(key);
     while (current != NULL && !current->isLeaf && elementsFound < labelLength) {
         _PatriciaNode *curr = current;
         current = NULL;
-        printf("number of edges = %d\n", curr->numEdges);
         for (int i = 0; i < curr->numEdges; i++) {
             _PatriciaNode *next = curr->edges[i];
             
             int sharedCount = _sharedPrefix(prefix, next->label);
-
-            printf("Checking prefix: %s %s\n", parcBuffer_ToString(prefix), parcBuffer_ToString(next->label));
-            printf("break %d\n", sharedCount);
-
             if (sharedCount > 0) { // jump to the next level
                 current = next;
                 size_t nextLabelLength = parcBuffer_Remaining(next->label);
@@ -261,7 +242,6 @@ patricia_Get(Patricia *trie, PARCBuffer *key)
     }
     
     if (current == NULL) {
-        printf("here\n");
         return NULL;
     } else if (current->isLeaf && elementsFound == labelLength) {
         return current->value;

@@ -2,10 +2,6 @@
 #include "siphash24.h"
 #include "random.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-
 // Some defaults
 const int MapDefaultCapacity = 42;
 const int DefaultKeySize = 64 / 8;

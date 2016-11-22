@@ -3,11 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 project (fib_perf)
 set(CMAKE_BUILD_TYPE Release)
 
-#set(GCC_COVERAGE_COMPILE_FLAGS "-ftest-coverage -fprofile-arcs -pg")
-#set(GCC_COVERAGE_LINK_FLAGS    "-pg")
-#set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
-#set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
-
 set(CCNX_INCLUDE $ENV{CCNX_HOME}/include)
 set(CCNX_LIB $ENV{CCNX_HOME}/lib)
 
@@ -39,6 +34,10 @@ set(fibtest_SOURCES
     ${libfib_SOURCES}
     src/fib-perf.c)
 
+set(util_SOURCES
+        src/siphash24.c
+        src/random.c)
+
 set(FIBTEST_LIBRARIES
        ccnx_common
        ccnx_api_portal
@@ -52,7 +51,7 @@ set(FIBTEST_LIBRARIES
        check)
 
 macro(AddTest testFile)
-    add_executable(${ARGV0} src/test/${ARGV0}.c ${libfib_SOURCES})
+    add_executable(${ARGV0} src/test/${ARGV0}.c ${util_SOURCES})
     target_link_libraries(${ARGV0} ${FIBTEST_LIBRARIES})
     add_test(${ARGV0} ${ARGV0})
     install(TARGETS ${ARGV0} DESTINATION bin)
@@ -65,3 +64,4 @@ install(TARGETS fib_perf DESTINATION bin)
 
 AddTest(test_map)
 AddTest(test_patricia)
+AddTest(test_bloom)

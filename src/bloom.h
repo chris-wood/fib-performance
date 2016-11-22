@@ -6,9 +6,10 @@
 struct bloom_filter;
 typedef struct bloom_filter BF;
 
-BF *bf_Create(int m, int k);
-void bf_Delete(BF **bfP);
-void bf_Add(BF *filter, PARCBuffer *value);
-bool bf_Test(BF *filter, PARCBuffer *value);
+BF *bloom_Create(int m, int k);
+
+void bloom_Delete(BF **bfP);
+void bloom_Add(BF *filter, PARCBuffer *value);
+bool bloom_Test(BF *filter, PARCBuffer *value);
 
 #endif // bloom_h_

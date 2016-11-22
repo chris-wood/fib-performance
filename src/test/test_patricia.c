@@ -1,4 +1,4 @@
-#include "../patricia.h"
+#include "../patricia.c"
 
 #include <stdio.h>
 
@@ -79,7 +79,6 @@ LONGBOW_TEST_CASE(Core, patricia_Insert_Empty)
 
 LONGBOW_TEST_CASE(Core, patricia_Insert_Sibling)
 {
-    printf("\n\n SIBLING\n");
     Patricia *trie = patricia_Create();
     assertNotNull(trie, "Expected a non-NULL trie to be created");
 
@@ -109,8 +108,6 @@ LONGBOW_TEST_CASE(Core, patricia_Insert_Sibling)
 
 LONGBOW_TEST_CASE(Core, patricia_Insert_Split)
 {
-
-    printf("\n\n SPLIT\n");
     Patricia *trie = patricia_Create();
     assertNotNull(trie, "Expected a non-NULL trie to be created");
 
