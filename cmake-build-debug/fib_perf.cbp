@@ -270,6 +270,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/caw/dev/fib-performance/src/bloom.c">
+			<Option target="fib_perf"/>
+		</Unit>
+		<Unit filename="/Users/caw/dev/fib-performance/src/bloom.h">
+			<Option target="fib_perf"/>
+		</Unit>
 		<Unit filename="/Users/caw/dev/fib-performance/src/fib-perf.c">
 			<Option target="fib_perf"/>
 		</Unit>
@@ -301,6 +307,12 @@
 			<Option target="fib_perf"/>
 		</Unit>
 		<Unit filename="/Users/caw/dev/fib-performance/src/patricia.h">
+			<Option target="fib_perf"/>
+		</Unit>
+		<Unit filename="/Users/caw/dev/fib-performance/src/prefix_bloom.c">
+			<Option target="fib_perf"/>
+		</Unit>
+		<Unit filename="/Users/caw/dev/fib-performance/src/prefix_bloom.h">
 			<Option target="fib_perf"/>
 		</Unit>
 		<Unit filename="/Users/caw/dev/fib-performance/src/random.c">

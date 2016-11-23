@@ -23,6 +23,8 @@ set(libfib_SOURCES
     src/patricia.c
     src/siphash24.c
     src/random.c
+    src/bloom.c
+    src/prefix_bloom.c
     )
 
 link_directories(

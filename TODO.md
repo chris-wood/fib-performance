@@ -1,7 +1,7 @@
 # TODO
 
-- Finish single BF code
-- Add prefix bloom filter data structure (collection of blocks, single BF maps to block, and then BF for bits inside the block)
+- Finish single BloomFilter code
+- Add prefix bloom filter data structure (collection of blocks, single BloomFilter maps to block, and then BloomFilter for bits inside the block)
 - Implement merged bloom filter data structure
     - compute the k hashes
     - for each index in the resultant string

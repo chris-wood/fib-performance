@@ -28,6 +28,8 @@ LONGBOW_TEST_RUNNER_TEARDOWN(bloom)
 LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, bloom_Create);
+    LONGBOW_RUN_TEST_CASE(Core, bloom_Add);
+    LONGBOW_RUN_TEST_CASE(Core, bloom_AddTest);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -47,10 +49,54 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(Core)
 
 LONGBOW_TEST_CASE(Core, bloom_Create)
 {
-//    BF *bloom = bloom_CreateWithLinkedBuckets(bloomOverflowStrategy_OverflowBucket, true);
-//    assertNotNull(bloom, "Expected a non-NULL bloom to be created");
-//    bloom_Destroy(&bloom);
-//    assertNull(bloom, "Expected a NULL bloom after bloom_Destroy");
+    BloomFilter *bf = bloom_Create(128, 3);
+    assertNotNull(bf, "Expected a non-NULL bloom to be created");
+    bloom_Destroy(&bf);
+    assertNull(bf, "Expected a NULL bloom after bloom_Destroy");
+}
+
+LONGBOW_TEST_CASE(Core, bloom_Add)
+{
+    BloomFilter *bf = bloom_Create(128, 3);
+
+    PARCBuffer *x = parcBuffer_AllocateCString("foo");
+    PARCBuffer *y = parcBuffer_AllocateCString("bar");
+    PARCBuffer *z = parcBuffer_AllocateCString("baz");
+
+    bloom_Add(bf, x);
+    bloom_Add(bf, y);
+    bloom_Add(bf, z);
+
+    parcBuffer_Release(&x);
+    parcBuffer_Release(&y);
+    parcBuffer_Release(&z);
+
+    bloom_Destroy(&bf);
+}
+
+LONGBOW_TEST_CASE(Core, bloom_AddTest)
+{
+    BloomFilter *bf = bloom_Create(128, 3);
+
+    PARCBuffer *x = parcBuffer_AllocateCString("foo");
+    PARCBuffer *y = parcBuffer_AllocateCString("bar");
+    PARCBuffer *z = parcBuffer_AllocateCString("baz");
+
+    bloom_Add(bf, x);
+    assertTrue(bloom_Test(bf, x), "Item x not detected in the filter");
+
+    bloom_Add(bf, y);
+    assertTrue(bloom_Test(bf, y), "Item y not detected in the filter");
+
+    // z is not in the filter
+    bool inFilter = bloom_Test(bf, z);
+    assertFalse(inFilter, "Item z detected in the filter when really it should not have been");
+
+    parcBuffer_Release(&x);
+    parcBuffer_Release(&y);
+    parcBuffer_Release(&z);
+
+    bloom_Destroy(&bf);
 }
 
 int

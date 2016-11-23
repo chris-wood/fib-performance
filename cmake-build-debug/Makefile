@@ -206,6 +206,33 @@ fib_perf/fast:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/build
 .PHONY : fib_perf/fast
 
+src/bloom.o: src/bloom.c.o
+
+.PHONY : src/bloom.o
+
+# target to build an object file
+src/bloom.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/bloom.c.o
+.PHONY : src/bloom.c.o
+
+src/bloom.i: src/bloom.c.i
+
+.PHONY : src/bloom.i
+
+# target to preprocess a source file
+src/bloom.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/bloom.c.i
+.PHONY : src/bloom.c.i
+
+src/bloom.s: src/bloom.c.s
+
+.PHONY : src/bloom.s
+
+# target to generate assembly for a file
+src/bloom.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/bloom.c.s
+.PHONY : src/bloom.c.s
+
 src/fib-perf.o: src/fib-perf.c.o
 
 .PHONY : src/fib-perf.o
@@ -367,6 +394,33 @@ src/patricia.s: src/patricia.c.s
 src/patricia.c.s:
 	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/patricia.c.s
 .PHONY : src/patricia.c.s
+
+src/prefix_bloom.o: src/prefix_bloom.c.o
+
+.PHONY : src/prefix_bloom.o
+
+# target to build an object file
+src/prefix_bloom.c.o:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/prefix_bloom.c.o
+.PHONY : src/prefix_bloom.c.o
+
+src/prefix_bloom.i: src/prefix_bloom.c.i
+
+.PHONY : src/prefix_bloom.i
+
+# target to preprocess a source file
+src/prefix_bloom.c.i:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/prefix_bloom.c.i
+.PHONY : src/prefix_bloom.c.i
+
+src/prefix_bloom.s: src/prefix_bloom.c.s
+
+.PHONY : src/prefix_bloom.s
+
+# target to generate assembly for a file
+src/prefix_bloom.c.s:
+	$(MAKE) -f CMakeFiles/fib_perf.dir/build.make CMakeFiles/fib_perf.dir/src/prefix_bloom.c.s
+.PHONY : src/prefix_bloom.c.s
 
 src/random.o: src/random.c.o
 
@@ -537,6 +591,9 @@ help:
 	@echo "... test_map"
 	@echo "... edit_cache"
 	@echo "... fib_perf"
+	@echo "... src/bloom.o"
+	@echo "... src/bloom.i"
+	@echo "... src/bloom.s"
 	@echo "... src/fib-perf.o"
 	@echo "... src/fib-perf.i"
 	@echo "... src/fib-perf.s"
@@ -555,6 +612,9 @@ help:
 	@echo "... src/patricia.o"
 	@echo "... src/patricia.i"
 	@echo "... src/patricia.s"
+	@echo "... src/prefix_bloom.o"
+	@echo "... src/prefix_bloom.i"
+	@echo "... src/prefix_bloom.s"
 	@echo "... src/random.o"
 	@echo "... src/random.i"
 	@echo "... src/random.s"
