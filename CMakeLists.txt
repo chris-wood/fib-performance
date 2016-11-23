@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project (fib_perf)
 set(CMAKE_BUILD_TYPE Release)
 
+set(CMAKE_C_STANDARD 99)
 set(CCNX_INCLUDE $ENV{CCNX_HOME}/include)
 set(CCNX_LIB $ENV{CCNX_HOME}/lib)
 
@@ -37,6 +38,7 @@ set(fibtest_SOURCES
     src/fib-perf.c)
 
 set(util_SOURCES
+        src/hasher.c
         src/siphash24.c
         src/random.c)
 
@@ -49,8 +51,7 @@ set(FIBTEST_LIBRARIES
        ccnx_common
        parc
        longbow
-       longbow-ansiterm
-       check)
+       longbow-ansiterm)
 
 macro(AddTest testFile)
     add_executable(${ARGV0} src/test/${ARGV0}.c ${util_SOURCES})
@@ -67,3 +68,4 @@ install(TARGETS fib_perf DESTINATION bin)
 AddTest(test_map)
 AddTest(test_patricia)
 AddTest(test_bloom)
+AddTest(test_name)

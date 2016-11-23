@@ -9,6 +9,7 @@
 #include "prefix_bloom.h"
 
 #include "bloom.h"
+#include "hasher.h"
 
 struct prefix_bloom_filter {
     int k;
@@ -16,6 +17,7 @@ struct prefix_bloom_filter {
     int b;
 
     BloomFilter **filterBlocks;
+    Hasher *hasher;
 };
 
 PrefixBloomFilter *
@@ -26,6 +28,7 @@ prefixBloomFilter_Create(int b, int m, int k)
         filter->b = b;
         filter->m = m;
         filter->k = k;
+        filter->hasher = hasher_Create();
 
         filter->filterBlocks = parcMemory_Allocate(sizeof(PrefixBloomFilter *));
         for (int i = 0; i < b; i++) {
@@ -39,7 +42,21 @@ void
 prefixBloomFilter_Destroy(PrefixBloomFilter **bfP)
 {
     PrefixBloomFilter *filter = *bfP;
-    // XXX: free what's left
+
+    // XXX: clean up
+
     *bfP = NULL;
 }
 
+void
+prefixBloomFilter_Add(PrefixBloomFilter *filter, PARCBuffer *value)
+{
+    // XXX
+}
+
+int
+prefixBloomFilter_LPM(PrefixBloomFilter *filter, PARCBuffer *value)
+{
+    // XXX
+    return -1;
+}
