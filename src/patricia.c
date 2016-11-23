@@ -140,12 +140,6 @@ _sharedPrefix(PARCBuffer *x, PARCBuffer *y)
 void 
 patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
 {
-    /*if (trie->head == NULL) {
-        _PatriciaNode *head = _patriciaNode_CreateLeaf(key, item);
-        trie->head = head;
-        return;
-    }*/
-
     int elementsFound = 0;
     size_t labelLength = parcBuffer_Remaining(key);
     _PatriciaNode *prev = NULL;
