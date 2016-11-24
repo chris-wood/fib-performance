@@ -40,7 +40,9 @@ set(fibtest_SOURCES
 set(util_SOURCES
         src/hasher.c
         src/siphash24.c
-        src/random.c)
+        src/random.c
+        src/name.c
+        src/bloom.c)
 
 set(FIBTEST_LIBRARIES
        ccnx_common
@@ -69,3 +71,4 @@ AddTest(test_map)
 AddTest(test_patricia)
 AddTest(test_bloom)
 AddTest(test_name)
+AddTest(test_prefix_bloom)

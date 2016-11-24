@@ -30,7 +30,7 @@ prefixBloomFilter_Create(int b, int m, int k)
         filter->k = k;
         filter->hasher = hasher_Create();
 
-        filter->filterBlocks = parcMemory_Allocate(sizeof(PrefixBloomFilter *));
+        filter->filterBlocks = parcMemory_Allocate(b * sizeof(PrefixBloomFilter *));
         for (int i = 0; i < b; i++) {
             filter->filterBlocks[i] = bloom_Create(m, k);
         }
@@ -43,20 +43,50 @@ prefixBloomFilter_Destroy(PrefixBloomFilter **bfP)
 {
     PrefixBloomFilter *filter = *bfP;
 
-    // XXX: clean up
+    for (int i = 0; i < filter->b; i++) {
+        bloom_Destroy(&filter->filterBlocks[i]);
+    }
+    parcMemory_Deallocate(&filter->filterBlocks);
+    hasher_Destroy(&filter->hasher);
 
+    parcMemory_Deallocate(bfP);
     *bfP = NULL;
 }
 
 void
-prefixBloomFilter_Add(PrefixBloomFilter *filter, PARCBuffer *value)
+prefixBloomFilter_Add(PrefixBloomFilter *filter, Name *name)
 {
-    // XXX
+    // 1. hash first segment to identify the block
+    PARCBuffer *firstSegmentHash = hasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+    uint64_t blockIndex = parcBuffer_GetUint64(firstSegmentHash) % filter->b;
+
+    // 2. add the k hashes to the filter
+    PARCBuffer *nameValue = name_GetWireFormat(name, name_GetSegmentCount(name));
+    bloom_Add(filter->filterBlocks[blockIndex], nameValue);
+
+    parcBuffer_Release(&nameValue);
+    parcBuffer_Release(&firstSegmentHash);
 }
 
 int
-prefixBloomFilter_LPM(PrefixBloomFilter *filter, PARCBuffer *value)
+prefixBloomFilter_LPM(PrefixBloomFilter *filter, Name *name)
 {
-    // XXX
+    // 1. hash first segment to identify the block
+    PARCBuffer *firstSegmentHash = hasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+    uint64_t blockIndex = parcBuffer_GetUint64(firstSegmentHash) % filter->b;
+
+    // 2. add the k hashes to the filter
+    for (int count = name_GetSegmentCount(name); count > 0; count--) {
+        PARCBuffer *nameValue = name_GetWireFormat(name, count);
+        bool isPresent = bloom_Test(filter->filterBlocks[blockIndex], nameValue);
+        if (isPresent) {
+            parcBuffer_Release(&firstSegmentHash);
+            parcBuffer_Release(&nameValue);
+            return count - 1;
+        }
+        parcBuffer_Release(&nameValue);
+    }
+
+    parcBuffer_Release(&firstSegmentHash);
     return -1;
 }

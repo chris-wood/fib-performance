@@ -39,6 +39,17 @@ hasher_Hash(Hasher *hasher, PARCBuffer *input, PARCBuffer *key)
     return hashOutput;
 }
 
+PARCBuffer *
+hasher_HashArray(Hasher *hasher, size_t length, uint8_t input[length])
+{
+    PARCBuffer *hashOutput = parcBuffer_Allocate(SIPHASH_HASH_LENGTH);
+    PARCBuffer *key = parcBuffer_AllocateCString("1234123412341234");
+    siphash(parcBuffer_Overlay(hashOutput, 0), input,
+            length, parcBuffer_Overlay(key, 0));
+    parcBuffer_Release(&key);
+    return hashOutput;
+}
+
 PARCBitVector *
 hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range, int numKeys, PARCBuffer **keys)
 {

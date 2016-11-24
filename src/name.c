@@ -17,10 +17,10 @@ struct name {
 
     int numSegments;
     int *offsets;
-
+    int *sizes;
 };
 
-static PARCBuffer *
+static void
 _encodeNameToWireFormat(Name *name)
 {
     CCNxName *ccnxName = ccnxName_CreateFromCString(name->uri);
@@ -28,6 +28,7 @@ _encodeNameToWireFormat(Name *name)
 
         name->numSegments = ccnxName_GetSegmentCount(ccnxName);
         name->offsets = parcMemory_Allocate(sizeof(int) * name->numSegments);
+        name->sizes = parcMemory_Allocate(sizeof(int) * name->numSegments);
 
         CCNxCodecTlvEncoder *codec = ccnxCodecTlvEncoder_Create();
         ccnxCodecTlvEncoder_Initialize(codec);
@@ -36,31 +37,38 @@ _encodeNameToWireFormat(Name *name)
 
         ccnxCodecTlvEncoder_Finalize(codec);
         PARCBuffer *buffer = ccnxCodecTlvEncoder_CreateBuffer(codec);
+        parcBuffer_SetPosition(buffer, parcBuffer_Position(buffer) + 4); // skip past the TL container header
 
         ccnxCodecTlvEncoder_Destroy(&codec);
 
+        name->wireFormat = parcBuffer_Acquire(buffer);
+        parcBuffer_Release(&buffer);
         ccnxName_Release(&ccnxName);
-        return buffer;
     }
-    ccnxName_Release(&ccnxName);
-    return NULL;
 }
 
 static void
 _createSegmentIndex(Name *name)
 {
-    int offset = 4; // skip past the name TL 4 byte container
+    int offset = 0;
     int totalSize = parcBuffer_Remaining(name->wireFormat);
     int segmentIndex = 0;
 
-    while (offset < totalSize) {
-        name->offsets[segmentIndex++] = offset;
+    size_t position = parcBuffer_Position(name->wireFormat);
 
-        uint8_t msb = parcBuffer_GetAtIndex(name->wireFormat, offset + 2);
-        uint8_t lsb = parcBuffer_GetAtIndex(name->wireFormat, offset + 3);
-        uint16_t segmentSize = (((uint16_t) msb) << 8) | ((uint16_t) lsb);
-        offset += 4 + segmentSize;
+    while (offset < totalSize) {
+        name->offsets[segmentIndex] = offset;
+
+        uint16_t type = parcBuffer_GetUint16(name->wireFormat);
+        uint16_t size = parcBuffer_GetUint16(name->wireFormat);
+
+        name->sizes[segmentIndex++] = size;
+
+        parcBuffer_SetPosition(name->wireFormat, parcBuffer_Position(name->wireFormat) + size);
+        offset += 4 + size;
     }
+
+    parcBuffer_SetPosition(name->wireFormat, position);
 }
 
 Name *
@@ -69,7 +77,7 @@ name_CreateFromCString(char *uri)
     Name *name = parcMemory_Allocate(sizeof(Name));
     if (name != NULL) {
         name->uri = parcMemory_StringDuplicate(uri, strlen(uri));
-        name->wireFormat = _encodeNameToWireFormat(name);
+        _encodeNameToWireFormat(name);
         _createSegmentIndex(name);
     }
     return name;
@@ -79,9 +87,43 @@ void
 name_Destroy(Name **nameP)
 {
     Name *name = *nameP;
+
+    parcMemory_Deallocate(&name->uri);
     parcBuffer_Release(&name->wireFormat);
     parcMemory_Deallocate(&name->offsets);
+    parcMemory_Deallocate(&name->sizes);
 
     parcMemory_Deallocate(nameP);
     *nameP = NULL;
+}
+
+int
+name_GetSegmentCount(Name *name)
+{
+    return name->numSegments;
+}
+
+PARCBuffer *
+name_GetWireFormat(Name *name, int n)
+{
+    int capacity = n == name->numSegments ? parcBuffer_Remaining(name->wireFormat) : name->offsets[n];
+
+    PARCByteArray *byteArray = parcByteArray_Wrap(capacity, parcBuffer_Overlay(name->wireFormat, 0));
+    PARCBuffer *buffer = parcBuffer_WrapByteArray(byteArray, 0, capacity);
+    parcByteArray_Release(&byteArray);
+
+    return buffer;
+}
+
+int
+name_GetSegmentLength(Name *name, int n)
+{
+    return name->sizes[n];
+}
+
+uint8_t *
+name_GetSegmentOffset(Name *name, int n)
+{
+    uint8_t *overlay = parcBuffer_Overlay(name->wireFormat, 0);
+    return &(overlay[name->offsets[n]]); // 4 to skip past TL container
 }
