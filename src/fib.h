@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 #include <parc/algol/parc_BitVector.h>
-#include <ccnx/common/ccnx_Name.h>
+#include "name.h"
 
 typedef enum {
     FIBMode_Hash,
@@ -24,14 +24,14 @@ typedef struct fib FIB;
 
 typedef struct {
     // Perform LPM to retrieve the name
-    PARCBitVector *(*LPM)(void *instance, const CCNxName *ccnxName);
+    PARCBitVector *(*LPM)(void *instance, const Name *ccnxName);
 
     // Insert a new name into the FIB
-    bool (*Insert)(void *instance, const CCNxName *ccnxName, PARCBitVector *vector);
+    bool (*Insert)(void *instance, const Name *ccnxName, PARCBitVector *vector);
 } FIBInterface;
 
 FIB *fib_Create(void *instance, FIBInterface *interface);
-PARCBitVector *fib_LPM(FIB *map, const CCNxName *ccnxName);
-bool fib_Insert(FIB *map, const CCNxName *ccnxName, PARCBitVector *vector);
+PARCBitVector *fib_LPM(FIB *map, const Name *ccnxName);
+bool fib_Insert(FIB *map, const Name *ccnxName, PARCBitVector *vector);
 
 #endif // fib_h_

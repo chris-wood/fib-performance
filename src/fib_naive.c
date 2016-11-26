@@ -9,28 +9,23 @@ struct fib_naive {
 };
 
 static PARCBitVector *
-_fibNaive_LookupName(FIBNaive *fib, const CCNxName *name)
+_fibNaive_LookupName(FIBNaive *fib, const Name *name, int count)
 {
-    int numSegments = ccnxName_GetSegmentCount(name);
-    char *nameString = ccnxName_ToString(name);
-    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-    parcMemory_Deallocate(&nameString);
-
-    PARCBitVector *result = map_Get(fib->maps[numSegments - 1], buffer);
+    PARCBuffer *buffer = name_GetWireFormat(name, count);
+    PARCBitVector *result = map_Get(fib->maps[count - 1], buffer);
     parcBuffer_Release(&buffer);
     return result;
 }
 
 PARCBitVector *
-fibNaive_LPM(FIBNaive *fib, const CCNxName *name)
+fibNaive_LPM(FIBNaive *fib, const Name *name)
 {
-    int numSegments = ccnxName_GetSegmentCount(name);
+    int numSegments = name_GetSegmentCount(name);
     int count = numSegments > fib->numMaps ? fib->numMaps : numSegments;
 
     PARCBitVector *vector = NULL;
     for (int i = count; i > 0; i--) {
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - i);
-        PARCBitVector *result = _fibNaive_LookupName(fib, copy);
+        PARCBitVector *result = _fibNaive_LookupName(fib, name, count);
         if (result == NULL) {
             return vector;
         } else {
@@ -60,7 +55,7 @@ _fibNative_ExpandMapsToSize(FIBNaive *fib, int number)
 }
 
 bool
-fibNaive_Insert(FIBNaive *fib, const CCNxName *name, PARCBitVector *vector)
+fibNaive_Insert(FIBNaive *fib, const Name *name, PARCBitVector *vector)
 {
     PARCBitVector *lookup = fibNaive_LPM(fib, name);
     if (vector != NULL) {
@@ -68,15 +63,11 @@ fibNaive_Insert(FIBNaive *fib, const CCNxName *name, PARCBitVector *vector)
         return true;
     }
 
-    size_t numSegments = ccnxName_GetSegmentCount(name);
+    size_t numSegments = name_GetSegmentCount(name);
     _fibNative_ExpandMapsToSize(fib, numSegments);
 
     for (size_t i = 0; i < numSegments; i++) {
-        CCNxName *copy = ccnxName_Trim(ccnxName_Copy(name), numSegments - (i + 1));
-        char *nameString = ccnxName_ToString(copy);
-        PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-        parcMemory_Deallocate(&nameString);
-
+        PARCBuffer *buffer = name_GetWireFormat(name, i + 1);
         map_Insert(fib->maps[i], buffer, (void *) vector);
         parcBuffer_Release(&buffer);
     }
@@ -97,7 +88,7 @@ fibNative_Create()
 }
 
 FIBInterface *NativeFIBAsFIB = &(FIBInterface) {
-    .LPM = (PARCBitVector *(*)(void *instance, const CCNxName *ccnxName)) fibNaive_Insert,
-    .Insert = (bool (*)(void *instance, const CCNxName *ccnxName, PARCBitVector *vector)) fibNaive_LPM,
+    .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibNaive_Insert,
+    .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibNaive_LPM,
 };
 

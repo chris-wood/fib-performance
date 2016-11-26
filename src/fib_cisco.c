@@ -3,8 +3,6 @@
 #include "fib_cisco.h"
 #include "map.h"
 
-#include <parc/algol/parc_SafeMemory.h>
-
 typedef struct {
     bool isVirtual;
     int maxDepth;
@@ -48,24 +46,13 @@ _fibCisco_CreateEntry(PARCBitVector *vector, PARCBuffer *buffer, int depth)
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 static PARCBuffer *
-_computeNameBuffer(FIBCisco *fib, const CCNxName *prefix, int numSegments)
+_computeNameBuffer(FIBCisco *fib, const Name *prefix, int numSegments)
 {
-    CCNxName *copy = ccnxName_Copy(prefix);
-    int length = ccnxName_GetSegmentCount(copy);
-    if (length > numSegments) {
-        ccnxName_Trim(copy, length - numSegments);
-    }
-
-    char *nameString = ccnxName_ToString(copy);
-    PARCBuffer *buffer = parcBuffer_AllocateCString(nameString);
-    parcMemory_Deallocate(&nameString);
-    ccnxName_Release(&copy);
-   
-    return buffer;
+    return name_GetWireFormat(prefix, numSegments);
 }
 
 static _FIBCiscoEntry *
-_lookupNamePrefix(FIBCisco *fib, const CCNxName *prefix, int numSegments)
+_lookupNamePrefix(FIBCisco *fib, const Name *prefix, int numSegments)
 {
     PARCBuffer *buffer = _computeNameBuffer(fib, prefix, numSegments);
     _FIBCiscoEntry *entry = map_Get(fib->maps[numSegments - 1], buffer);
@@ -74,7 +61,7 @@ _lookupNamePrefix(FIBCisco *fib, const CCNxName *prefix, int numSegments)
 }
 
 static void
-_insertNamePrefix(FIBCisco *fib, const CCNxName *prefix, int numSegments, _FIBCiscoEntry *entry)
+_insertNamePrefix(FIBCisco *fib, const Name *prefix, int numSegments, _FIBCiscoEntry *entry)
 {
     PARCBuffer *buffer = _computeNameBuffer(fib, prefix, numSegments);
     map_Insert(fib->maps[numSegments - 1], buffer, entry);
@@ -82,9 +69,9 @@ _insertNamePrefix(FIBCisco *fib, const CCNxName *prefix, int numSegments, _FIBCi
 }
 
 PARCBitVector *
-fibCisco_LPM(FIBCisco *fib, const CCNxName *name)
+fibCisco_LPM(FIBCisco *fib, const Name *name)
 {
-    int numSegments = ccnxName_GetSegmentCount(name);
+    int numSegments = name_GetSegmentCount(name);
 
     // prefixCount = min(numSegments, M)
     int prefixCount = MIN(MIN(fib->M, numSegments), fib->numMaps);
@@ -146,9 +133,9 @@ _fibCisco_ExpandMapsToSize(FIBCisco *fib, int number)
 }
 
 bool
-fibCisco_Insert(FIBCisco *fib, const CCNxName *name, PARCBitVector *vector)
+fibCisco_Insert(FIBCisco *fib, const Name *name, PARCBitVector *vector)
 {
-    size_t numSegments = ccnxName_GetSegmentCount(name);
+    size_t numSegments = name_GetSegmentCount(name);
 
     /*
     PARCBitVector *entry = fibCisco_LPM(fib, name);
@@ -222,6 +209,6 @@ fibCisco_Create(int M)
 }
 
 FIBInterface *CiscoFIBAsFIB = &(FIBInterface) {
-    .LPM = (PARCBitVector *(*)(void *instance, const CCNxName *ccnxName)) fibCisco_LPM,
-    .Insert = (bool (*)(void *instance, const CCNxName *ccnxName, PARCBitVector *vector)) fibCisco_Insert,
+    .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibCisco_LPM,
+    .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibCisco_Insert,
 };
