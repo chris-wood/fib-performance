@@ -21,6 +21,8 @@ set(libfib_SOURCES
     src/fib_cisco.c
     src/fib_naive.c
     src/map.c
+    src/name.c
+    src/hasher.c
     src/patricia.c
     src/siphash24.c
     src/random.c
@@ -36,13 +38,14 @@ link_directories(
 set(fibtest_SOURCES
     ${libfib_SOURCES}
     src/fib-perf.c)
-
-set(util_SOURCES
-        src/hasher.c
-        src/siphash24.c
-        src/random.c
-        src/name.c
-        src/bloom.c)
+#
+#set(util_SOURCES
+#        src/hasher.c
+#        src/siphash24.c
+#        src/random.c
+#        src/bloom.c
+#        src/prefix_bloom.c
+#        src/name.c)
 
 set(FIBTEST_LIBRARIES
        ccnx_common
@@ -56,16 +59,19 @@ set(FIBTEST_LIBRARIES
        longbow-ansiterm)
 
 macro(AddTest testFile)
-    add_executable(${ARGV0} src/test/${ARGV0}.c ${util_SOURCES})
+    add_executable(${ARGV0} src/test/${ARGV0}.c ${libfib_SOURCES})
     target_link_libraries(${ARGV0} ${FIBTEST_LIBRARIES})
     add_test(${ARGV0} ${ARGV0})
     install(TARGETS ${ARGV0} DESTINATION bin)
 endmacro(AddTest)
 
+SET(CMAKE_C_FLAGS_DEBUG "-D_DEBUG")
 add_executable(fib_perf ${fibtest_SOURCES})
 set_target_properties(fib_perf PROPERTIES COMPILE_FLAGS "-Wall -pg")
 target_link_libraries(fib_perf ${FIBTEST_LIBRARIES})
 install(TARGETS fib_perf DESTINATION bin)
+
+enable_testing()
 
 AddTest(test_map)
 AddTest(test_patricia)

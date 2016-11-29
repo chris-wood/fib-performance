@@ -1,4 +1,4 @@
-#include "../bloom.c"
+#include "../bloom.h"
 
 #include <LongBow/testing.h>
 #include <LongBow/debugging.h>

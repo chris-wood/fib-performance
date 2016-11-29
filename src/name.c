@@ -33,7 +33,8 @@ _encodeNameToWireFormat(Name *name)
         CCNxCodecTlvEncoder *codec = ccnxCodecTlvEncoder_Create();
         ccnxCodecTlvEncoder_Initialize(codec);
 
-        size_t numBytes = ccnxCodecSchemaV1NameCodec_Encode(codec, 0, ccnxName);
+        ssize_t numBytes = ccnxCodecSchemaV1NameCodec_Encode(codec, 0, ccnxName);
+        assertTrue(numBytes > 0, "Failed to encode the name: %lu", numBytes);
 
         ccnxCodecTlvEncoder_Finalize(codec);
         PARCBuffer *buffer = ccnxCodecTlvEncoder_CreateBuffer(codec);
@@ -59,7 +60,10 @@ _createSegmentIndex(Name *name)
     while (offset < totalSize) {
         name->offsets[segmentIndex] = offset;
 
-        uint16_t type = parcBuffer_GetUint16(name->wireFormat);
+        // Swallow the type
+        parcBuffer_GetUint16(name->wireFormat);
+
+        // Extract the size
         uint16_t size = parcBuffer_GetUint16(name->wireFormat);
 
         name->sizes[segmentIndex++] = size;
@@ -98,13 +102,13 @@ name_Destroy(Name **nameP)
 }
 
 int
-name_GetSegmentCount(Name *name)
+name_GetSegmentCount(const Name *name)
 {
     return name->numSegments;
 }
 
 PARCBuffer *
-name_GetWireFormat(Name *name, int n)
+name_GetWireFormat(const Name *name, int n)
 {
     int capacity = n == name->numSegments ? parcBuffer_Remaining(name->wireFormat) : name->offsets[n];
 
@@ -116,13 +120,13 @@ name_GetWireFormat(Name *name, int n)
 }
 
 int
-name_GetSegmentLength(Name *name, int n)
+name_GetSegmentLength(const Name *name, int n)
 {
     return name->sizes[n];
 }
 
 uint8_t *
-name_GetSegmentOffset(Name *name, int n)
+name_GetSegmentOffset(const Name *name, int n)
 {
     uint8_t *overlay = parcBuffer_Overlay(name->wireFormat, 0);
     return &(overlay[name->offsets[n]]); // 4 to skip past TL container

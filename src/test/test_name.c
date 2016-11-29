@@ -1,4 +1,4 @@
-#include "../name.c"
+#include "../name.h"
 
 #include <LongBow/testing.h>
 #include <LongBow/debugging.h>

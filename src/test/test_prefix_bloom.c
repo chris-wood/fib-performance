@@ -1,4 +1,4 @@
-#include "../prefix_bloom.c"
+#include "../prefix_bloom.h"
 
 #include <LongBow/testing.h>
 #include <LongBow/debugging.h>

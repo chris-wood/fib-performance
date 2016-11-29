@@ -42,11 +42,13 @@ _fibNative_CreateMap()
     return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
 }
 
+#include <stdio.h>
+
 static void
 _fibNative_ExpandMapsToSize(FIBNaive *fib, int number)
 {
     if (fib->numMaps < number) {
-        fib->maps = (Map **) realloc(fib->maps, number * (sizeof(Map *)));
+        fib->maps = (Map **) realloc(fib->maps, (number + 1) * (sizeof(Map *)));
         for (size_t i = fib->numMaps; i <= number; i++) {
             fib->maps[i] = _fibNative_CreateMap();
         }
@@ -58,7 +60,7 @@ bool
 fibNaive_Insert(FIBNaive *fib, const Name *name, PARCBitVector *vector)
 {
     PARCBitVector *lookup = fibNaive_LPM(fib, name);
-    if (vector != NULL) {
+    if (lookup != NULL) {
         parcBitVector_SetVector(lookup, vector);
         return true;
     }
@@ -88,7 +90,7 @@ fibNative_Create()
 }
 
 FIBInterface *NativeFIBAsFIB = &(FIBInterface) {
-    .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibNaive_Insert,
-    .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibNaive_LPM,
+    .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibNaive_LPM,
+    .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibNaive_Insert,
 };
 

@@ -1,4 +1,4 @@
-#include "../patricia.c"
+#include "../patricia.h"
 
 #include <stdio.h>
 

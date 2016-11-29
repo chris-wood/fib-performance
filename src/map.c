@@ -187,11 +187,11 @@ _bucketMap_InsertToOverflowBucket(_BucketMap *map, _LinkedBucket *bucket, PARCBu
     _linkedBucket_InsertItem(bucket->overflow, key, item);
 }
 
-static void
-_bucketMap_ExpandAndRehash(_BucketMap *map, PARCBuffer *key, void *item)
-{
-    // TODO
-}
+//static void
+//_bucketMap_ExpandAndRehash(_BucketMap *map, PARCBuffer *key, void *item)
+//{
+//    // TODO
+//}
 
 static void
 _bucketMap_InsertToBucket(_BucketMap *map, PARCBuffer *key, void *item)
@@ -271,7 +271,7 @@ map_Insert(Map *map, PARCBuffer *key, void *item)
         keyHash = _map_ComputeBucketKeyHash(map, key);
     }
 
-    map->insert(map->instance, key, item);
+    map->insert(map->instance, keyHash, item);
 }
 
 void *
@@ -282,5 +282,5 @@ map_Get(Map *map, PARCBuffer *key)
         keyHash = _map_ComputeBucketKeyHash(map, key);
     }
 
-    return map->get(map->instance, key);
+    return map->get(map->instance, keyHash);
 }

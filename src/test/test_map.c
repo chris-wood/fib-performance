@@ -1,4 +1,4 @@
-#include "../map.c"
+#include "../map.h"
 
 #include <LongBow/testing.h>
 #include <LongBow/debugging.h>

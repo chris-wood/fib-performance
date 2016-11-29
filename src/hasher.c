@@ -24,7 +24,7 @@ hasher_Create()
 void
 hasher_Destroy(Hasher **hasherP)
 {
-    Hasher *hasher = *hasherP;
+//    Hasher *hasher = *hasherP;
 
     parcMemory_Deallocate(hasherP);
     *hasherP = NULL;

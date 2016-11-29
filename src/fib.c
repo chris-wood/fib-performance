@@ -44,13 +44,13 @@ fib_Create(void *instance, FIBInterface *interface)
 }
 
 PARCBitVector *
-fib_LPM(FIB *map, const CCNxName *ccnxName)
+fib_LPM(FIB *map, const Name *ccnxName)
 {
     return map->interface->LPM(map->instance, ccnxName);
 }
 
 bool
-fib_Insert(FIB *map, const CCNxName *ccnxName, PARCBitVector *vector)
+fib_Insert(FIB *map, const Name *ccnxName, PARCBitVector *vector)
 {
     return map->interface->Insert(map->instance, ccnxName, vector);
 }
