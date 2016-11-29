@@ -42,8 +42,6 @@ _fibNative_CreateMap()
     return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
 }
 
-#include <stdio.h>
-
 static void
 _fibNative_ExpandMapsToSize(FIBNaive *fib, int number)
 {

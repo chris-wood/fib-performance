@@ -20,6 +20,7 @@ set(libfib_SOURCES
     src/fib.c
     src/fib_cisco.c
     src/fib_naive.c
+    src/fib_caesar.c
     src/map.c
     src/name.c
     src/hasher.c
@@ -38,14 +39,6 @@ link_directories(
 set(fibtest_SOURCES
     ${libfib_SOURCES}
     src/fib-perf.c)
-#
-#set(util_SOURCES
-#        src/hasher.c
-#        src/siphash24.c
-#        src/random.c
-#        src/bloom.c
-#        src/prefix_bloom.c
-#        src/name.c)
 
 set(FIBTEST_LIBRARIES
        ccnx_common

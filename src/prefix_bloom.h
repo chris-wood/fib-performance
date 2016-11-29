@@ -19,7 +19,7 @@ typedef struct prefix_bloom_filter PrefixBloomFilter;
 PrefixBloomFilter *prefixBloomFilter_Create(int b, int m, int k);
 void prefixBloomFilter_Destroy(PrefixBloomFilter **bfP);
 
-void prefixBloomFilter_Add(PrefixBloomFilter *filter, Name *name);
-int prefixBloomFilter_LPM(PrefixBloomFilter *filter, Name *name);
+void prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name);
+int prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name);
 
 #endif //FIB_PERF_PREFIX_BLOOM_H

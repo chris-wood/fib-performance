@@ -54,7 +54,7 @@ prefixBloomFilter_Destroy(PrefixBloomFilter **bfP)
 }
 
 void
-prefixBloomFilter_Add(PrefixBloomFilter *filter, Name *name)
+prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
 {
     // 1. hash first segment to identify the block
     PARCBuffer *firstSegmentHash = hasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
@@ -69,7 +69,7 @@ prefixBloomFilter_Add(PrefixBloomFilter *filter, Name *name)
 }
 
 int
-prefixBloomFilter_LPM(PrefixBloomFilter *filter, Name *name)
+prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
 {
     // 1. hash first segment to identify the block
     PARCBuffer *firstSegmentHash = hasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
