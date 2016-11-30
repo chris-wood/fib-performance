@@ -45,9 +45,9 @@ _fibNative_CreateMap()
 static void
 _fibNative_ExpandMapsToSize(FIBNaive *fib, int number)
 {
-    if (fib->numMaps < number) {
+    if (fib->numMaps <= number) {
         fib->maps = (Map **) realloc(fib->maps, (number + 1) * (sizeof(Map *)));
-        for (size_t i = fib->numMaps; i <= number; i++) {
+        for (size_t i = fib->numMaps; i < number; i++) {
             fib->maps[i] = _fibNative_CreateMap();
         }
         fib->numMaps = number;

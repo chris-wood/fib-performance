@@ -59,7 +59,7 @@ _linkedBucketEntry_Create(PARCBuffer *key, void *item)
 }
 
 void
-_linkedBucket_Destory(_LinkedBucket **bucketPtr)
+_linkedBucket_Destroy(_LinkedBucket **bucketPtr)
 {
     _LinkedBucket *bucket = *bucketPtr;
 
@@ -67,8 +67,10 @@ _linkedBucket_Destory(_LinkedBucket **bucketPtr)
         _LinkedBucketEntry *entry = bucket->entries[i];
         _linkedBucketEntry_Destroy(&entry);
     }
+    free(bucket->entries);
+
     if (bucket->overflow != NULL) {
-        _linkedBucket_Destory(&bucket->overflow);
+        _linkedBucket_Destroy(&bucket->overflow);
     }
 
     free(bucket);
@@ -99,8 +101,10 @@ _bucketMap_Destroy(_BucketMap **mapPtr)
     _BucketMap *map = *mapPtr;
     for (int i = 0; i < map->numBuckets; i++) {
         _LinkedBucket *current = map->buckets[i];
-        _linkedBucket_Destory(&current);
+        _linkedBucket_Destroy(&current);
     }
+    free(map);
+    *mapPtr = NULL;
 }
 
 static _BucketMap *
@@ -272,6 +276,9 @@ map_Insert(Map *map, PARCBuffer *key, void *item)
     }
 
     map->insert(map->instance, keyHash, item);
+    if (map->rehash) {
+        parcBuffer_Release(&keyHash);
+    }
 }
 
 void *
@@ -282,5 +289,8 @@ map_Get(Map *map, PARCBuffer *key)
         keyHash = _map_ComputeBucketKeyHash(map, key);
     }
 
-    return map->get(map->instance, keyHash);
+    void *result = map->get(map->instance, keyHash);
+    if (map->rehash) {
+        parcBuffer_Release(&keyHash);
+    }
 }

@@ -123,9 +123,9 @@ _fibCisco_CreateMap()
 static void
 _fibCisco_ExpandMapsToSize(FIBCisco *fib, int number)
 {
-    if (fib->numMaps < number) {
+    if (fib->numMaps <= number) {
         fib->maps = (Map **) realloc(fib->maps, (number + 1) * (sizeof(Map *)));
-        for (size_t i = fib->numMaps; i <= number; i++) {
+        for (size_t i = fib->numMaps; i < number; i++) {
             fib->maps[i] = _fibCisco_CreateMap();
         }
         fib->numMaps = number;
