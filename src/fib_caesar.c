@@ -17,6 +17,21 @@ _fibCaesar_CreateMap()
     return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
 }
 
+void
+fibCaesar_Destroy(FIBCaesar **fibP)
+{
+    FIBCaesar *fib = *fibP;
+
+    for (int i = 0; i < fib->numMaps; i++) {
+        map_Destroy(&fib->maps[i]);
+    }
+    free(fib->maps);
+    prefixBloomFilter_Destroy(&fib->pbf);
+
+    free(fib);
+    *fibP = NULL;
+}
+
 FIBCaesar *
 fibCaesar_Create()
 {
@@ -83,5 +98,6 @@ fibCaesar_Insert(FIBCaesar *fib, const Name *name, PARCBitVector *vector)
 FIBInterface *CaesarFIBAsFIB = &(FIBInterface) {
         .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibCaesar_LPM,
         .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibCaesar_Insert,
+        .Destroy = (void (*)(void **instance)) fibCaesar_Destroy,
 };
 

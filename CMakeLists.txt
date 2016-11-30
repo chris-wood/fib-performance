@@ -17,18 +17,19 @@ include_directories(
     )
 
 set(libfib_SOURCES
-    src/fib.c
-    src/fib_cisco.c
-    src/fib_naive.c
-    src/fib_caesar.c
-    src/map.c
-    src/name.c
-    src/hasher.c
-    src/patricia.c
-    src/siphash24.c
-    src/random.c
-    src/bloom.c
-    src/prefix_bloom.c
+        src/fib.c
+        src/fib_cisco.c
+        src/fib_naive.c
+        src/fib_caesar.c
+        src/map.c
+        src/name.c
+        src/hasher.c
+        src/patricia.c
+        src/siphash24.c
+        src/random.c
+        src/bloom.c
+        src/prefix_bloom.c
+        src/merged_bloom.c
     )
 
 link_directories(
@@ -37,19 +38,20 @@ link_directories(
     )
 
 set(fibtest_SOURCES
-    ${libfib_SOURCES}
-    src/fib-perf.c)
+        ${libfib_SOURCES}
+        src/fib-perf.c)
 
 set(FIBTEST_LIBRARIES
-       ccnx_common
-       ccnx_api_portal
-       ccnx_api_notify
-       ccnx_transport_rta
-       ccnx_api_control
-       ccnx_common
-       parc
-       longbow
-       longbow-ansiterm)
+        ccnx_common
+        ccnx_api_portal
+        ccnx_api_notify
+        ccnx_transport_rta
+        ccnx_api_control
+        ccnx_common
+        parc
+        longbow
+        longbow-ansiterm
+        )
 
 macro(AddTest testFile)
     add_executable(${ARGV0} src/test/${ARGV0}.c ${libfib_SOURCES})
@@ -57,6 +59,13 @@ macro(AddTest testFile)
     add_test(${ARGV0} ${ARGV0})
     install(TARGETS ${ARGV0} DESTINATION bin)
 endmacro(AddTest)
+
+macro(AddFibTest testFile)
+    add_executable(${ARGV0} src/test/${ARGV0}.c ${libfib_SOURCES})
+    target_link_libraries(${ARGV0} ${FIBTEST_LIBRARIES})
+    add_test(${ARGV0} ${ARGV0})
+    install(TARGETS ${ARGV0} DESTINATION bin)
+endmacro(AddFibTest)
 
 SET(CMAKE_C_FLAGS_DEBUG "-D_DEBUG")
 add_executable(fib_perf ${fibtest_SOURCES})
@@ -71,3 +80,5 @@ AddTest(test_patricia)
 AddTest(test_bloom)
 AddTest(test_name)
 AddTest(test_prefix_bloom)
+
+AddFibTest(test_naive_fib)

@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include <parc/algol/parc_BitVector.h>
+
 #include "name.h"
 
 typedef enum {
@@ -28,9 +29,13 @@ typedef struct {
 
     // Insert a new name into the FIB
     bool (*Insert)(void *instance, const Name *ccnxName, PARCBitVector *vector);
+
+    void (*Destroy)(void **instance);
 } FIBInterface;
 
 FIB *fib_Create(void *instance, FIBInterface *interface);
+void fib_Destroy(FIB **fibP);
+
 PARCBitVector *fib_LPM(FIB *map, const Name *ccnxName);
 bool fib_Insert(FIB *map, const Name *ccnxName, PARCBitVector *vector);
 

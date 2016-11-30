@@ -7,6 +7,7 @@ struct fib_naive;
 typedef struct fib_naive FIBNaive;
 
 FIBNaive *fibNative_Create();
+void fibNaive_Destroy(FIBNaive **fibP);
 
 extern FIBInterface *NativeFIBAsFIB;
 

@@ -194,6 +194,20 @@ fibCisco_Insert(FIBCisco *fib, const Name *name, PARCBitVector *vector)
     return false;
 }
 
+void
+fibCisco_Destroy(FIBCisco **fibP)
+{
+    FIBCisco *fib = *fibP;
+
+    for (int i = 0; i < fib->numMaps; i++) {
+        map_Destroy(&fib->maps[i]);
+    }
+    free(fib->maps);
+
+    free(fib);
+    *fibP = NULL;
+}
+
 FIBCisco *
 fibCisco_Create(int M)
 {
@@ -211,4 +225,5 @@ fibCisco_Create(int M)
 FIBInterface *CiscoFIBAsFIB = &(FIBInterface) {
     .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibCisco_LPM,
     .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibCisco_Insert,
+        .Destroy = (void (*)(void **instance)) fibCisco_Destroy,
 };

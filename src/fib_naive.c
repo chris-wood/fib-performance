@@ -75,6 +75,20 @@ fibNaive_Insert(FIBNaive *fib, const Name *name, PARCBitVector *vector)
     return true;
 }
 
+void
+fibNaive_Destroy(FIBNaive **fibP)
+{
+    FIBNaive *fib = *fibP;
+
+    for (int i = 0; i < fib->numMaps; i++) {
+        map_Destroy(&fib->maps[i]);
+    }
+    free(fib->maps);
+
+    free(fib);
+    *fibP = NULL;
+}
+
 FIBNaive *
 fibNative_Create()
 {
@@ -90,5 +104,6 @@ fibNative_Create()
 FIBInterface *NativeFIBAsFIB = &(FIBInterface) {
     .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibNaive_LPM,
     .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibNaive_Insert,
+        .Destroy = (void (*)(void **instance)) fibNaive_Destroy,
 };
 

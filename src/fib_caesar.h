@@ -7,6 +7,7 @@ struct fib_caesar;
 typedef struct fib_caesar FIBCaesar;
 
 FIBCaesar *fibCaesar_Create();
+void fibCaesar_Destroy(FIBCaesar **fibP);
 
 extern FIBInterface *CaesarFIBAsFIB;
 

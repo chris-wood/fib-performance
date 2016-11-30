@@ -43,6 +43,17 @@ fib_Create(void *instance, FIBInterface *interface)
     return map;
 }
 
+void
+fib_Destroy(FIB **fibP)
+{
+    FIB *fib = *fibP;
+    if (fib != NULL) {
+        fib->interface->Destroy(&fib->instance);
+    }
+    free(fib);
+    *fibP = NULL;
+}
+
 PARCBitVector *
 fib_LPM(FIB *map, const Name *ccnxName)
 {
