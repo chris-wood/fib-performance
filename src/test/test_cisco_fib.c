@@ -12,6 +12,8 @@
 
 #include <parc/testing/parc_MemoryTesting.h>
 
+#include "test_fib.c"
+
 LONGBOW_TEST_RUNNER(fibCisco)
 {
     LONGBOW_RUN_TEST_FIXTURE(Core);
@@ -32,6 +34,7 @@ LONGBOW_TEST_RUNNER_TEARDOWN(fibCisco)
 LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, fibCisco_Create);
+    LONGBOW_RUN_TEST_CASE(Core, fibCisco_LookupSimple);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -55,6 +58,19 @@ LONGBOW_TEST_CASE(Core, fibCisco_Create)
 //    assertNotNull(bf, "Expected a non-NULL fibCisco to be created");
 //    fibCisco_Destroy(&bf);
 //    assertNull(bf, "Expected a NULL fibCisco after fibCisco_Destroy");
+}
+
+LONGBOW_TEST_CASE(Core, fibCisco_LookupSimple)
+{
+    FIBCisco *cisco = fibCisco_Create(3);
+    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+
+    FIB *fib = fib_Create(cisco, CiscoFIBAsFIB);
+    assertNotNull(fib, "Expected non-NULL FIB");
+
+    test_fib_lookup(fib);
+
+    fib_Destroy(&fib);
 }
 
 int

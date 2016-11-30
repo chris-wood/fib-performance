@@ -82,3 +82,4 @@ AddTest(test_name)
 AddTest(test_prefix_bloom)
 
 AddFibTest(test_naive_fib)
+AddFibTest(test_cisco_fib)
