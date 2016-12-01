@@ -17,6 +17,7 @@ struct bucket {
     int capacity;
     int numEntries;
     _LinkedBucketEntry **entries;
+    void (*valueDelete)(void **instance);
     struct bucket *overflow;
 };
 typedef struct bucket _LinkedBucket;
@@ -25,12 +26,14 @@ typedef struct {
     MapOverflowStrategy strategy;
     int numBuckets;
     _LinkedBucket **buckets;
+    void (*valueDelete)(void **instance);
 } _BucketMap;
 
 struct map {
     bool rehash;
     int keySize;
     PARCBuffer *key;
+    void (*valueDelete)(void **instance);
 
     void *instance;
     void (*destroy)(void **);
@@ -39,10 +42,13 @@ struct map {
 };
 
 void
-_linkedBucketEntry_Destroy(_LinkedBucketEntry **entryPtr)
+_linkedBucketEntry_Destroy(_LinkedBucketEntry **entryPtr, void (*delete)(void **instance))
 {
     _LinkedBucketEntry *entry = *entryPtr;
     parcBuffer_Release(&entry->key);
+    if (delete != NULL) {
+        delete(&entry->item);
+    }
     free(entry);
     *entryPtr = NULL;
 }
@@ -65,7 +71,7 @@ _linkedBucket_Destroy(_LinkedBucket **bucketPtr)
 
     for (int i = 0; i < bucket->numEntries; i++) {
         _LinkedBucketEntry *entry = bucket->entries[i];
-        _linkedBucketEntry_Destroy(&entry);
+        _linkedBucketEntry_Destroy(&entry, bucket->valueDelete);
     }
     free(bucket->entries);
 
@@ -79,13 +85,14 @@ _linkedBucket_Destroy(_LinkedBucket **bucketPtr)
 
 
 _LinkedBucket *
-_linkedBucket_Create(int capacity)
+_linkedBucket_Create(int capacity, void (*delete)(void **instance))
 {
     _LinkedBucket *bucket = (_LinkedBucket *) malloc(sizeof(_LinkedBucket));
     if (bucket != NULL) {
         bucket->numEntries = 0;
         bucket->capacity = capacity;
         bucket->overflow = NULL;
+        bucket->valueDelete = delete;
         if (capacity < 0) {
             bucket->entries = NULL;
         } else {
@@ -108,14 +115,15 @@ _bucketMap_Destroy(_BucketMap **mapPtr)
 }
 
 static _BucketMap *
-_bucketMap_Create(MapOverflowStrategy strategy)
+_bucketMap_Create(MapOverflowStrategy strategy, void (*delete)(void **instance))
 {
     _BucketMap *map = (_BucketMap *) malloc(sizeof(_BucketMap));
     map->strategy = strategy;
+    map->valueDelete = delete;
     map->numBuckets = MapDefaultCapacity;
     map->buckets = (_LinkedBucket **) malloc(sizeof(_LinkedBucket *) * MapDefaultCapacity);
     for (int i = 0; i < MapDefaultCapacity; i++) {
-        map->buckets[i] = _linkedBucket_Create(LinkedBucketDefaultCapacity);
+        map->buckets[i] = _linkedBucket_Create(LinkedBucketDefaultCapacity, delete);
     }
     return map;
 }
@@ -186,7 +194,7 @@ static void
 _bucketMap_InsertToOverflowBucket(_BucketMap *map, _LinkedBucket *bucket, PARCBuffer *key, void *item)
 {
     if (bucket->overflow == NULL) {
-        bucket->overflow = _linkedBucket_Create(-1);
+        bucket->overflow = _linkedBucket_Create(-1, map->valueDelete);
     }
     _linkedBucket_InsertItem(bucket->overflow, key, item);
 }
@@ -228,7 +236,7 @@ map_Destroy(Map **mapPtr)
 }
 
 Map *
-map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash)
+map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash, void (*delete)(void **instance))
 {
     Map *map = (Map *) malloc(sizeof(Map));
 
@@ -237,8 +245,9 @@ map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash)
         map->key = random_Bytes(parcBuffer_Allocate(SiphashKeySize));
 
         map->rehash = rehash;
+        map->valueDelete = delete;
 
-        map->instance = (void *) _bucketMap_Create(strategy);
+        map->instance = (void *) _bucketMap_Create(strategy, delete);
         map->destroy = (void (*)(void **)) _bucketMap_Destroy;
         map->insert = (void *(*)(void *, PARCBuffer *, void *)) _bucketMap_InsertToBucket;
         map->get = (void *(*)(void *, PARCBuffer *)) _bucketMap_Get;
@@ -293,4 +302,6 @@ map_Get(Map *map, PARCBuffer *key)
     if (map->rehash) {
         parcBuffer_Release(&keyHash);
     }
+
+    return result;
 }

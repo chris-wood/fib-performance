@@ -26,11 +26,13 @@ void test_fib_lookup(FIB *fib)
     parcBitVector_Set(vector4, 42);
 
     fib_Insert(fib, name1, vector1);
-
+//
 //    PARCBitVector *result1 = fib_LPM(fib, name1);
+//    assertNotNull(result1, "Expected non NULL result");
 //    assertTrue(parcBitVector_Equals(result1, vector1), "Expected the exact match to be returned");
 //
 //    PARCBitVector *result2 = fib_LPM(fib, name4);
+//    assertNotNull(result2, "Expected non NULL result");
 //    assertTrue(parcBitVector_Equals(result2, vector1), "Expected the first vector to be returned");
 //
 //    PARCBitVector *result3 = fib_LPM(fib, name3);

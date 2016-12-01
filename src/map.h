@@ -13,7 +13,7 @@ typedef enum {
 
 extern const int MapDefaultCapacity;
 
-Map *map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash);
+Map *map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash, void (*delete)(void **instance));
 Map *map_CreateWithCompactArray(MapOverflowStrategy strategy, bool rehash);
 void map_Destroy(Map **map);
 

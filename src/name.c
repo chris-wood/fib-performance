@@ -4,7 +4,8 @@
 
 #include "name.h"
 
-#include <parc/algol/parc_Buffer.h>
+#include <stdio.h>
+
 #include <parc/algol/parc_Memory.h>
 
 #include <ccnx/common/ccnx_Name.h>
@@ -99,6 +100,12 @@ name_Destroy(Name **nameP)
 
     parcMemory_Deallocate(nameP);
     *nameP = NULL;
+}
+
+void
+name_Display(const Name *name)
+{
+    printf("%s\n", name->uri);
 }
 
 int

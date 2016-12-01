@@ -13,6 +13,7 @@ typedef struct name Name;
 Name *name_CreateFromCString(char *uri);
 void name_Destroy(Name **nameP);
 
+void name_Display(const Name *name);
 int name_GetSegmentCount(const Name *name);
 PARCBuffer *name_GetWireFormat(const Name *name, int n);
 int name_GetSegmentLength(const Name *name, int n);

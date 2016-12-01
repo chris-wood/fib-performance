@@ -16,6 +16,17 @@ struct fib_cisco {
     Map **maps;
 };
 
+static void
+_fibCisco_DeleteEntry(_FIBCiscoEntry **entryP)
+{
+    _FIBCiscoEntry *entry = *entryP;
+
+    parcBuffer_Release(&entry->buffer);
+    free(entry);
+    parcBitVector_Release(&entry->vector);
+    *entryP = NULL;
+}
+
 static _FIBCiscoEntry *
 _fibCisco_CreateVirtualEntry(int depth)
 {
@@ -117,7 +128,7 @@ fibCisco_LPM(FIBCisco *fib, const Name *name)
 static Map *
 _fibCisco_CreateMap()
 {
-    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
+    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true, _fibCisco_DeleteEntry);
 }
 
 static void
@@ -176,7 +187,7 @@ fibCisco_Insert(FIBCisco *fib, const Name *name, PARCBitVector *vector)
     PARCBuffer *buffer = _computeNameBuffer(fib, name, numSegments);
     _FIBCiscoEntry *entry = _fibCisco_CreateEntry(vector, buffer, maximumDepth);
     parcBuffer_Release(&buffer);
-    
+
     // If there is an existing entry, make sure it's *NOT* virtual and update its MD if necessary
     _FIBCiscoEntry *existingEntry = _lookupNamePrefix(fib, name, numSegments);
     if (existingEntry != NULL) {
@@ -223,7 +234,7 @@ fibCisco_Create(int M)
 }
 
 FIBInterface *CiscoFIBAsFIB = &(FIBInterface) {
-    .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibCisco_LPM,
-    .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibCisco_Insert,
+        .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibCisco_LPM,
+        .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibCisco_Insert,
         .Destroy = (void (*)(void **instance)) fibCisco_Destroy,
 };

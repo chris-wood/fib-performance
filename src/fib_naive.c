@@ -1,8 +1,6 @@
 #include "fib_naive.h"
 #include "map.h"
 
-#include <parc/algol/parc_SafeMemory.h>
-
 struct fib_naive {
     int numMaps;
     Map **maps;
@@ -25,10 +23,10 @@ fibNaive_LPM(FIBNaive *fib, const Name *name)
 
     PARCBitVector *vector = NULL;
     for (int i = count; i > 0; i--) {
-        PARCBitVector *result = _fibNaive_LookupName(fib, name, count);
-        if (result == NULL) {
+        PARCBitVector *result = _fibNaive_LookupName(fib, name, i);
+        if (result == NULL && vector != NULL) {
             return vector;
-        } else {
+        } else { // vector == NULL
             vector = result;
         }
     }
@@ -39,7 +37,7 @@ fibNaive_LPM(FIBNaive *fib, const Name *name)
 static Map *
 _fibNative_CreateMap()
 {
-    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
+    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true, NULL);
 }
 
 static void
@@ -102,8 +100,8 @@ fibNative_Create()
 }
 
 FIBInterface *NativeFIBAsFIB = &(FIBInterface) {
-    .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibNaive_LPM,
-    .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibNaive_Insert,
+        .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibNaive_LPM,
+        .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibNaive_Insert,
         .Destroy = (void (*)(void **instance)) fibNaive_Destroy,
 };
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 project (fib_perf)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_C_STANDARD 99)
 set(CCNX_INCLUDE $ENV{CCNX_HOME}/include)
@@ -67,7 +67,7 @@ macro(AddFibTest testFile)
     install(TARGETS ${ARGV0} DESTINATION bin)
 endmacro(AddFibTest)
 
-SET(CMAKE_C_FLAGS_DEBUG "-D_DEBUG")
+#SET(CMAKE_C_FLAGS_DEBUG "-D_DEBUG")
 add_executable(fib_perf ${fibtest_SOURCES})
 set_target_properties(fib_perf PROPERTIES COMPILE_FLAGS "-Wall -pg")
 target_link_libraries(fib_perf ${FIBTEST_LIBRARIES})
@@ -83,3 +83,4 @@ AddTest(test_prefix_bloom)
 
 AddFibTest(test_naive_fib)
 AddFibTest(test_cisco_fib)
+AddFibTest(test_caesar_fib)

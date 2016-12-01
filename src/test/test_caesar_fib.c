@@ -5,12 +5,13 @@
 #include "../fib_caesar.h"
 
 #include <LongBow/testing.h>
-#include <LongBow/debugging.h>
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_SafeMemory.h>
 
 #include <parc/testing/parc_MemoryTesting.h>
+
+#include "test_fib.c"
 
 LONGBOW_TEST_RUNNER(fibCaesar)
 {
@@ -32,6 +33,7 @@ LONGBOW_TEST_RUNNER_TEARDOWN(fibCaesar)
 LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, fibCaesar_Create);
+    LONGBOW_RUN_TEST_CASE(Core, fibCaesar_LookupSimple);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -55,6 +57,19 @@ LONGBOW_TEST_CASE(Core, fibCaesar_Create)
 //    assertNotNull(bf, "Expected a non-NULL fibCaesar to be created");
 //    fibCaesar_Destroy(&bf);
 //    assertNull(bf, "Expected a NULL fibCaesar after fibCaesar_Destroy");
+}
+
+LONGBOW_TEST_CASE(Core, fibCaesar_LookupSimple)
+{
+    FIBCaesar *cisco = fibCaesar_Create(3);
+    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+
+    FIB *fib = fib_Create(cisco, CaesarFIBAsFIB);
+    assertNotNull(fib, "Expected non-NULL FIB");
+
+    test_fib_lookup(fib);
+
+    fib_Destroy(&fib);
 }
 
 int

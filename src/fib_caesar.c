@@ -14,7 +14,7 @@ struct fib_caesar {
 static Map *
 _fibCaesar_CreateMap()
 {
-    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true);
+    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true, NULL);
 }
 
 void
