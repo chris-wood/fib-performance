@@ -10,10 +10,10 @@ void test_fib_lookup(FIB *fib)
     // Name3 (the default route) contains both vector1 and vector2.
     // Name1 (a/b/c) contains only vector 1.
     // Name4 (a/b/c/d) is what we're looking for.
-    Name *name1 = name_CreateFromCString("ccnx:/a/b/c");
-    Name *name2 = name_CreateFromCString("ccnx:/a/b/a");
+    Name *name1 = name_CreateFromCString("ccnx:/a/b/c/d");
+    Name *name2 = name_CreateFromCString("ccnx:/a/b/a/d");
     Name *name3 = name_CreateFromCString("ccnx:/");
-    Name *name4 = name_CreateFromCString("ccnx:/a/b/c/d");
+    Name *name4 = name_CreateFromCString("ccnx:/a/b/c/d/e");
 
     PARCBitVector *vector1 = parcBitVector_Create();
     parcBitVector_Set(vector1, 0);

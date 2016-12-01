@@ -21,9 +21,13 @@ _fibCisco_DeleteEntry(_FIBCiscoEntry **entryP)
 {
     _FIBCiscoEntry *entry = *entryP;
 
-    parcBuffer_Release(&entry->buffer);
+    if (entry->buffer != NULL) {
+        parcBuffer_Release(&entry->buffer);
+    }
+    if (entry->vector != NULL) {
+        parcBitVector_Release(&entry->vector);
+    }
     free(entry);
-    parcBitVector_Release(&entry->vector);
     *entryP = NULL;
 }
 
@@ -147,16 +151,6 @@ bool
 fibCisco_Insert(FIBCisco *fib, const Name *name, PARCBitVector *vector)
 {
     size_t numSegments = name_GetSegmentCount(name);
-
-    /*
-    PARCBitVector *entry = fibCisco_LPM(fib, name);
-    if (entry != NULL) {
-        entry->isVirtual = false;
-        entry->maxDepth = numSegments;
-        return true;
-    }
-    */
-
     _fibCisco_ExpandMapsToSize(fib, numSegments);
 
     // Check to see if we need to create a virtual FIB entry.
@@ -175,14 +169,12 @@ fibCisco_Insert(FIBCisco *fib, const Name *name, PARCBitVector *vector)
     }
 
     // Update the MD for all segments smaller
-    /*
     for (size_t i = 1; i < numSegments; i++) {
         _FIBCiscoEntry *entry = _lookupNamePrefix(fib, name, i);
         if (entry != NULL) {
             entry->maxDepth = MAX(entry->maxDepth, maximumDepth);
         }
     }
-    */
 
     PARCBuffer *buffer = _computeNameBuffer(fib, name, numSegments);
     _FIBCiscoEntry *entry = _fibCisco_CreateEntry(vector, buffer, maximumDepth);
