@@ -24,8 +24,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d20d5bc1-1079-4a0d-94d9-968a82787ae0" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib_cisco.c" afterPath="$PROJECT_DIR$/src/fib_cisco.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/test_fib.c" afterPath="$PROJECT_DIR$/src/test/test_fib.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/merged_bloom.c" afterPath="$PROJECT_DIR$/src/merged_bloom.c" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -112,28 +111,32 @@
       <file leaf-file-name="merged_bloom.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/merged_bloom.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="112">
-              <caret line="8" column="35" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
-              <folding />
+            <state relative-caret-position="196">
+              <caret line="14" column="30" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="30" />
+              <folding>
+                <element signature="e#103#120#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="merged_bloom.c" pinned="false" current-in-tab="false">
+      <file leaf-file-name="merged_bloom.c" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/merged_bloom.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="19" column="22" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
-              <folding />
+            <state relative-caret-position="412">
+              <caret line="49" column="4" selection-start-line="49" selection-start-column="4" selection-end-line="49" selection-end-column="4" />
+              <folding>
+                <element signature="e#38#63#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="fib_cisco.c" pinned="false" current-in-tab="true">
+      <file leaf-file-name="fib_cisco.c" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/fib_cisco.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="790">
-              <caret line="152" column="52" selection-start-line="152" selection-start-column="52" selection-end-line="152" selection-end-column="52" />
+            <state relative-caret-position="580">
+              <caret line="153" column="49" selection-start-line="153" selection-start-column="49" selection-end-line="153" selection-end-column="49" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -186,7 +189,6 @@
         <option value="$PROJECT_DIR$/src/prefix_bloom.h" />
         <option value="$PROJECT_DIR$/src/prefix_bloom.c" />
         <option value="$PROJECT_DIR$/src/merged_bloom.h" />
-        <option value="$PROJECT_DIR$/src/merged_bloom.c" />
         <option value="$PROJECT_DIR$/src/test/test_merged_bloom.c" />
         <option value="$PROJECT_DIR$/src/test/shared_fib_util.c.c" />
         <option value="$PROJECT_DIR$/src/test/shared_fib_util.h" />
@@ -208,6 +210,7 @@
         <option value="$PROJECT_DIR$/src/test/test_caesar_fib.c" />
         <option value="$PROJECT_DIR$/src/test/test_fib.c" />
         <option value="$PROJECT_DIR$/src/fib_cisco.c" />
+        <option value="$PROJECT_DIR$/src/merged_bloom.c" />
       </list>
     </option>
   </component>
@@ -535,7 +538,7 @@
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32912722" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32920793" sideWeight="0.505571" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32912722" sideWeight="0.49442896" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32912722" sideWeight="0.49442896" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39957938" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -801,6 +804,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="168">
           <caret line="12" column="23" selection-start-line="12" selection-start-column="23" selection-end-line="12" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#21#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -940,22 +946,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/merged_bloom.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="19" column="22" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/merged_bloom.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="8" column="35" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/fib_naive.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="154">
@@ -994,10 +984,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/fib_cisco.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="790">
-          <caret line="152" column="52" selection-start-line="152" selection-start-column="52" selection-end-line="152" selection-end-column="52" />
+        <state relative-caret-position="580">
+          <caret line="153" column="49" selection-start-line="153" selection-start-column="49" selection-end-line="153" selection-end-column="49" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/merged_bloom.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="14" column="30" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="30" />
+          <folding>
+            <element signature="e#103#120#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/merged_bloom.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="412">
+          <caret line="49" column="4" selection-start-line="49" selection-start-column="4" selection-end-line="49" selection-end-column="4" />
+          <folding>
+            <element signature="e#38#63#0" expanded="true" />
           </folding>
         </state>
       </provider>
