@@ -21,6 +21,7 @@ set(libfib_SOURCES
         src/fib_cisco.c
         src/fib_naive.c
         src/fib_caesar.c
+        src/fib_caesar_filter.c
         src/map.c
         src/name.c
         src/hasher.c
@@ -84,3 +85,4 @@ AddTest(test_prefix_bloom)
 AddFibTest(test_naive_fib)
 AddFibTest(test_cisco_fib)
 AddFibTest(test_caesar_fib)
+AddFibTest(test_caesar_bloom_fib)

@@ -102,7 +102,7 @@ fibCisco_LPM(FIBCisco *fib, const Name *name)
                 firstEntryMatch = entry;
                 break;
             } else if (!entry->isVirtual) {
-                return entry->vector;
+                return parcBitVector_Acquire(entry->vector);
             } 
         }
     }
@@ -116,13 +116,13 @@ fibCisco_LPM(FIBCisco *fib, const Name *name)
         if (startPrefix == fib->M) {
             entry = firstEntryMatch;
             if (!entry->isVirtual) {
-                return entry->vector;
+                return parcBitVector_Acquire(entry->vector);
             }
         }
 
         _FIBCiscoEntry *targetEntry = _lookupNamePrefix(fib, name, i); 
         if (targetEntry != NULL && !targetEntry->isVirtual) {
-            return targetEntry->vector;
+            return parcBitVector_Acquire(targetEntry->vector);
         } 
     }
 

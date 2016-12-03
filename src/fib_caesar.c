@@ -68,7 +68,7 @@ fibCaesar_LPM(FIBCaesar *fib, const Name *name)
         PARCBuffer *key = name_GetWireFormat(name, numMatches);
         PARCBitVector *match = map_Get(table, key);
         parcBuffer_Release(&key);
-        return match;
+        return parcBitVector_Acquire(match);
     }
     return NULL;
 }

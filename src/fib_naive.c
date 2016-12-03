@@ -25,13 +25,17 @@ fibNaive_LPM(FIBNaive *fib, const Name *name)
     for (int i = count; i > 0; i--) {
         PARCBitVector *result = _fibNaive_LookupName(fib, name, i);
         if (result == NULL && vector != NULL) {
-            return vector;
+            return parcBitVector_Acquire(vector);
         } else { // vector == NULL
             vector = result;
         }
     }
 
-    return vector;
+    if (vector != NULL) {
+        return parcBitVector_Acquire(vector);
+    } else {
+        return vector;
+    }
 }
 
 static Map *

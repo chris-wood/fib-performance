@@ -16,27 +16,29 @@ void test_fib_lookup(FIB *fib)
     Name *name4 = name_CreateFromCString("ccnx:/a/b/c/d/e");
 
     PARCBitVector *vector1 = parcBitVector_Create();
-    parcBitVector_Set(vector1, 0);
+    parcBitVector_Set(vector1, 2);
     PARCBitVector *vector2 = parcBitVector_Create();
     parcBitVector_Set(vector2, 13);
     PARCBitVector *vector3 = parcBitVector_Create();
-    parcBitVector_Set(vector3, 0);
+    parcBitVector_Set(vector3, 2);
     parcBitVector_Set(vector3, 13);
     PARCBitVector *vector4 = parcBitVector_Create();
     parcBitVector_Set(vector4, 42);
 
     fib_Insert(fib, name1, vector1);
-//
-//    PARCBitVector *result1 = fib_LPM(fib, name1);
-//    assertNotNull(result1, "Expected non NULL result");
-//    assertTrue(parcBitVector_Equals(result1, vector1), "Expected the exact match to be returned");
-//
-//    PARCBitVector *result2 = fib_LPM(fib, name4);
-//    assertNotNull(result2, "Expected non NULL result");
-//    assertTrue(parcBitVector_Equals(result2, vector1), "Expected the first vector to be returned");
-//
-//    PARCBitVector *result3 = fib_LPM(fib, name3);
-//    assertTrue(result3 == NULL, "Expected nothing to be found");
+
+    PARCBitVector *result1 = fib_LPM(fib, name1);
+    assertNotNull(result1, "Expected non NULL result");
+    assertTrue(parcBitVector_Equals(result1, vector1), "Expected the exact match to be returned");
+    parcBitVector_Release(&result1);
+
+    PARCBitVector *result2 = fib_LPM(fib, name4);
+    assertNotNull(result2, "Expected non NULL result");
+    assertTrue(parcBitVector_Equals(result2, vector1), "Expected the first vector to be returned");
+    parcBitVector_Release(&result2);
+
+    PARCBitVector *result3 = fib_LPM(fib, name3);
+    assertTrue(result3 == NULL, "Expected nothing to be found");
 
     parcBitVector_Release(&vector1);
     parcBitVector_Release(&vector2);

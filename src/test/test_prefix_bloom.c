@@ -76,19 +76,23 @@ LONGBOW_TEST_CASE(Core, prefixBloom_Add)
 
 LONGBOW_TEST_CASE(Core, prefixBloom_AddTest)
 {
-    PrefixBloomFilter *bf = prefixBloomFilter_Create(10, 128, 3);
+    PrefixBloomFilter *bf = prefixBloomFilter_Create(10, 128, 5);
 
     Name *x1 = name_CreateFromCString("ccnx:/foo/barr");
     Name *x2 = name_CreateFromCString("ccnx:/foob/barr");
     Name *x3 = name_CreateFromCString("ccnx:/fo");
+    Name *x4 = name_CreateFromCString("ccnx:/bar/food");
     Name *y = name_CreateFromCString("ccnx:/foo");
     Name *z = name_CreateFromCString("ccnx:/baz");
 
-    // don't add X
     prefixBloomFilter_Add(bf, y);
     prefixBloomFilter_Add(bf, z);
+    prefixBloomFilter_Add(bf, x4);
 
-    int index = prefixBloomFilter_LPM(bf, x1);
+    int index = prefixBloomFilter_LPM(bf, x4);
+    assertTrue(index == 2, "Expected x to match the full 2 segments, got %d", index);
+
+    index = prefixBloomFilter_LPM(bf, x1);
     assertTrue(index == 1, "Expected x to match only 1 segment, got %d", index);
 
     index = prefixBloomFilter_LPM(bf, x2);
@@ -100,6 +104,7 @@ LONGBOW_TEST_CASE(Core, prefixBloom_AddTest)
     name_Destroy(&x1);
     name_Destroy(&x2);
     name_Destroy(&x3);
+    name_Destroy(&x4);
     name_Destroy(&y);
     name_Destroy(&z);
 
