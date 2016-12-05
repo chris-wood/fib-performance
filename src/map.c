@@ -23,7 +23,6 @@ struct bucket {
 typedef struct bucket _LinkedBucket;
 
 typedef struct {
-    MapOverflowStrategy strategy;
     int numBuckets;
     _LinkedBucket **buckets;
     void (*valueDelete)(void **instance);
@@ -115,10 +114,9 @@ _bucketMap_Destroy(_BucketMap **mapPtr)
 }
 
 static _BucketMap *
-_bucketMap_Create(MapOverflowStrategy strategy, void (*delete)(void **instance))
+_bucketMap_Create(void (*delete)(void **instance))
 {
     _BucketMap *map = (_BucketMap *) malloc(sizeof(_BucketMap));
-    map->strategy = strategy;
     map->valueDelete = delete;
     map->numBuckets = MapDefaultCapacity;
     map->buckets = (_LinkedBucket **) malloc(sizeof(_LinkedBucket *) * MapDefaultCapacity);
@@ -213,15 +211,7 @@ _bucketMap_InsertToBucket(_BucketMap *map, PARCBuffer *key, void *item)
 
     bool wasAdded = _linkedBucket_InsertItem(bucket, key, item);
     if (!wasAdded) {
-        switch (map->strategy) {
-            case MapOverflowStrategy_OverflowBucket:
-                _bucketMap_InsertToOverflowBucket(map, bucket, key, item);
-                break;
-            case MapOverflowStrategy_ExpandAndReHash:
-                assertTrue(false, "MapOverflowStrategy_ExpandAndReHash not implemented yet.");
-                // _map_ExpandAndRehash(map, key, item);
-                break;
-        }
+        _bucketMap_InsertToOverflowBucket(map, bucket, key, item);
     }
 }
 
@@ -236,7 +226,7 @@ map_Destroy(Map **mapPtr)
 }
 
 Map *
-map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash, void (*delete)(void **instance))
+map_Create(void (*delete)(void **instance))
 {
     Map *map = (Map *) malloc(sizeof(Map));
 
@@ -244,10 +234,9 @@ map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash, void (*de
         map->keySize = DefaultKeySize;
         map->key = random_Bytes(parcBuffer_Allocate(SiphashKeySize));
 
-        map->rehash = rehash;
         map->valueDelete = delete;
 
-        map->instance = (void *) _bucketMap_Create(strategy, delete);
+        map->instance = (void *) _bucketMap_Create(delete);
         map->destroy = (void (*)(void **)) _bucketMap_Destroy;
         map->insert = (void *(*)(void *, PARCBuffer *, void *)) _bucketMap_InsertToBucket;
         map->get = (void *(*)(void *, PARCBuffer *)) _bucketMap_Get;
@@ -279,29 +268,31 @@ _map_ComputeBucketKeyHash(Map *map, PARCBuffer *key)
 void
 map_Insert(Map *map, PARCBuffer *key, void *item)
 {
-    PARCBuffer *keyHash = key;
-    if (map->rehash) {
-        keyHash = _map_ComputeBucketKeyHash(map, key);
-    }
-
+    PARCBuffer *keyHash = _map_ComputeBucketKeyHash(map, key);
     map->insert(map->instance, keyHash, item);
-    if (map->rehash) {
-        parcBuffer_Release(&keyHash);
-    }
+    parcBuffer_Release(&keyHash);
 }
 
 void *
 map_Get(Map *map, PARCBuffer *key)
 {
-    PARCBuffer *keyHash = key;
-    if (map->rehash) {
-        keyHash = _map_ComputeBucketKeyHash(map, key);
-    }
+    PARCBuffer *keyHash = _map_ComputeBucketKeyHash(map, key);
 
     void *result = map->get(map->instance, keyHash);
-    if (map->rehash) {
-        parcBuffer_Release(&keyHash);
-    }
+    parcBuffer_Release(&keyHash);
 
+    return result;
+}
+
+void
+map_InsertHashed(Map *map, PARCBuffer *key, void *item)
+{
+    map->insert(map->instance, key, item);
+}
+
+void *
+map_GetHashed(Map *map, PARCBuffer *key)
+{
+    void *result = map->get(map->instance, key);
     return result;
 }

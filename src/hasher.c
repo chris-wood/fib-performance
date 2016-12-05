@@ -31,7 +31,13 @@ hasher_Destroy(Hasher **hasherP)
 }
 
 PARCBuffer *
-hasher_Hash(Hasher *hasher, PARCBuffer *input, PARCBuffer *key)
+hasher_Hash(Hasher *hasher, PARCBuffer *input)
+{
+    return NULL;
+}
+
+PARCBuffer *
+hasher_KeyedHash(Hasher *hasher, PARCBuffer *input, PARCBuffer *key)
 {
     PARCBuffer *hashOutput = parcBuffer_Allocate(SIPHASH_HASH_LENGTH);
     siphash(parcBuffer_Overlay(hashOutput, 0), parcBuffer_Overlay(input, 0),
@@ -56,7 +62,7 @@ hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range, int numKeys, P
     PARCBitVector *vector = parcBitVector_Create();
 
     for (int i = 0; i < numKeys; i++) {
-        PARCBuffer *hashOutput = hasher_Hash(hasher, input, keys[i]);
+        PARCBuffer *hashOutput = hasher_KeyedHash(hasher, input, keys[i]);
         size_t index = parcBuffer_GetUint64(hashOutput) % range;
         parcBitVector_Set(vector, index);
         parcBuffer_Release(&hashOutput);

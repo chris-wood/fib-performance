@@ -132,7 +132,7 @@ fibCisco_LPM(FIBCisco *fib, const Name *name)
 static Map *
 _fibCisco_CreateMap()
 {
-    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true, _fibCisco_DeleteEntry);
+    return map_Create(_fibCisco_DeleteEntry);
 }
 
 static void

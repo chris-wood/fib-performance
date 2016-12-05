@@ -14,7 +14,7 @@ struct fib_caesar {
 static Map *
 _fibCaesar_CreateMap()
 {
-    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true, NULL);
+    return map_Create(NULL);
 }
 
 void
@@ -33,11 +33,11 @@ fibCaesar_Destroy(FIBCaesar **fibP)
 }
 
 FIBCaesar *
-fibCaesar_Create()
+fibCaesar_Create(int b, int m, int k)
 {
     FIBCaesar *fib = (FIBCaesar *) malloc(sizeof(FIBCaesar));
     if (fib != NULL) {
-        fib->pbf = prefixBloomFilter_Create(100, 128, 3);
+        fib->pbf = prefixBloomFilter_Create(b, m, k);
         fib->numMaps = 1;
         fib->maps = (Map **) malloc(sizeof(Map *));
         fib->maps[0] = _fibCaesar_CreateMap();
@@ -64,9 +64,14 @@ fibCaesar_LPM(FIBCaesar *fib, const Name *name)
     if (numMatches >= 0) {
         Map *table = fib->maps[numMatches - 1];
 
-        // XXX: compute the key here
         PARCBuffer *key = name_GetWireFormat(name, numMatches);
-        PARCBitVector *match = map_Get(table, key);
+        PARCBitVector *match = NULL;
+        if (name_IsHashed(name)) {
+            match = map_GetHashed(table, key);
+        } else {
+            match = map_Get(table, key);
+        }
+
         parcBuffer_Release(&key);
         return parcBitVector_Acquire(match);
     }

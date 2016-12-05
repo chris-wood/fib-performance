@@ -7,11 +7,16 @@
 
 #include <parc/algol/parc_Buffer.h>
 
+#include "hasher.h"
+
 struct name;
 typedef struct name Name;
 
 Name *name_CreateFromCString(char *uri);
 void name_Destroy(Name **nameP);
+
+Name *name_Hash(Name *name, Hasher *hasher);
+bool name_IsHashed(const Name *name);
 
 void name_Display(const Name *name);
 int name_GetSegmentCount(const Name *name);
@@ -19,4 +24,4 @@ PARCBuffer *name_GetWireFormat(const Name *name, int n);
 int name_GetSegmentLength(const Name *name, int n);
 uint8_t *name_GetSegmentOffset(const Name *name, int n);
 
-#endif //FIB_PERF_NAME_H
+#endif // FIB_PERF_NAME_H

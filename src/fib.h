@@ -17,6 +17,7 @@ typedef enum {
     FIBAlgorithm_Naive,
     FIBAlgorithm_Cisco,
     FIBAlgorithm_Caesar,
+    FIBAlgorithm_CaesarBloom,
     FIBAlgorithm_Song
 } FIBAlgorithm;
 

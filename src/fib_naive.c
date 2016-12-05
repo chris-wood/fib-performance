@@ -10,7 +10,14 @@ static PARCBitVector *
 _fibNaive_LookupName(FIBNaive *fib, const Name *name, int count)
 {
     PARCBuffer *buffer = name_GetWireFormat(name, count);
-    PARCBitVector *result = map_Get(fib->maps[count - 1], buffer);
+    PARCBitVector *result = NULL;
+
+    if (name_IsHashed(name)) {
+        result = map_GetHashed(fib->maps[count - 1], buffer);
+    } else {
+        result = map_Get(fib->maps[count - 1], buffer);
+    }
+
     parcBuffer_Release(&buffer);
     return result;
 }
@@ -41,7 +48,7 @@ fibNaive_LPM(FIBNaive *fib, const Name *name)
 static Map *
 _fibNative_CreateMap()
 {
-    return map_CreateWithLinkedBuckets(MapOverflowStrategy_OverflowBucket, true, NULL);
+    return map_Create(NULL);
 }
 
 static void
@@ -70,6 +77,8 @@ fibNaive_Insert(FIBNaive *fib, const Name *name, PARCBitVector *vector)
 
     for (size_t i = 0; i < numSegments; i++) {
         PARCBuffer *buffer = name_GetWireFormat(name, i + 1);
+
+        // XXX: caw, insert hashed
         map_Insert(fib->maps[i], buffer, (void *) vector);
         parcBuffer_Release(&buffer);
     }

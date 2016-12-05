@@ -6,6 +6,7 @@
 #define FIB_PERF_MERGED_BLOOM_H
 
 #include "name.h"
+
 #include <parc/algol/parc_BitVector.h>
 
 struct merged_bloom_filter;

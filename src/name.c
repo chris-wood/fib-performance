@@ -14,6 +14,7 @@
 
 struct name {
     char *uri;
+    bool isHashed;
     PARCBuffer *wireFormat;
 
     int numSegments;
@@ -26,10 +27,10 @@ _encodeNameToWireFormat(Name *name)
 {
     CCNxName *ccnxName = ccnxName_CreateFromCString(name->uri);
     if (ccnxName != NULL) {
-
         name->numSegments = ccnxName_GetSegmentCount(ccnxName);
         name->offsets = parcMemory_Allocate(sizeof(int) * name->numSegments);
         name->sizes = parcMemory_Allocate(sizeof(int) * name->numSegments);
+        name->isHashed = false;
 
         CCNxCodecTlvEncoder *codec = ccnxCodecTlvEncoder_Create();
         ccnxCodecTlvEncoder_Initialize(codec);
@@ -100,6 +101,43 @@ name_Destroy(Name **nameP)
 
     parcMemory_Deallocate(nameP);
     *nameP = NULL;
+}
+
+Name *
+name_Hash(Name *name, Hasher *hasher)
+{
+    Name *newName = parcMemory_Allocate(sizeof(Name));
+    if (newName!= NULL) {
+        newName->uri = parcMemory_StringDuplicate(name->uri, strlen(name->uri));
+        newName->numSegments = name->numSegments;
+        newName->offsets = parcMemory_Allocate(sizeof(int) * name->numSegments);
+        newName->sizes = parcMemory_Allocate(sizeof(int) * name->numSegments);
+        newName->isHashed = true;
+
+        PARCBufferComposer *composer = parcBufferComposer_Create();
+        for (int i = 1; i <= name->numSegments; i++) {
+            PARCBuffer *prefix = name_GetWireFormat(name, i);
+            PARCBuffer *hash = hasher_Hash(hasher, prefix);
+
+            parcBufferComposer_PutBuffer(composer, prefix);
+            newName->offsets[i - 1] = i == 1 ? 0 : newName->offsets[i - 2] + parcBuffer_Remaining(hash);
+            newName->sizes[i - 1] = parcBuffer_Remaining(hash);
+
+            parcBuffer_Release(&hash);
+            parcBuffer_Release(&prefix);
+        }
+
+        newName->wireFormat = parcBufferComposer_ProduceBuffer(composer);
+
+        parcBufferComposer_Release(&composer);
+    }
+    return newName;
+}
+
+bool
+name_IsHashed(const Name *name)
+{
+    return name->isHashed;
 }
 
 void

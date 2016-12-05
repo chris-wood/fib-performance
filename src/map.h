@@ -6,18 +6,15 @@
 struct map;
 typedef struct map Map;
 
-typedef enum {
-    MapOverflowStrategy_OverflowBucket,
-    MapOverflowStrategy_ExpandAndReHash,
-} MapOverflowStrategy;
-
 extern const int MapDefaultCapacity;
 
-Map *map_CreateWithLinkedBuckets(MapOverflowStrategy strategy, bool rehash, void (*delete)(void **instance));
-Map *map_CreateWithCompactArray(MapOverflowStrategy strategy, bool rehash);
+Map *map_Create(void (*delete)(void **instance));
 void map_Destroy(Map **map);
 
 void map_Insert(Map *map, PARCBuffer *key, void *item);
 void *map_Get(Map *map, PARCBuffer *key);
+
+void map_InsertHashed(Map *map, PARCBuffer *key, void *item);
+void *map_GetHashed(Map *map, PARCBuffer *key);
 
 #endif // map_h_

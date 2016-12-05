@@ -1,10 +1,19 @@
+#include <time.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <getopt.h>
+
 #include <parc/algol/parc_SafeMemory.h>
 #include <parc/algol/parc_BufferComposer.h>
 #include <parc/algol/parc_LinkedList.h>
 //#include <parc/algol/parc_Iterator.h>
 //#include <parc/developer/parc_Stopwatch.h>
 
-#include <time.h>
+#include "fib.h"
+#include "fib_naive.h"
+#include "fib_cisco.h"
+#include "fib_caesar.h"
+#include "fib_caesar_filter.h"
 
 struct timespec
 timer_start()
@@ -22,14 +31,6 @@ timer_end(struct timespec start_time)
     long diffInNanos = ((end_time.tv_sec - start_time.tv_sec) * 10000000000L) + (end_time.tv_nsec - start_time.tv_nsec);
     return diffInNanos;
 }
-
-#include <stdio.h>
-#include <ctype.h>
-#include <getopt.h>
-
-#include "fib.h"
-#include "fib_naive.h"
-#include "fib_cisco.h"
 
 PARCBufferComposer *
 readLine(FILE *fp)
@@ -105,6 +106,12 @@ parseCommandLineOptions(int argc, char **argv)
                     } else if (strcmp(optarg, "naive") == 0) {
                         FIBNaive *nativeFIB = fibNative_Create();
                         fib = fib_Create(nativeFIB, NativeFIBAsFIB);
+                    } else if (strcmp(optarg, "caesar") == 0) {
+                        FIBCaesar *caesarFIB = fibCaesar_Create(128, 128, 5);
+                        fib = fib_Create(caesarFIB, CaesarFIBAsFIB);
+                    } else if (strcmp(optarg, "caesar-filter") == 0) {
+                        FIBCaesarFilter *filterFIB = fibCaesarFilter_Create(256, 128, 128, 5);
+                        fib = fib_Create(filterFIB, CaesarFilterFIBAsFIB);
                     } else {
                         perror("Invalid algorithm specified\n");
                         usage();
@@ -228,14 +235,13 @@ main(int argc, char **argv)
         Name *name = curr->name;
         PARCBitVector *vector = parcBitVector_Create();
 
-
         // Lookup and time it.
         struct timespec start = timer_start();
         PARCBitVector *output = fib_LPM(fib, name);
         long elapsedTime = timer_end(start);
 
         assertNotNull(output, "Expected a non-NULL output");
-        //PARCBitVector *expected = parcLinkedList_GetAtIndex(vectorList, index++);
+//        PARCBitVector *expected = parcLinkedList_GetAtIndex(vectorList, index++);
         //assertTrue(parcBitVector_Equals(output, expected), "Expected the correct return vector");
 
         printf("Time %d: %lu ns\n", index, elapsedTime);

@@ -14,7 +14,8 @@ typedef struct hasher Hasher;
 Hasher *hasher_Create();
 void hasher_Destroy(Hasher **hasherP);
 
-PARCBuffer *hasher_Hash(Hasher *hasher, PARCBuffer *input, PARCBuffer *key);
+PARCBuffer *hasher_Hash(Hasher *hasher, PARCBuffer *input);
+PARCBuffer *hasher_KeyedHash(Hasher *hasher, PARCBuffer *input, PARCBuffer *key);
 PARCBuffer *hasher_HashArray(Hasher *hasher, size_t length, uint8_t input[length]);
 PARCBitVector *hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range, int numKeys, PARCBuffer **keys);
 

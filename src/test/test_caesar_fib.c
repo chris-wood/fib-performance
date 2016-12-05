@@ -61,7 +61,7 @@ LONGBOW_TEST_CASE(Core, fibCaesar_Create)
 
 LONGBOW_TEST_CASE(Core, fibCaesar_LookupSimple)
 {
-    FIBCaesar *cisco = fibCaesar_Create(3);
+    FIBCaesar *cisco = fibCaesar_Create(100, 128, 3);
     assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
 
     FIB *fib = fib_Create(cisco, CaesarFIBAsFIB);

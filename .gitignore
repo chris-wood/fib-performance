@@ -36,5 +36,6 @@ fib_perf
 test_map
 
 CMakeFiles/
+cmake-build-debug/
 
 *.swp
