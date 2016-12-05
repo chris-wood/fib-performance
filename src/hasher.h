@@ -11,12 +11,18 @@
 struct hasher;
 typedef struct hasher Hasher;
 
-Hasher *hasher_Create();
+typedef struct {
+    PARCBuffer *(*Hash)(void *hasher, PARCBuffer *input);
+    PARCBuffer *(*HashArray)(void *hasher, size_t length, uint8_t input[length]);
+    PARCBitVector *(*HashToVector)(void *hasher, PARCBuffer *input, int range);
+    void (*Destroy)(void **instance);
+} HasherInterface;
+
+Hasher *hasher_Create(void *instance, HasherInterface *interface);
 void hasher_Destroy(Hasher **hasherP);
 
 PARCBuffer *hasher_Hash(Hasher *hasher, PARCBuffer *input);
-PARCBuffer *hasher_KeyedHash(Hasher *hasher, PARCBuffer *input, PARCBuffer *key);
 PARCBuffer *hasher_HashArray(Hasher *hasher, size_t length, uint8_t input[length]);
-PARCBitVector *hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range, int numKeys, PARCBuffer **keys);
+PARCBitVector *hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range);
 
 #endif //FIB_PERF_HASHER_H

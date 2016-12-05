@@ -9,15 +9,16 @@
 #include "prefix_bloom.h"
 
 #include "bloom.h"
-#include "hasher.h"
+#include "siphasher.h"
 
 struct prefix_bloom_filter {
     int k;
     int m;
     int b;
 
+    PARCBuffer **keys;
     BloomFilter **filterBlocks;
-    Hasher *hasher;
+    SipHasher *hasher;
 };
 
 PrefixBloomFilter *
@@ -28,12 +29,19 @@ prefixBloomFilter_Create(int b, int m, int k)
         filter->b = b;
         filter->m = m;
         filter->k = k;
-        filter->hasher = hasher_Create();
 
         filter->filterBlocks = parcMemory_Allocate(b * sizeof(PrefixBloomFilter *));
         for (int i = 0; i < b; i++) {
             filter->filterBlocks[i] = bloom_Create(m, k);
         }
+
+        filter->keys = (PARCBuffer **) malloc(sizeof(PARCBuffer **) * k);
+        for (int i = 0; i < k; i++) {
+            filter->keys[i] = parcBuffer_Allocate(SIPHASH_KEY_LENGTH);
+            parcBuffer_PutUint32(filter->keys[i], k);
+            parcBuffer_Flip(filter->keys[i]);
+        }
+        filter->hasher = siphasher_CreateWithKeys(k, filter->keys);
     }
     return filter;
 }
@@ -46,8 +54,13 @@ prefixBloomFilter_Destroy(PrefixBloomFilter **bfP)
     for (int i = 0; i < filter->b; i++) {
         bloom_Destroy(&filter->filterBlocks[i]);
     }
+    for (int i = 0; i < filter->k; i++) {
+        parcBuffer_Release(&filter->keys[i]);
+    }
+
+    free(filter->keys);
     parcMemory_Deallocate(&filter->filterBlocks);
-    hasher_Destroy(&filter->hasher);
+    siphasher_Destroy(&filter->hasher);
 
     parcMemory_Deallocate(bfP);
     *bfP = NULL;
@@ -57,7 +70,7 @@ void
 prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
 {
     // 1. hash first segment to identify the block
-    PARCBuffer *firstSegmentHash = hasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+    PARCBuffer *firstSegmentHash = siphasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
     uint64_t blockIndex = parcBuffer_GetUint64(firstSegmentHash) % filter->b;
 
     // 2. add the k hashes to the filter
@@ -72,7 +85,7 @@ int
 prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
 {
     // 1. hash first segment to identify the block
-    PARCBuffer *firstSegmentHash = hasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+    PARCBuffer *firstSegmentHash = siphasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
     uint64_t blockIndex = parcBuffer_GetUint64(firstSegmentHash) % filter->b;
 
     // 2. do the LPM lookup, starting with the longest possible name

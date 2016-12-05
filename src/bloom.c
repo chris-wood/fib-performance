@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 #include "bloom.h"
-#include "siphash24.h"
+#include "siphasher.h"
 #include "hasher.h"
 
 #include <parc/algol/parc_Memory.h>
@@ -13,7 +13,7 @@ struct bloom_filter {
     int bucketSize;
     int numBuckets;
 
-    Hasher *hasher;
+    SipHasher *hasher;
     PARCBitVector *array;
     PARCBuffer **keys;
 };
@@ -30,7 +30,6 @@ bloom_Create(int m, int k)
         bf->bucketSize = m * 8;
         bf->numBuckets = bf->bucketSize / SIPHASH_HASH_LENGTH;
         bf->array = parcBitVector_Create();
-        bf->hasher = hasher_Create();
 
         bf->keys = parcMemory_Allocate(sizeof(PARCBuffer **) * k);
         for (int i = 0; i < k; i++) {
@@ -38,6 +37,8 @@ bloom_Create(int m, int k)
             parcBuffer_PutUint32(bf->keys[i], k);
             parcBuffer_Flip(bf->keys[i]);
         }
+
+        bf->hasher = siphasher_CreateWithKeys(k, bf->keys);
 
     }
     return bf;
@@ -49,7 +50,7 @@ bloom_Destroy(BloomFilter **bfP)
     BloomFilter *bf = *bfP;
 
     parcBitVector_Release(&bf->array);
-    hasher_Destroy(&bf->hasher);
+    siphasher_Destroy(&bf->hasher);
     for (int i = 0; i < bf->k; i++) {
         parcBuffer_Release(&bf->keys[i]);
     }
@@ -61,7 +62,7 @@ bloom_Destroy(BloomFilter **bfP)
 void
 bloom_Add(BloomFilter *filter, PARCBuffer *value)
 {
-    PARCBitVector *hashVector = hasher_HashToVector(filter->hasher, value, filter->m, filter->k, filter->keys);
+    PARCBitVector *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
     parcBitVector_SetVector(filter->array, hashVector);
     parcBitVector_Release(&hashVector);
 }
@@ -69,7 +70,7 @@ bloom_Add(BloomFilter *filter, PARCBuffer *value)
 bool 
 bloom_Test(BloomFilter *filter, PARCBuffer *value)
 {
-    PARCBitVector *hashVector = hasher_HashToVector(filter->hasher, value, filter->m, filter->k, filter->keys);
+    PARCBitVector *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
     int index = parcBitVector_NextBitSet(hashVector, 0);
 
     if (index == -1) {

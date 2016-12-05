@@ -8,15 +8,17 @@
 #include <parc/algol/parc_Memory.h>
 
 struct hasher {
-    void *dummy;
+    void *instance;
+    HasherInterface *interface;
 };
 
 Hasher *
-hasher_Create()
+hasher_Create(void *instance, HasherInterface *interface)
 {
     Hasher *hasher = parcMemory_Allocate(sizeof(Hasher));
     if (hasher != NULL) {
-
+        hasher->instance = instance;
+        hasher->interface = interface;
     }
     return hasher;
 }
@@ -24,8 +26,8 @@ hasher_Create()
 void
 hasher_Destroy(Hasher **hasherP)
 {
-//    Hasher *hasher = *hasherP;
-
+    Hasher *hasher = *hasherP;
+    hasher->interface->Destroy(&hasher);
     parcMemory_Deallocate(hasherP);
     *hasherP = NULL;
 }
@@ -33,40 +35,17 @@ hasher_Destroy(Hasher **hasherP)
 PARCBuffer *
 hasher_Hash(Hasher *hasher, PARCBuffer *input)
 {
-    return NULL;
-}
-
-PARCBuffer *
-hasher_KeyedHash(Hasher *hasher, PARCBuffer *input, PARCBuffer *key)
-{
-    PARCBuffer *hashOutput = parcBuffer_Allocate(SIPHASH_HASH_LENGTH);
-    siphash(parcBuffer_Overlay(hashOutput, 0), parcBuffer_Overlay(input, 0),
-            parcBuffer_Remaining(input), parcBuffer_Overlay(key, 0));
-    return hashOutput;
+    return hasher->interface->Hash(hasher->instance, input);
 }
 
 PARCBuffer *
 hasher_HashArray(Hasher *hasher, size_t length, uint8_t input[length])
 {
-    PARCBuffer *hashOutput = parcBuffer_Allocate(SIPHASH_HASH_LENGTH);
-    PARCBuffer *key = parcBuffer_AllocateCString("1234123412341234");
-    siphash(parcBuffer_Overlay(hashOutput, 0), input,
-            length, parcBuffer_Overlay(key, 0));
-    parcBuffer_Release(&key);
-    return hashOutput;
+    return hasher->interface->HashArray(hasher->instance, length, input);
 }
 
 PARCBitVector *
-hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range, int numKeys, PARCBuffer **keys)
+hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range)
 {
-    PARCBitVector *vector = parcBitVector_Create();
-
-    for (int i = 0; i < numKeys; i++) {
-        PARCBuffer *hashOutput = hasher_KeyedHash(hasher, input, keys[i]);
-        size_t index = parcBuffer_GetUint64(hashOutput) % range;
-        parcBitVector_Set(vector, index);
-        parcBuffer_Release(&hashOutput);
-    }
-
-    return vector;
+    return hasher->interface->HashToVector(hasher->instance, input, range);
 }

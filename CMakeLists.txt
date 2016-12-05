@@ -27,6 +27,7 @@ set(libfib_SOURCES
         src/hasher.c
         src/patricia.c
         src/siphash24.c
+        src/siphasher.c
         src/random.c
         src/bloom.c
         src/prefix_bloom.c
