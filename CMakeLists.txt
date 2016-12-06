@@ -28,6 +28,7 @@ set(libfib_SOURCES
         src/patricia.c
         src/siphash24.c
         src/siphasher.c
+        src/sha256hasher.c
         src/random.c
         src/bloom.c
         src/prefix_bloom.c

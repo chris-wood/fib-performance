@@ -50,7 +50,9 @@ fibCaesarFilter_LPM(FIBCaesarFilter *fib, const Name *name)
         PARCBitVector *vector = parcBitVector_Create();
         PARCBuffer *key = name_GetWireFormat(name, numMatches);
         for (int i = 0; i < fib->numPorts; i++) {
-            if (bloom_Test(fib->portFilters[i], key)) {
+            if (name_IsHashed(name) && bloom_TestHashed(fib->portFilters[i], key)) {
+                parcBitVector_Set(vector, i);
+            } else if (bloom_Test(fib->portFilters[i], key)){
                 parcBitVector_Set(vector, i);
             }
         }
@@ -70,7 +72,11 @@ fibCaesarFilter_Insert(FIBCaesarFilter *fib, const Name *name, PARCBitVector *ve
 
     for (int i = 0; i < fib->numPorts; i++) {
         if (parcBitVector_Get(vector, i) == 1) {
-            bloom_Add(fib->portFilters[i], key);
+            if (name_IsHashed(name)) {
+                bloom_AddHashed(fib->portFilters[i], key);
+            } else {
+                bloom_Add(fib->portFilters[i], key);
+            }
         }
     }
     parcBuffer_Release(&key);
@@ -83,4 +89,3 @@ FIBInterface *CaesarFilterFIBAsFIB = &(FIBInterface) {
         .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibCaesarFilter_Insert,
         .Destroy = (void (*)(void **instance)) fibCaesarFilter_Destroy,
 };
-

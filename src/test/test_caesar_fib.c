@@ -34,6 +34,7 @@ LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, fibCaesar_Create);
     LONGBOW_RUN_TEST_CASE(Core, fibCaesar_LookupSimple);
+    LONGBOW_RUN_TEST_CASE(Core, fibCaesar_LookupHashed);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -62,12 +63,25 @@ LONGBOW_TEST_CASE(Core, fibCaesar_Create)
 LONGBOW_TEST_CASE(Core, fibCaesar_LookupSimple)
 {
     FIBCaesar *cisco = fibCaesar_Create(100, 128, 3);
-    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+    assertNotNull(cisco, "Expected a non-NULL FIBCaesar to be created");
 
     FIB *fib = fib_Create(cisco, CaesarFIBAsFIB);
     assertNotNull(fib, "Expected non-NULL FIB");
 
     test_fib_lookup(fib);
+
+    fib_Destroy(&fib);
+}
+
+LONGBOW_TEST_CASE(Core, fibCaesar_LookupHashed)
+{
+    FIBCaesar *cisco = fibCaesar_Create(100, 128, 3);
+    assertNotNull(cisco, "Expected a non-NULL FIBCaesar to be created");
+
+    FIB *fib = fib_Create(cisco, CaesarFIBAsFIB);
+    assertNotNull(fib, "Expected non-NULL FIB");
+
+    test_fib_hash_lookup(fib);
 
     fib_Destroy(&fib);
 }

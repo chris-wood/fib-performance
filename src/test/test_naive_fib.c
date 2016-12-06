@@ -34,6 +34,7 @@ LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, fibNaive_Create);
     LONGBOW_RUN_TEST_CASE(Core, fibNaive_LookupSimple);
+    LONGBOW_RUN_TEST_CASE(Core, fibNaive_LookupHashed);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -67,6 +68,19 @@ LONGBOW_TEST_CASE(Core, fibNaive_LookupSimple)
     assertNotNull(fib, "Expected non-NULL FIB");
 
     test_fib_lookup(fib);
+
+    fib_Destroy(&fib);
+}
+
+LONGBOW_TEST_CASE(Core, fibNaive_LookupHashed)
+{
+    FIBNaive *native = fibNative_Create();
+    assertNotNull(native, "Expected a non-NULL fibNaive to be created");
+
+    FIB *fib = fib_Create(native, NativeFIBAsFIB);
+    assertNotNull(fib, "Expected non-NULL FIB");
+
+    test_fib_hash_lookup(fib);
 
     fib_Destroy(&fib);
 }

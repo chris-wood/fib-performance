@@ -2,13 +2,13 @@
 
 #include "bloom.h"
 #include "siphasher.h"
-#include "hasher.h"
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_BitVector.h>
 
 struct bloom_filter {
     int m;
+    int ln2m;
     int k;
     int bucketSize;
     int numBuckets;
@@ -18,12 +18,24 @@ struct bloom_filter {
     PARCBuffer **keys;
 };
 
+static int
+_log2(int x) {
+    int n = x;
+    int bits = 0;
+    while (n > 0) {
+        n >>= 1;
+        bits++;
+    }
+    return bits;
+}
+
 BloomFilter *
 bloom_Create(int m, int k)
 {
     BloomFilter *bf = (BloomFilter *) malloc(sizeof(BloomFilter));
     if (bf != NULL) {
         bf->m = m;
+        bf->ln2m = _log2(m);
         bf->k = k;
 
         // m bits in the bucket
@@ -87,5 +99,65 @@ bloom_Test(BloomFilter *filter, PARCBuffer *value)
     }
 
     parcBitVector_Release(&hashVector);
+    return true;
+}
+
+void
+bloom_AddHashed(BloomFilter *filter, PARCBuffer *value)
+{
+    int numBytesRequired = (filter->k * filter->ln2m) / 8;
+    size_t inputSize = parcBuffer_Remaining(value);
+    if (inputSize < numBytesRequired) {
+        assertTrue(false, "Invalid bloom filter hash input -- expected at least %d bytes, got %zu", numBytesRequired, inputSize);
+        return;
+    }
+
+    // |B| = input size [bytes]
+    // k = number of blocks needed
+    // |B| / k = number of bytes to include in each block
+    int blockSize = inputSize / filter->k;
+    for (int i = 0; i < filter->k; i++) {
+        size_t checkSum = 0;
+        for (int b = 0; b < blockSize; b++) {
+            checkSum += parcBuffer_GetUint8(value);
+        }
+        checkSum %= filter->m;
+
+        // Set the target bit
+        parcBitVector_Set(filter->array, checkSum);
+    }
+
+    // Reset the input state
+    parcBuffer_Flip(value);
+}
+
+bool
+bloom_TestHashed(BloomFilter *filter, PARCBuffer *value)
+{
+    int numBytesRequired = (filter->k * filter->ln2m) / 8;
+    size_t inputSize = parcBuffer_Remaining(value);
+    if (inputSize < numBytesRequired) {
+        assertTrue(false, "Invalid bloom filter hash input -- expected at least %d bytes, got %zu", numBytesRequired, inputSize);
+        return false;
+    }
+
+    int blockSize = inputSize / filter->k;
+    for (int i = 0; i < filter->k; i++) {
+        size_t checkSum = 0;
+        for (int b = 0; b < blockSize; b++) {
+            checkSum += parcBuffer_GetUint8(value);
+        }
+        checkSum %= filter->m;
+
+        // Query the target bit
+        if (parcBitVector_Get(filter->array, checkSum) != 1) {
+            parcBuffer_Flip(value);
+            return false;
+        }
+    }
+
+    // Reset the input state
+    parcBuffer_Flip(value);
+
     return true;
 }

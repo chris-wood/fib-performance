@@ -27,7 +27,7 @@ void
 hasher_Destroy(Hasher **hasherP)
 {
     Hasher *hasher = *hasherP;
-    hasher->interface->Destroy(&hasher);
+    hasher->interface->Destroy(&hasher->instance);
     parcMemory_Deallocate(hasherP);
     *hasherP = NULL;
 }

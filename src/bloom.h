@@ -12,4 +12,7 @@ void bloom_Destroy(BloomFilter **bfP);
 void bloom_Add(BloomFilter *filter, PARCBuffer *value);
 bool bloom_Test(BloomFilter *filter, PARCBuffer *value);
 
+void bloom_AddHashed(BloomFilter *filter, PARCBuffer *value);
+bool bloom_TestHashed(BloomFilter *filter, PARCBuffer *value);
+
 #endif // bloom_h_

@@ -75,7 +75,11 @@ prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
 
     // 2. add the k hashes to the filter
     PARCBuffer *nameValue = name_GetWireFormat(name, name_GetSegmentCount(name));
-    bloom_Add(filter->filterBlocks[blockIndex], nameValue);
+    if (name_IsHashed(name)) {
+        bloom_Add(filter->filterBlocks[blockIndex], nameValue);
+    } else {
+        bloom_AddHashed(filter->filterBlocks[blockIndex], nameValue);
+    }
 
     parcBuffer_Release(&nameValue);
     parcBuffer_Release(&firstSegmentHash);
@@ -91,7 +95,13 @@ prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
     // 2. do the LPM lookup, starting with the longest possible name
     for (int count = name_GetSegmentCount(name); count > 0; count--) {
         PARCBuffer *nameValue = name_GetWireFormat(name, count);
-        bool isPresent = bloom_Test(filter->filterBlocks[blockIndex], nameValue);
+        bool isPresent = false;
+        if (name_IsHashed(name)) {
+            isPresent = bloom_TestHashed(filter->filterBlocks[blockIndex], nameValue);
+        } else {
+            isPresent = bloom_Test(filter->filterBlocks[blockIndex], nameValue);
+        }
+
         if (isPresent) {
             parcBuffer_Release(&firstSegmentHash);
             parcBuffer_Release(&nameValue);

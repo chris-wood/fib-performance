@@ -29,7 +29,9 @@ LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, bloom_Create);
     LONGBOW_RUN_TEST_CASE(Core, bloom_Add);
+    LONGBOW_RUN_TEST_CASE(Core, bloom_AddHashed);
     LONGBOW_RUN_TEST_CASE(Core, bloom_AddTest);
+    LONGBOW_RUN_TEST_CASE(Core, bloom_AddHashedTest);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -74,6 +76,25 @@ LONGBOW_TEST_CASE(Core, bloom_Add)
     bloom_Destroy(&bf);
 }
 
+LONGBOW_TEST_CASE(Core, bloom_AddHashed)
+{
+    BloomFilter *bf = bloom_Create(256, 3);
+
+    PARCBuffer *x = parcBuffer_AllocateCString("foo");
+    PARCBuffer *y = parcBuffer_AllocateCString("bar");
+    PARCBuffer *z = parcBuffer_AllocateCString("baz");
+
+    bloom_AddHashed(bf, x);
+    bloom_AddHashed(bf, y);
+    bloom_AddHashed(bf, z);
+
+    parcBuffer_Release(&x);
+    parcBuffer_Release(&y);
+    parcBuffer_Release(&z);
+
+    bloom_Destroy(&bf);
+}
+
 LONGBOW_TEST_CASE(Core, bloom_AddTest)
 {
     BloomFilter *bf = bloom_Create(128, 3);
@@ -95,6 +116,37 @@ LONGBOW_TEST_CASE(Core, bloom_AddTest)
     parcBuffer_Release(&x);
     parcBuffer_Release(&y);
     parcBuffer_Release(&z);
+
+    bloom_Destroy(&bf);
+}
+
+LONGBOW_TEST_CASE(Core, bloom_AddHashedTest)
+{
+    BloomFilter *bf = bloom_Create(128, 3);
+
+    PARCBuffer *x = parcBuffer_AllocateCString("foo");
+    PARCBuffer *y = parcBuffer_AllocateCString("bar");
+    PARCBuffer *z = parcBuffer_AllocateCString("baz");
+    PARCBuffer *x2 = parcBuffer_AllocateCString("oof");
+
+    bloom_AddHashed(bf, x);
+    assertTrue(bloom_TestHashed(bf, x), "Item x not detected in the filter");
+
+    bloom_AddHashed(bf, y);
+    assertTrue(bloom_TestHashed(bf, y), "Item y not detected in the filter");
+
+    // z is not in the filter
+    bool inFilter = bloom_TestHashed(bf, z);
+    assertFalse(inFilter, "Item z detected in the filter when really it should not have been");
+
+    // x2 will be in the filter since it's just x rearranged
+    inFilter = bloom_TestHashed(bf, x2);
+    assertTrue(inFilter, "Item x not detected in the filter when it should have collided with x");
+
+    parcBuffer_Release(&x);
+    parcBuffer_Release(&y);
+    parcBuffer_Release(&z);
+    parcBuffer_Release(&x2);
 
     bloom_Destroy(&bf);
 }

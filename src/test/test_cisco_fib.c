@@ -35,6 +35,7 @@ LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, fibCisco_Create);
     LONGBOW_RUN_TEST_CASE(Core, fibCisco_LookupSimple);
+    LONGBOW_RUN_TEST_CASE(Core, fibCisco_LookupHashed);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -69,6 +70,19 @@ LONGBOW_TEST_CASE(Core, fibCisco_LookupSimple)
     assertNotNull(fib, "Expected non-NULL FIB");
 
     test_fib_lookup(fib);
+
+    fib_Destroy(&fib);
+}
+
+LONGBOW_TEST_CASE(Core, fibCisco_LookupHashed)
+{
+    FIBCisco *cisco = fibCisco_Create(3);
+    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+
+    FIB *fib = fib_Create(cisco, CiscoFIBAsFIB);
+    assertNotNull(fib, "Expected non-NULL FIB");
+
+    test_fib_hash_lookup(fib);
 
     fib_Destroy(&fib);
 }

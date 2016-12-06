@@ -70,7 +70,12 @@ static _FIBCiscoEntry *
 _lookupNamePrefix(FIBCisco *fib, const Name *prefix, int numSegments)
 {
     PARCBuffer *buffer = _computeNameBuffer(fib, prefix, numSegments);
-    _FIBCiscoEntry *entry = map_Get(fib->maps[numSegments - 1], buffer);
+    _FIBCiscoEntry *entry = NULL;
+    if (name_IsHashed(prefix)) {
+        entry = map_GetHashed(fib->maps[numSegments - 1], buffer);
+    } else {
+        entry = map_Get(fib->maps[numSegments - 1], buffer);
+    }
     parcBuffer_Release(&buffer);
     return entry;
 }
@@ -79,7 +84,11 @@ static void
 _insertNamePrefix(FIBCisco *fib, const Name *prefix, int numSegments, _FIBCiscoEntry *entry)
 {
     PARCBuffer *buffer = _computeNameBuffer(fib, prefix, numSegments);
-    map_Insert(fib->maps[numSegments - 1], buffer, entry);
+    if (name_IsHashed(prefix)) {
+        map_InsertHashed(fib->maps[numSegments - 1], buffer, entry);
+    } else {
+        map_Insert(fib->maps[numSegments - 1], buffer, entry);
+    }
     parcBuffer_Release(&buffer);
 }
 

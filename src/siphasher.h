@@ -15,7 +15,6 @@ typedef struct siphasher SipHasher;
 
 extern HasherInterface *SipHashAsHasher;
 
-SipHasher *siphasher_Create(PARCBuffer *key);
 SipHasher *siphasher_CreateWithKeys(int numKeys, PARCBuffer *keys[numKeys]);
 void siphasher_Destroy(SipHasher **hasherP);
 

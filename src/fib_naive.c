@@ -77,9 +77,11 @@ fibNaive_Insert(FIBNaive *fib, const Name *name, PARCBitVector *vector)
 
     for (size_t i = 0; i < numSegments; i++) {
         PARCBuffer *buffer = name_GetWireFormat(name, i + 1);
-
-        // XXX: caw, insert hashed
-        map_Insert(fib->maps[i], buffer, (void *) vector);
+        if (name_IsHashed(name)) {
+            map_InsertHashed(fib->maps[i], buffer, (void *) vector);
+        } else {
+            map_Insert(fib->maps[i], buffer, (void *) vector);
+        }
         parcBuffer_Release(&buffer);
     }
 
