@@ -28,7 +28,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d20d5bc1-1079-4a0d-94d9-968a82787ae0" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib-perf.c" afterPath="$PROJECT_DIR$/src/fib-perf.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/name.c" afterPath="$PROJECT_DIR$/src/name.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/name.h" afterPath="$PROJECT_DIR$/src/name.h" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -49,11 +52,31 @@
       <file leaf-file-name="fib-perf.c" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/fib-perf.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="54" column="112" lean-forward="false" selection-start-line="54" selection-start-column="112" selection-end-line="54" selection-end-column="112" />
+            <state relative-caret-position="290">
+              <caret line="253" column="0" lean-forward="true" selection-start-line="253" selection-start-column="0" selection-end-line="253" selection-end-column="0" />
               <folding>
-                <element signature="e#287#303#0" expanded="true" />
+                <element signature="e#0#17#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="name.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/name.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="43" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="name.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/name.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="485">
+              <caret line="151" column="21" lean-forward="false" selection-start-line="151" selection-start-column="21" selection-end-line="151" selection-end-column="21" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -82,6 +105,7 @@
       <find>map_Get</find>
       <find>map</find>
       <find>bloom_</find>
+      <find>preProcessed</find>
     </findStrings>
     <replaceStrings>
       <replace>bloom</replace>
@@ -116,8 +140,6 @@
         <option value="$PROJECT_DIR$/src/merged_bloom.h" />
         <option value="$PROJECT_DIR$/src/test/test_map.c" />
         <option value="$PROJECT_DIR$/src/map.h" />
-        <option value="$PROJECT_DIR$/src/name.h" />
-        <option value="$PROJECT_DIR$/src/name.c" />
         <option value="$PROJECT_DIR$/src/fib_caesar.c" />
         <option value="$PROJECT_DIR$/src/siphash24.h" />
         <option value="$PROJECT_DIR$/src/hasher.h" />
@@ -139,6 +161,8 @@
         <option value="$PROJECT_DIR$/src/test/test_bloom.c" />
         <option value="$PROJECT_DIR$/src/fib_caesar_filter.c" />
         <option value="$PROJECT_DIR$/src/prefix_bloom.c" />
+        <option value="$PROJECT_DIR$/src/name.h" />
+        <option value="$PROJECT_DIR$/src/name.c" />
         <option value="$PROJECT_DIR$/src/fib-perf.c" />
       </list>
     </option>
@@ -220,7 +244,7 @@
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Application.test_bloom">
+  <component name="RunManager" selected="Application.Build All">
     <configuration default="true" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" PASS_PARENT_ENVS_2="true" PROJECT_NAME="fib_perf" TARGET_NAME="fib_perf" CONFIG_NAME="Debug" TEST_MODE="SUITE_TEST">
       <envs />
       <method />
@@ -458,7 +482,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/fib-perf.c</url>
-          <line>222</line>
+          <line>227</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
       </breakpoints>
@@ -576,24 +600,6 @@
         <state relative-caret-position="240">
           <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="17" selection-end-column="47" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/name.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="137" column="20" lean-forward="false" selection-start-line="137" selection-start-column="20" selection-end-line="137" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/name.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="44" lean-forward="true" selection-start-line="17" selection-start-column="44" selection-end-line="17" selection-end-column="44" />
-          <folding>
-            <element signature="e#87#122#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -840,7 +846,7 @@
         <state relative-caret-position="81">
           <caret line="116" column="57" lean-forward="true" selection-start-line="116" selection-start-column="57" selection-end-line="116" selection-end-column="57" />
           <folding>
-            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#0#19#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -885,12 +891,28 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/name.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/name.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="485">
+          <caret line="151" column="21" lean-forward="false" selection-start-line="151" selection-start-column="21" selection-end-line="151" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/fib-perf.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="54" column="112" lean-forward="false" selection-start-line="54" selection-start-column="112" selection-end-line="54" selection-end-column="112" />
+        <state relative-caret-position="290">
+          <caret line="253" column="0" lean-forward="true" selection-start-line="253" selection-start-column="0" selection-end-line="253" selection-end-column="0" />
           <folding>
-            <element signature="e#287#303#0" expanded="true" />
+            <element signature="e#0#17#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -6,14 +6,15 @@
 #include <parc/algol/parc_SafeMemory.h>
 #include <parc/algol/parc_BufferComposer.h>
 #include <parc/algol/parc_LinkedList.h>
-//#include <parc/algol/parc_Iterator.h>
-//#include <parc/developer/parc_Stopwatch.h>
 
 #include "fib.h"
 #include "fib_naive.h"
 #include "fib_cisco.h"
 #include "fib_caesar.h"
 #include "fib_caesar_filter.h"
+#include "sha256hasher.h"
+
+#define DEFAULT_NUM_PORTS 256
 
 struct timespec
 timer_start()
@@ -52,14 +53,16 @@ void usage() {
     fprintf(stderr, "   - uri_file  = A file that contains a list of CCNx URIs\n");
     fprintf(stderr, "   - n         = The maximum length prefix to use when inserting names into the FIB\n");
     fprintf(stderr, "   - alg       = The FIB data structure to use: ['naive', 'cisco', 'caesar', 'caesar-filter']\n");
-    fprintf(stderr, "   - hash      = A flag to indicate that names should be hashed. Currently, SHA256 is used.\n");
+    fprintf(stderr, "   - ports     = The number of ports supported\n");
+    fprintf(stderr, "   - transform = A flag to indicate that names should be hashed. Currently, SHA256 is used.\n");
 }
 
 typedef struct {
     char *uriFile;
     FIB *fib;
+    Hasher *hasher;
+    int numPorts;
     uint32_t maxNameLength;
-    bool preProcessed;
 } FIBOptions;
 
 FIBOptions *
@@ -69,7 +72,8 @@ parseCommandLineOptions(int argc, char **argv)
             { "uri_file",   required_argument,  NULL, 'f' },
             { "n",          required_argument,  NULL, 'n' },
             { "alg",        required_argument,  NULL, 'a' },
-            { "pre_processed", no_argument, NULL, 'p'},
+            { "num_ports",  required_argument, NULL, 'p'},
+            { "transform",  no_argument, NULL, 't'},
             { "help",       no_argument,        NULL, 'h'},
             { NULL,0,NULL,0}
     };
@@ -83,15 +87,13 @@ parseCommandLineOptions(int argc, char **argv)
     options->uriFile = NULL;
     options->fib = NULL;
     options->maxNameLength = 0;
-    options->preProcessed = false;
+    options->hasher = NULL;
+    options->numPorts = DEFAULT_NUM_PORTS;
 
     int c;
     while (optind < argc) {
-        if ((c = getopt_long(argc, argv, "phf:n:a:", longopts, NULL)) != -1) {
+        if ((c = getopt_long(argc, argv, "hf:n:a:tp:", longopts, NULL)) != -1) {
             switch(c) {
-                case 'p':
-                    options->preProcessed = true;
-                    break;
                 case 'f':
                     options->uriFile = malloc(strlen(optarg));
                     strcpy(options->uriFile, optarg);
@@ -119,6 +121,14 @@ parseCommandLineOptions(int argc, char **argv)
                         exit(EXIT_FAILURE);
                     }
                     options->fib = fib;
+                    break;
+                }
+                case 'p': {
+                    options->numPorts = atoi(optarg);
+                }
+                case 't': {
+                    SHA256Hasher *hasher = sha256hasher_Create();
+                    options->hasher = hasher_Create(hasher, SHA256HashAsHasher);
                     break;
                 }
                 case 'h':
@@ -149,13 +159,6 @@ _createNameList(Name *name)
     }
     return list;
 }
-
-
-// Rewrite this code as follows:
-// 1. read list of names from file (single function)
-// 2. create FIB load from list of names
-// 3. insert FIB names into the FIB
-// 4. lookup every name in the original name list
 
 int
 main(int argc, char **argv)
@@ -192,11 +195,7 @@ main(int argc, char **argv)
         char *string = parcBuffer_ToString(bufferString);
         printf("Parsing: %s\n", string);
         Name *name = name_CreateFromCString(string);
-        PARCBuffer *wireFormat = name_GetWireFormat(name, name_GetSegmentCount(name));
-        char *nameString = parcBuffer_ToHexString(wireFormat);
-        printf("Read %d: %s\n", index, nameString);
-        parcMemory_Deallocate(&nameString);
-        parcBuffer_Release(&wireFormat);
+        printf("Read %d: %s\n", index, name_GetNameString(name));
 
         // Add the name to the name list
         if (list == NULL) {
@@ -215,10 +214,16 @@ main(int argc, char **argv)
 //            copy = ccnxName_Trim(copy, numComponents - N);
 //        }
 
+        if (options->hasher != NULL) {
+            Name *newName = name_Hash(name, options->hasher);
+            name_Destroy(&name);
+            name = newName;
+        }
+
         PARCBitVector *vector = parcBitVector_Create();
         assertNotNull(vector, "Could not allocate a PARCBitVector");
         parcBitVector_Set(vector, num);
-        num = (num + 1) % 10; // 10 is not special -- the bit vectors don't actually matter here...
+        num = (num + 1) % options->numPorts;
 
         // Insert into the FIB
         fib_Insert(fib, name, vector);

@@ -146,6 +146,12 @@ name_Display(const Name *name)
     printf("%s\n", name->uri);
 }
 
+char *
+name_GetNameString(const Name *name)
+{
+    return name->uri;
+}
+
 int
 name_GetSegmentCount(const Name *name)
 {
