@@ -51,7 +51,8 @@ void usage() {
     fprintf(stderr, "usage: fib_perf <uri_file> <n> <alg>\n");
     fprintf(stderr, "   - uri_file  = A file that contains a list of CCNx URIs\n");
     fprintf(stderr, "   - n         = The maximum length prefix to use when inserting names into the FIB\n");
-    fprintf(stderr, "   - alg       = The FIB data structure to use: ['naive', 'cisco']\n");
+    fprintf(stderr, "   - alg       = The FIB data structure to use: ['naive', 'cisco', 'caesar', 'caesar-filter']\n");
+    fprintf(stderr, "   - hash      = A flag to indicate that names should be hashed. Currently, SHA256 is used.\n");
 }
 
 typedef struct {
