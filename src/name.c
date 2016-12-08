@@ -182,3 +182,19 @@ name_GetSegmentOffset(const Name *name, int n)
     uint8_t *overlay = parcBuffer_Overlay(name->wireFormat, 0);
     return &(overlay[name->offsets[n]]); // 4 to skip past TL container
 }
+
+PARCBuffer *
+name_XORSegment(const Name *name, int index, PARCBuffer *vector)
+{
+    assertTrue(name_IsHashed(name), "Can't call name_XORSegment on a name that wasn't hashed previously");
+    int size = name->sizes[0];
+    assertTrue(parcBuffer_Remaining(vector) == size, "Size mismatch -- invalid use of name_XORSegment");
+
+    uint8_t *sourceSegment = name_GetSegmentOffset(name, index);
+    PARCBuffer *xor = parcBuffer_Allocate(size); // all segments are of the same length here
+    for (int i = 0; i < size; i++) {
+        parcBuffer_PutUint8(xor, parcBuffer_GetAtIndex(vector, size) ^ sourceSegment[i]);
+    }
+    parcBuffer_Flip(xor);
+    return xor;
+}

@@ -1,6 +1,6 @@
 import sys
 
-def url_to_name(url):
+def url_to_segments(url):
     segments = []
 
     current = ""
@@ -9,7 +9,7 @@ def url_to_name(url):
         if c == ".":
             segments.append(current)
             current = ""
-        elif c == "/": 
+        elif c == "/":
             segments.append(current)
             current = ""
         elif c == "?":
@@ -19,11 +19,19 @@ def url_to_name(url):
         else:
             current += c
         index += 1
-    
+
+    return segments
+
+def url_to_name(url):
+    segments = url_to_segments(url)
     name = "ccnx:/" + "/".join(segments)
     while name.endswith("/"):
         name = name[:len(name) - 1]
     return name
+
+def extend_name(url):
+    segments = url_to_segments(url)
+    pass
 
 def main(args):
     names = []

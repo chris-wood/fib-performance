@@ -25,4 +25,6 @@ PARCBuffer *name_GetWireFormat(const Name *name, int n);
 int name_GetSegmentLength(const Name *name, int n);
 uint8_t *name_GetSegmentOffset(const Name *name, int n);
 
+PARCBuffer *name_XORSegment(const Name *name, int index, PARCBuffer *vector);
+
 #endif // FIB_PERF_NAME_H

@@ -70,8 +70,14 @@ void
 prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
 {
     // 1. hash first segment to identify the block
-    PARCBuffer *firstSegmentHash = siphasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+    PARCBuffer *firstSegmentHash = NULL;
+    if (name_IsHashed(name)) {
+        firstSegmentHash = name_GetWireFormat(name, 1);
+    } else {
+        firstSegmentHash = siphasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+    }
     uint64_t blockIndex = parcBuffer_GetUint64(firstSegmentHash) % filter->b;
+    parcBuffer_Release(&firstSegmentHash);
 
     // 2. add the k hashes to the filter
     PARCBuffer *nameValue = name_GetWireFormat(name, name_GetSegmentCount(name));
@@ -88,9 +94,21 @@ prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
 int
 prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
 {
+    // XXX:
+    // if (!name_IsHashed(name)):
+    //     return bloom_TestName(..) <-- this does the LPM internally
+    // else:
+    //     do the LPM code here
+
     // 1. hash first segment to identify the block
-    PARCBuffer *firstSegmentHash = siphasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+    PARCBuffer *firstSegmentHash = NULL;
+    if (name_IsHashed(name)) {
+        firstSegmentHash = name_GetWireFormat(name, 1);
+    } else {
+        firstSegmentHash = siphasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+    }
     uint64_t blockIndex = parcBuffer_GetUint64(firstSegmentHash) % filter->b;
+    parcBuffer_Release(&firstSegmentHash);
 
     // 2. do the LPM lookup, starting with the longest possible name
     for (int count = name_GetSegmentCount(name); count > 0; count--) {
@@ -99,17 +117,16 @@ prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
         if (name_IsHashed(name)) {
             isPresent = bloom_TestHashed(filter->filterBlocks[blockIndex], nameValue);
         } else {
+
             isPresent = bloom_Test(filter->filterBlocks[blockIndex], nameValue);
         }
 
         if (isPresent) {
-            parcBuffer_Release(&firstSegmentHash);
             parcBuffer_Release(&nameValue);
             return count;
         }
         parcBuffer_Release(&nameValue);
     }
 
-    parcBuffer_Release(&firstSegmentHash);
     return -1;
 }

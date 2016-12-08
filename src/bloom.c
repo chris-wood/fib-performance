@@ -14,6 +14,7 @@ struct bloom_filter {
     int numBuckets;
 
     SipHasher *hasher;
+    SipHasher **vectorHashers;
     PARCBitVector *array;
     PARCBuffer **keys;
 };
@@ -50,6 +51,11 @@ bloom_Create(int m, int k)
             parcBuffer_Flip(bf->keys[i]);
         }
 
+        bf->vectorHashers = (SipHasher **) malloc(k * sizeof(SipHasher *));
+        for (int i = 0; i < k; i++) {
+            bf->vectorHashers = siphasher_Create(bf->keys[i]);
+        }
+
         bf->hasher = siphasher_CreateWithKeys(k, bf->keys);
 
     }
@@ -65,10 +71,143 @@ bloom_Destroy(BloomFilter **bfP)
     siphasher_Destroy(&bf->hasher);
     for (int i = 0; i < bf->k; i++) {
         parcBuffer_Release(&bf->keys[i]);
+        siphasher_Destroy(&bf->vectorHashers[i]);
     }
     parcMemory_Deallocate(&bf->keys);
+    free(bf->vectorHashers);
 
     *bfP = NULL;
+}
+
+void
+bloom_AddName(BloomFilter *filter, Name *name)
+{
+    // compute the d hashes for the first (k = 0) hash
+    Name *newName = name_Hash(name, filter->vectorHashers[0]);
+
+    // compute the bit for the first hash (k = 0)
+    PARCBuffer *segmentHash = name_GetWireFormat(newName, d + 1);
+    size_t checkSum = 0;
+    for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
+        checkSum += parcBuffer_GetUint8(segmentHash);
+    }
+
+    // set the target bit
+    checkSum %= filter->m;
+    parcBitVector_Set(filter->array, checkSum);
+
+    parcBuffer_Release(&segmentHash);
+
+    // use XOR to seed out the remaining hash values for the d prefixes, for each other hash function
+    for (int i = 1; i < filter->k; i++) {
+
+        // the first component for the other hashes is always fed through the hasher
+        PARCBuffer *firstComponent = name_GetWireFormat(name, 1);
+        PARCBuffer *firstHash = hasher_Hash(filter->vectorHashers[i], firstComponent);
+
+        // the rest are derived by XORing this first segment with the d-th segment of the first hash function, i.e.,
+        //    H_{i,j} = H_{i, 1} XOR H_{1, j}
+        // where i = k and j = d
+        PARCBuffer *segmentHash = name_XORSegment(newName, name_GetSegmentCount(name) - 1, firstHash);
+
+        size_t checkSum = 0;
+        for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
+            checkSum += parcBuffer_GetUint8(segmentHash);
+        }
+        checkSum %= filter->m;
+
+        // Finally, set the target bit.
+        parcBitVector_Set(filter->array, checkSum);
+        parcBuffer_Release(&segmentHash);
+
+        parcBuffer_Release(&firstComponent);
+        parcBuffer_Release(&firstHash);
+    }
+}
+
+static void
+_freeBitMatrix(int **bitMatrix, int rows)
+{
+    for (int k = 0; k < rows; k++) {
+        free(bitMatrix[k]);
+    }
+    free(bitMatrix);
+}
+
+int
+bloom_TestName(BloomFilter *filter, Name *name)
+{
+    // compute the d hashes for the first (k = 0) hash
+    Name *newName = name_Hash(name, filter->vectorHashers[0]);
+
+    // Allocate space for the bit matrix
+    int **bitMatrix = (int **) malloc(filter->k * sizeof(int *));
+    for (int k = 0; k < filter->k; k++) {
+        bitMatrix[k] = (int *) malloc(name_GetSegmentCount(newName) * sizeof(int));
+        for (int d = 0; d < name_GetSegmentCount(newName); d++) {
+            bitMatrix[k][d] = 0;
+        }
+    }
+
+    // Compute the first row of the bit matrix
+    for (int d = 0; d < name_GetSegmentCount(newName); d++) {
+        PARCBuffer *segmentHash = name_GetWireFormat(newName, d + 1);
+        size_t checkSum = 0;
+        for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
+            checkSum += parcBuffer_GetUint8(segmentHash);
+        }
+        checkSum %= filter->m;
+        bitMatrix[0][d] = checkSum;
+        parcBuffer_Release(&segmentHash);
+    }
+
+    // use XOR to seed out the remaining hash values for the d prefixes, for each other hash function
+    for (int i = 1; i < filter->k; i++) {
+
+        // the first component for the other hashes is always fed through the hasher
+        PARCBuffer *firstComponent = name_GetWireFormat(name, 1);
+        PARCBuffer *firstHash = hasher_Hash(filter->vectorHashers[i], firstComponent);
+
+        // the rest are derived by XORing this first segment with the d-th segment of the first hash function, i.e.,
+        //    H_{i,j} = H_{i, 1} XOR H_{1, j}
+        // where i = k and j = d
+        for (int d = 0; d < name_GetSegmentCount(name); d++) {
+            PARCBuffer *segmentHash = name_XORSegment(newName, d, firstHash);
+
+            size_t checkSum = 0;
+            for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
+                checkSum += parcBuffer_GetUint8(segmentHash);
+            }
+            checkSum %= filter->m;
+
+            // Finally, set the target bit in the matrix
+            bitMatrix[i][d] = checkSum;
+
+            parcBuffer_Release(&segmentHash);
+        }
+
+        parcBuffer_Release(&firstComponent);
+        parcBuffer_Release(&firstHash);
+    }
+
+    // Now do LPM on the bit matrix
+    for (int d = name_GetSegmentCount(name) - 1; d >= 0; d--) {
+        bool allMatch = true;
+        for (int k = 0; k < filter->k; k++) {
+            if (parcBitVector_Get(filter->array, bitMatrix[k][d]) != 1) {
+                allMatch = false;
+                break;
+            }
+        }
+
+        if (allMatch) {
+            _freeBitMatrix(bitMatrix, filter->k);
+            return d;
+        }
+    }
+
+    _freeBitMatrix(bitMatrix, filter->k);
+    return -1;
 }
 
 void
@@ -77,29 +216,6 @@ bloom_Add(BloomFilter *filter, PARCBuffer *value)
     PARCBitVector *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
     parcBitVector_SetVector(filter->array, hashVector);
     parcBitVector_Release(&hashVector);
-}
-
-bool 
-bloom_Test(BloomFilter *filter, PARCBuffer *value)
-{
-    PARCBitVector *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
-    int index = parcBitVector_NextBitSet(hashVector, 0);
-
-    if (index == -1) {
-        return false;
-    }
-
-    while (index != -1) {
-        int bitValue = parcBitVector_Get(filter->array, (size_t) index);
-        if (bitValue != 1) {
-            parcBitVector_Release(&hashVector);
-            return false;
-        }
-        index = parcBitVector_NextBitSet(hashVector, index + 1);
-    }
-
-    parcBitVector_Release(&hashVector);
-    return true;
 }
 
 void
@@ -129,6 +245,29 @@ bloom_AddHashed(BloomFilter *filter, PARCBuffer *value)
 
     // Reset the input state
     parcBuffer_Flip(value);
+}
+
+bool
+bloom_Test(BloomFilter *filter, PARCBuffer *value)
+{
+    PARCBitVector *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
+    int index = parcBitVector_NextBitSet(hashVector, 0);
+
+    if (index == -1) {
+        return false;
+    }
+
+    while (index != -1) {
+        int bitValue = parcBitVector_Get(filter->array, (size_t) index);
+        if (bitValue != 1) {
+            parcBitVector_Release(&hashVector);
+            return false;
+        }
+        index = parcBitVector_NextBitSet(hashVector, index + 1);
+    }
+
+    parcBitVector_Release(&hashVector);
+    return true;
 }
 
 bool
