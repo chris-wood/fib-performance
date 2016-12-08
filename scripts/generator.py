@@ -52,6 +52,7 @@ def generate_load():
     for n in names:
         print n
 
+# Sampled from the unibas data set
 NUM_SEGMENTS_MEAN = 5.57
 NUM_SEGMENTS_STDEV = 8.14
 SEGMENT_LENGTH_MEAN = 10.39
