@@ -53,7 +53,7 @@ bloom_Create(int m, int k)
 
         bf->vectorHashers = (SipHasher **) malloc(k * sizeof(SipHasher *));
         for (int i = 0; i < k; i++) {
-            bf->vectorHashers = siphasher_Create(bf->keys[i]);
+            bf->vectorHashers[i] = siphasher_Create(bf->keys[i]);
         }
 
         bf->hasher = siphasher_CreateWithKeys(k, bf->keys);
@@ -67,12 +67,12 @@ bloom_Destroy(BloomFilter **bfP)
 {
     BloomFilter *bf = *bfP;
 
-    parcBitVector_Release(&bf->array);
-    siphasher_Destroy(&bf->hasher);
     for (int i = 0; i < bf->k; i++) {
         parcBuffer_Release(&bf->keys[i]);
         siphasher_Destroy(&bf->vectorHashers[i]);
     }
+    parcBitVector_Release(&bf->array);
+    siphasher_Destroy(&bf->hasher);
     parcMemory_Deallocate(&bf->keys);
     free(bf->vectorHashers);
 
@@ -86,7 +86,7 @@ bloom_AddName(BloomFilter *filter, Name *name)
     Name *newName = name_Hash(name, filter->vectorHashers[0]);
 
     // compute the bit for the first hash (k = 0)
-    PARCBuffer *segmentHash = name_GetWireFormat(newName, d + 1);
+    PARCBuffer *segmentHash = name_GetWireFormat(newName, name_GetSegmentCount(name));
     size_t checkSum = 0;
     for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
         checkSum += parcBuffer_GetUint8(segmentHash);

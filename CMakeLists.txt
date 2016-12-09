@@ -70,7 +70,6 @@ macro(AddFibTest testFile)
     install(TARGETS ${ARGV0} DESTINATION bin)
 endmacro(AddFibTest)
 
-#SET(CMAKE_C_FLAGS_DEBUG "-D_DEBUG")
 add_executable(fib_perf ${fibtest_SOURCES})
 set_target_properties(fib_perf PROPERTIES COMPILE_FLAGS "-Wall -pg")
 target_link_libraries(fib_perf ${FIBTEST_LIBRARIES})

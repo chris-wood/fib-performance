@@ -1,6 +1,0 @@
-/a/b/c
-/d/e/f
-/g/h/i
-/a/a/a/a/a/a/a/a
-/e/s/a/d
-/e/t/easdasdasd/g

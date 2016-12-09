@@ -82,13 +82,12 @@ prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
     // 2. add the k hashes to the filter
     PARCBuffer *nameValue = name_GetWireFormat(name, name_GetSegmentCount(name));
     if (name_IsHashed(name)) {
-        bloom_Add(filter->filterBlocks[blockIndex], nameValue);
-    } else {
         bloom_AddHashed(filter->filterBlocks[blockIndex], nameValue);
+    } else {
+        bloom_Add(filter->filterBlocks[blockIndex], nameValue);
     }
 
     parcBuffer_Release(&nameValue);
-    parcBuffer_Release(&firstSegmentHash);
 }
 
 int
@@ -117,7 +116,6 @@ prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
         if (name_IsHashed(name)) {
             isPresent = bloom_TestHashed(filter->filterBlocks[blockIndex], nameValue);
         } else {
-
             isPresent = bloom_Test(filter->filterBlocks[blockIndex], nameValue);
         }
 

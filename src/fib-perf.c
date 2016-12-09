@@ -5,7 +5,7 @@
 
 #include <parc/algol/parc_SafeMemory.h>
 #include <parc/algol/parc_BufferComposer.h>
-#include <parc/algol/parc_LinkedList.h>
+#include <parc/statistics/parc_BasicStats.h>
 
 #include "fib.h"
 #include "fib_naive.h"
@@ -33,6 +33,32 @@ timer_end(struct timespec start_time)
     return diffInNanos;
 }
 
+typedef struct timed_result {
+    long time;
+    struct timed_result *next;
+} TimedResult;
+
+typedef struct {
+    TimedResult *head;
+    TimedResult *current;
+} TimedResultSet;
+
+static void
+_appendTimedResult(TimedResultSet *set, long time)
+{
+    TimedResult *result = (TimedResult *) malloc(sizeof(TimedResult));
+    result->time = time;
+    result->next = NULL;
+
+    if (set->head == NULL) {
+        set->head = result;
+        set->current = result;
+    } else {
+        set->current->next = result;
+        set->current = result;
+    }
+}
+
 PARCBufferComposer *
 readLine(FILE *fp)
 {
@@ -49,16 +75,18 @@ readLine(FILE *fp)
 }
 
 void usage() {
-    fprintf(stderr, "usage: fib_perf <uri_file> <n> <alg>\n");
-    fprintf(stderr, "   - uri_file  = A file that contains a list of CCNx URIs\n");
+    fprintf(stderr, "usage: fib_perf\n");
+    fprintf(stderr, "   - load_file = A file that contains names to load the FIB\n");
+    fprintf(stderr, "   - test_file = A file that contains names to pump through and test the FIB\n");
     fprintf(stderr, "   - n         = The maximum length prefix to use when inserting names into the FIB\n");
     fprintf(stderr, "   - alg       = The FIB data structure to use: ['naive', 'cisco', 'caesar', 'caesar-filter']\n");
     fprintf(stderr, "   - ports     = The number of ports supported\n");
-    fprintf(stderr, "   - transform = A flag to indicate that names should be hashed. Currently, SHA256 is used.\n");
+    fprintf(stderr, "   - digest    = A flag to indicate that names should be hashed. Currently, SHA256 is used.\n");
 }
 
 typedef struct {
-    char *uriFile;
+    char *loadFile;
+    char *testFile;
     FIB *fib;
     Hasher *hasher;
     int numPorts;
@@ -69,12 +97,13 @@ FIBOptions *
 parseCommandLineOptions(int argc, char **argv)
 {
     static struct option longopts[] = {
-            { "uri_file",   required_argument,  NULL, 'f' },
-            { "n",          required_argument,  NULL, 'n' },
-            { "alg",        required_argument,  NULL, 'a' },
-            { "num_ports",  required_argument, NULL, 'p'},
-            { "transform",  no_argument, NULL, 't'},
-            { "help",       no_argument,        NULL, 'h'},
+            { "load_file",   required_argument,  NULL, 'l' },
+            { "test_file",   required_argument,  NULL, 't' },
+            { "n",           required_argument,  NULL, 'n' },
+            { "alg",         required_argument,  NULL, 'a' },
+            { "num_ports",   required_argument,  NULL, 'p'},
+            { "digest",      no_argument, NULL,  'd'},
+            { "help",        no_argument,        NULL, 'h'},
             { NULL,0,NULL,0}
     };
 
@@ -84,7 +113,8 @@ parseCommandLineOptions(int argc, char **argv)
     }
 
     FIBOptions *options = malloc(sizeof(FIBOptions));
-    options->uriFile = NULL;
+    options->loadFile = NULL;
+    options->testFile = NULL;
     options->fib = NULL;
     options->maxNameLength = 0;
     options->hasher = NULL;
@@ -92,11 +122,16 @@ parseCommandLineOptions(int argc, char **argv)
 
     int c;
     while (optind < argc) {
-        if ((c = getopt_long(argc, argv, "hf:n:a:tp:", longopts, NULL)) != -1) {
+        if ((c = getopt_long(argc, argv, "hl:t:n:a:dp:", longopts, NULL)) != -1) {
             switch(c) {
-                case 'f':
-                    options->uriFile = malloc(strlen(optarg));
-                    strcpy(options->uriFile, optarg);
+                case 'l':
+                    options->loadFile = malloc(strlen(optarg) + 1);
+                    strcpy(options->loadFile, optarg);
+                    break;
+                case 't':
+                    printf("parsing....\n");
+                    options->testFile = malloc(strlen(optarg) + 1);
+                    strcpy(options->testFile, optarg);
                     break;
                 case 'n':
                     sscanf(optarg, "%u", &(options->maxNameLength));
@@ -126,7 +161,7 @@ parseCommandLineOptions(int argc, char **argv)
                 case 'p': {
                     options->numPorts = atoi(optarg);
                 }
-                case 't': {
+                case 'd': {
                     SHA256Hasher *hasher = sha256hasher_Create();
                     options->hasher = hasher_Create(hasher, SHA256HashAsHasher);
                     break;
@@ -143,43 +178,23 @@ parseCommandLineOptions(int argc, char **argv)
     return options;
 }
 
-struct name_list_node;
-typedef struct name_list_node {
-    struct name_list_node *next;
-    Name *name;
-} NameList;
-
-static NameList *
-_createNameList(Name *name)
+static TimedResultSet *
+_loadFIB(FIBOptions *options)
 {
-    NameList *list = (NameList *) malloc(sizeof(NameList));
-    if (list != NULL) {
-        list->name = name;
-        list->next = NULL;
-    }
-    return list;
-}
+    TimedResultSet *timeResults = (TimedResultSet *) malloc(sizeof(TimedResultSet));
+    assertTrue(timeResults != NULL, "Failed to allocate a result set. Fail immediately");
+    timeResults->head = NULL;
 
-int
-main(int argc, char **argv)
-{
-    FIBOptions *options = parseCommandLineOptions(argc, argv);
-
-    FILE *file = fopen(options->uriFile, "r");
+    fprintf(stderr, "Loading from: %s\n", options->loadFile);
+    FILE *file = fopen(options->loadFile, "r");
     if (file == NULL) {
-        perror("Could not open file");
+        perror("Could not open load file");
         usage();
         exit(EXIT_FAILURE);
     }
 
-    // Create the FIB and list to hold all of the names
-    NameList *list = NULL;
-    NameList *head = NULL;
-    PARCLinkedList *vectorList = parcLinkedList_Create();
-
-    // Extract options
+    // This is the FIB to use
     FIB *fib = options->fib;
-//    int N = options->maxNameLength;
 
     int num = 0;
     int index = 0;
@@ -197,23 +212,6 @@ main(int argc, char **argv)
         Name *name = name_CreateFromCString(string);
         printf("Read %d: %s\n", index, name_GetNameString(name));
 
-        // Add the name to the name list
-        if (list == NULL) {
-            list = _createNameList(name);
-            head = list;
-        } else {
-            NameList *next = _createNameList(name);
-            list->next = next;
-            list = next;
-        }
-
-        // Truncate to N components if necessary
-//        CCNxName *copy = ccnxName_Copy(name);
-//        int numComponents = ccnxName_GetSegmentCount(copy);
-//        if (N < numComponents) {
-//            copy = ccnxName_Trim(copy, numComponents - N);
-//        }
-
         if (options->hasher != NULL) {
             Name *newName = name_Hash(name, options->hasher);
             name_Destroy(&name);
@@ -226,37 +224,92 @@ main(int argc, char **argv)
         num = (num + 1) % options->numPorts;
 
         // Insert into the FIB
+        struct timespec start = timer_start();
         fib_Insert(fib, name, vector);
-        parcLinkedList_Append(vectorList, vector);
+        long elapsedTime = timer_end(start);
 
-        parcBitVector_Release(&vector);
+        // Record the insertion time
+        _appendTimedResult(timeResults, elapsedTime);
 
         index++;
     } while (true);
 
-    index = 0;
+    return timeResults;
+}
 
-    NameList *curr = head;
-    while (curr != NULL) {
-        Name *name = curr->name;
-        PARCBitVector *vector = parcBitVector_Create();
+static TimedResultSet *
+_testFIB(FIBOptions *options)
+{
+    TimedResultSet *timeResults = (TimedResultSet *) malloc(sizeof(TimedResultSet));
+    assertTrue(timeResults != NULL, "Failed to allocate a result set. Fail immediately");
+    timeResults->head = NULL;
 
-        // Lookup and time it.
+    fprintf(stderr, "Testing from: %s\n", options->testFile);
+    FILE *file = fopen(options->testFile, "r");
+    if (file == NULL) {
+        perror("Could not open test file");
+        usage();
+        exit(EXIT_FAILURE);
+    }
+
+    // This is the FIB to use
+    FIB *fib = options->fib;
+
+    int index = 0;
+    do {
+        PARCBufferComposer *composer = readLine(file);
+        PARCBuffer *bufferString = parcBufferComposer_ProduceBuffer(composer);
+        parcBufferComposer_Release(&composer);
+        if (parcBuffer_Remaining(bufferString) == 0) {
+            break;
+        }
+
+        // Create the original name and store it for later
+        char *string = parcBuffer_ToString(bufferString);
+        printf("Parsing: %s\n", string);
+        Name *name = name_CreateFromCString(string);
+        printf("Read %d: %s\n", index, name_GetNameString(name));
+
+        if (options->hasher != NULL) {
+            Name *newName = name_Hash(name, options->hasher);
+            name_Destroy(&name);
+            name = newName;
+        }
+
+        // Look up the FIB and time it.
         struct timespec start = timer_start();
         PARCBitVector *output = fib_LPM(fib, name);
         long elapsedTime = timer_end(start);
-
         assertNotNull(output, "Expected a non-NULL output");
-//        PARCBitVector *expected = parcLinkedList_GetAtIndex(vectorList, index++);
-        //assertTrue(parcBitVector_Equals(output, expected), "Expected the correct return vector");
 
-        printf("Time %d: %lu ns\n", index, elapsedTime);
-
-        parcBitVector_Release(&vector);
+        // Record the insertion time
+        _appendTimedResult(timeResults, elapsedTime);
 
         index++;
+    } while (true);
+
+    return timeResults;
+}
+
+int
+main(int argc, char **argv)
+{
+    FIBOptions *options = parseCommandLineOptions(argc, argv);
+
+    // Run the test
+    TimedResultSet *insertionResults = _loadFIB(options);
+    TimedResultSet *testResults = _testFIB(options);
+
+    // Display the results
+    PARCBasicStats *testStats = parcBasicStats_Create();
+    TimedResult *curr = testResults->head;
+    while (curr != NULL) {
+        parcBasicStats_Update(testStats, (double) curr->time);
         curr = curr->next;
     }
+
+    printf("mean : %f\n", parcBasicStats_Mean(testStats));
+    printf("stdev: %f\n", parcBasicStats_StandardDeviation(testStats));
 
     return EXIT_SUCCESS;
 }

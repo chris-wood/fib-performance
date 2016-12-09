@@ -5,6 +5,9 @@ import string
 def url_to_segments(url):
     segments = []
 
+    if url.startswith("/"):
+        url = url[1:]
+
     current = ""
     index = 0
     for c in url:

@@ -73,7 +73,9 @@ fibCaesar_LPM(FIBCaesar *fib, const Name *name)
         }
 
         parcBuffer_Release(&key);
-        return parcBitVector_Acquire(match);
+        if (match != NULL) {
+            return parcBitVector_Acquire(match);
+        }
     }
     return NULL;
 }
@@ -94,7 +96,11 @@ fibCaesar_Insert(FIBCaesar *fib, const Name *name, PARCBitVector *vector)
 
     // XXX: compute the key here
     PARCBuffer *key = name_GetWireFormat(name, numSegments);
-    map_Insert(table, key, vector);
+    if (name_IsHashed(name)) {
+        map_InsertHashed(table, key, vector);
+    } else {
+        map_Insert(table, key, vector);
+    }
     parcBuffer_Release(&key);
 
     return true;

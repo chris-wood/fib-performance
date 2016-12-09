@@ -1,0 +1,6 @@
+ccnx:/a/b
+ccnx:/d/e
+ccnx:/g/h
+ccnx:/a/a/a/a/a/a/a
+ccnx:/e/s/a
+ccnx:/e/t/easdasdasd
