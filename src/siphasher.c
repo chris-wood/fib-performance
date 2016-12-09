@@ -82,7 +82,7 @@ siphasher_HashToVector(SipHasher *hasher, PARCBuffer *input, int range)
 }
 
 HasherInterface *SiphashAsHasher = &(HasherInterface) {
-        .Hash = (PARCBitVector *(*)(void *, PARCBuffer *)) siphasher_Hash,
+        .Hash = (PARCBuffer *(*)(void *, PARCBuffer *)) siphasher_Hash,
         .HashArray = (PARCBuffer *(*)(void *hasher, size_t length, uint8_t *input)) siphasher_HashArray,
         .HashToVector = (PARCBitVector *(*)(void*hasher, PARCBuffer *input, int range)) siphasher_HashToVector,
         .Destroy = (void (*)(void **instance)) siphasher_Destroy,

@@ -63,13 +63,6 @@ macro(AddTest testFile)
     install(TARGETS ${ARGV0} DESTINATION bin)
 endmacro(AddTest)
 
-macro(AddFibTest testFile)
-    add_executable(${ARGV0} src/test/${ARGV0}.c ${libfib_SOURCES})
-    target_link_libraries(${ARGV0} ${FIBTEST_LIBRARIES})
-    add_test(${ARGV0} ${ARGV0})
-    install(TARGETS ${ARGV0} DESTINATION bin)
-endmacro(AddFibTest)
-
 add_executable(fib_perf ${fibtest_SOURCES})
 set_target_properties(fib_perf PROPERTIES COMPILE_FLAGS "-Wall -pg")
 target_link_libraries(fib_perf ${FIBTEST_LIBRARIES})
@@ -77,13 +70,15 @@ install(TARGETS fib_perf DESTINATION bin)
 
 enable_testing()
 
+# Data structure tests
+AddTest(test_name)
 AddTest(test_map)
 AddTest(test_patricia)
 AddTest(test_bloom)
-AddTest(test_name)
 AddTest(test_prefix_bloom)
 
-AddFibTest(test_naive_fib)
-AddFibTest(test_cisco_fib)
-AddFibTest(test_caesar_fib)
-AddFibTest(test_caesar_bloom_fib)
+# FIB tests
+AddTest(test_naive_fib)
+AddTest(test_cisco_fib)
+AddTest(test_caesar_fib)
+AddTest(test_caesar_bloom_fib)

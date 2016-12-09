@@ -65,7 +65,7 @@ sha256hasher_HashToVector(SHA256Hasher *hasher, PARCBuffer *input, int range)
 }
 
 HasherInterface *SHA256HashAsHasher = &(HasherInterface) {
-        .Hash = (PARCBitVector *(*)(void *, PARCBuffer *)) sha256hasher_Hash,
+        .Hash = (PARCBuffer *(*)(void *, PARCBuffer *)) sha256hasher_Hash,
         .HashArray = (PARCBuffer *(*)(void *hasher, size_t length, uint8_t *input)) sha256hasher_HashArray,
         .HashToVector = (PARCBitVector *(*)(void*hasher, PARCBuffer *input, int range)) sha256hasher_HashToVector,
         .Destroy = (void (*)(void **instance)) sha256hasher_Destroy,

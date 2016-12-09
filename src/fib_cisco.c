@@ -141,7 +141,7 @@ fibCisco_LPM(FIBCisco *fib, const Name *name)
 static Map *
 _fibCisco_CreateMap()
 {
-    return map_Create(_fibCisco_DeleteEntry);
+    return map_Create((void (*)(void **)) _fibCisco_DeleteEntry);
 }
 
 static void

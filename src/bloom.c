@@ -14,7 +14,7 @@ struct bloom_filter {
     int numBuckets;
 
     SipHasher *hasher;
-    SipHasher **vectorHashers;
+    Hasher **vectorHashers;
     PARCBitVector *array;
     PARCBuffer **keys;
 };
@@ -51,9 +51,10 @@ bloom_Create(int m, int k)
             parcBuffer_Flip(bf->keys[i]);
         }
 
-        bf->vectorHashers = (SipHasher **) malloc(k * sizeof(SipHasher *));
+        bf->vectorHashers = (Hasher **) malloc(k * sizeof(Hasher *));
         for (int i = 0; i < k; i++) {
-            bf->vectorHashers[i] = siphasher_Create(bf->keys[i]);
+            SipHasher *hasher = siphasher_Create(bf->keys[i]);
+            bf->vectorHashers[i] = hasher_Create(hasher, SipHashAsHasher);
         }
 
         bf->hasher = siphasher_CreateWithKeys(k, bf->keys);
@@ -69,7 +70,7 @@ bloom_Destroy(BloomFilter **bfP)
 
     for (int i = 0; i < bf->k; i++) {
         parcBuffer_Release(&bf->keys[i]);
-        siphasher_Destroy(&bf->vectorHashers[i]);
+        hasher_Destroy(&bf->vectorHashers[i]);
     }
     parcBitVector_Release(&bf->array);
     siphasher_Destroy(&bf->hasher);
