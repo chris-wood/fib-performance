@@ -10,12 +10,10 @@ struct bloom_filter {
     int m;
     int ln2m;
     int k;
-    int bucketSize;
-    int numBuckets;
 
     SipHasher *hasher;
     Hasher **vectorHashers;
-    PARCBitVector *array;
+    Bitmap *array;
     PARCBuffer **keys;
 };
 
@@ -38,15 +36,12 @@ bloom_Create(int m, int k)
         bf->m = m;
         bf->ln2m = _log2(m);
         bf->k = k;
-
-        // m bits in the bucket
-        bf->bucketSize = m * 8;
-        bf->numBuckets = bf->bucketSize / SIPHASH_HASH_LENGTH;
-        bf->array = parcBitVector_Create();
+        bf->array = bitmap_Create(m);
 
         bf->keys = parcMemory_Allocate(sizeof(PARCBuffer **) * k);
         for (int i = 0; i < k; i++) {
             bf->keys[i] = parcBuffer_Allocate(SIPHASH_KEY_LENGTH);
+            memset(parcBuffer_Overlay(bf->keys[i], 0), 0, SIPHASH_KEY_LENGTH);
             parcBuffer_PutUint32(bf->keys[i], k);
             parcBuffer_Flip(bf->keys[i]);
         }
@@ -72,7 +67,7 @@ bloom_Destroy(BloomFilter **bfP)
         parcBuffer_Release(&bf->keys[i]);
         hasher_Destroy(&bf->vectorHashers[i]);
     }
-    parcBitVector_Release(&bf->array);
+    bitmap_Destroy(&bf->array);
     siphasher_Destroy(&bf->hasher);
     parcMemory_Deallocate(&bf->keys);
     free(bf->vectorHashers);
@@ -84,7 +79,7 @@ void
 bloom_AddName(BloomFilter *filter, Name *name)
 {
     // compute the d hashes for the first (k = 0) hash
-    Name *newName = name_Hash(name, filter->vectorHashers[0]);
+    Name *newName = name_Hash(name, filter->vectorHashers[0], 8);
 
     // compute the bit for the first hash (k = 0)
     PARCBuffer *segmentHash = name_GetWireFormat(newName, name_GetSegmentCount(name));
@@ -95,7 +90,7 @@ bloom_AddName(BloomFilter *filter, Name *name)
 
     // set the target bit
     checkSum %= filter->m;
-    parcBitVector_Set(filter->array, checkSum);
+    bitmap_Set(filter->array, checkSum);
 
     parcBuffer_Release(&segmentHash);
 
@@ -118,7 +113,7 @@ bloom_AddName(BloomFilter *filter, Name *name)
         checkSum %= filter->m;
 
         // Finally, set the target bit.
-        parcBitVector_Set(filter->array, checkSum);
+        bitmap_Set(filter->array, checkSum);
         parcBuffer_Release(&segmentHash);
 
         parcBuffer_Release(&firstComponent);
@@ -139,7 +134,7 @@ int
 bloom_TestName(BloomFilter *filter, Name *name)
 {
     // compute the d hashes for the first (k = 0) hash
-    Name *newName = name_Hash(name, filter->vectorHashers[0]);
+    Name *newName = name_Hash(name, filter->vectorHashers[0], 8);
 
     // Allocate space for the bit matrix
     int **bitMatrix = (int **) malloc(filter->k * sizeof(int *));
@@ -195,7 +190,7 @@ bloom_TestName(BloomFilter *filter, Name *name)
     for (int d = name_GetSegmentCount(name) - 1; d >= 0; d--) {
         bool allMatch = true;
         for (int k = 0; k < filter->k; k++) {
-            if (parcBitVector_Get(filter->array, bitMatrix[k][d]) != 1) {
+            if (bitmap_Get(filter->array, bitMatrix[k][d]) != 1) {
                 allMatch = false;
                 break;
             }
@@ -214,9 +209,9 @@ bloom_TestName(BloomFilter *filter, Name *name)
 void
 bloom_Add(BloomFilter *filter, PARCBuffer *value)
 {
-    PARCBitVector *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
-    parcBitVector_SetVector(filter->array, hashVector);
-    parcBitVector_Release(&hashVector);
+    Bitmap *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
+    bitmap_SetVector(filter->array, hashVector);
+    bitmap_Destroy(&hashVector);
 }
 
 void
@@ -233,42 +228,26 @@ bloom_AddHashed(BloomFilter *filter, PARCBuffer *value)
     // k = number of blocks needed
     // |B| / k = number of bytes to include in each block
     int blockSize = inputSize / filter->k;
+    uint8_t *overlay = parcBuffer_Overlay(value, 0);
     for (int i = 0; i < filter->k; i++) {
         size_t checkSum = 0;
         for (int b = 0; b < blockSize; b++) {
-            checkSum += parcBuffer_GetUint8(value);
+            checkSum += overlay[(i * blockSize) + b];
         }
         checkSum %= filter->m;
 
         // Set the target bit
-        parcBitVector_Set(filter->array, checkSum);
+        bitmap_Set(filter->array, checkSum);
     }
-
-    // Reset the input state
-    parcBuffer_Flip(value);
 }
 
 bool
 bloom_Test(BloomFilter *filter, PARCBuffer *value)
 {
-    PARCBitVector *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
-    int index = parcBitVector_NextBitSet(hashVector, 0);
-
-    if (index == -1) {
-        return false;
-    }
-
-    while (index != -1) {
-        int bitValue = parcBitVector_Get(filter->array, (size_t) index);
-        if (bitValue != 1) {
-            parcBitVector_Release(&hashVector);
-            return false;
-        }
-        index = parcBitVector_NextBitSet(hashVector, index + 1);
-    }
-
-    parcBitVector_Release(&hashVector);
-    return true;
+    Bitmap *hashVector = siphasher_HashToVector(filter->hasher, value, filter->m);
+    bool contains = bitmap_Contains(filter->array, hashVector);
+    bitmap_Destroy(&hashVector);
+    return contains;
 }
 
 bool
@@ -282,22 +261,19 @@ bloom_TestHashed(BloomFilter *filter, PARCBuffer *value)
     }
 
     int blockSize = inputSize / filter->k;
+    uint8_t *overlay = parcBuffer_Overlay(value, 0);
     for (int i = 0; i < filter->k; i++) {
         size_t checkSum = 0;
         for (int b = 0; b < blockSize; b++) {
-            checkSum += parcBuffer_GetUint8(value);
+            checkSum += overlay[(i * blockSize) + b];
         }
         checkSum %= filter->m;
 
         // Query the target bit
-        if (parcBitVector_Get(filter->array, checkSum) != 1) {
-            parcBuffer_Flip(value);
+        if (!bitmap_Get(filter->array, checkSum)) {
             return false;
         }
     }
-
-    // Reset the input state
-    parcBuffer_Flip(value);
 
     return true;
 }

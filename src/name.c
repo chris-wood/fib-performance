@@ -3,6 +3,7 @@
 //
 
 #include "name.h"
+#include "siphasher.h"
 
 #include <stdio.h>
 
@@ -104,7 +105,7 @@ name_Destroy(Name **nameP)
 }
 
 Name *
-name_Hash(Name *name, Hasher *hasher)
+name_Hash(Name *name, Hasher *hasher, int hashSize)
 {
     Name *newName = parcMemory_Allocate(sizeof(Name));
     if (newName!= NULL) {
@@ -118,9 +119,10 @@ name_Hash(Name *name, Hasher *hasher)
         for (int i = 1; i <= name->numSegments; i++) {
             PARCBuffer *prefix = name_GetWireFormat(name, i);
             PARCBuffer *hash = hasher_Hash(hasher, prefix);
+            parcBuffer_SetLimit(hash, hashSize); // 64 bits per segment
 
-            parcBufferComposer_PutBuffer(composer, prefix);
-            newName->offsets[i - 1] = i == 1 ? 0 : newName->offsets[i - 2] + parcBuffer_Remaining(hash);
+            parcBufferComposer_PutBuffer(composer, hash);
+            newName->offsets[i - 1] = i == 1 ? 0 : newName->offsets[i - 2] + newName->sizes[i - 2];
             newName->sizes[i - 1] = parcBuffer_Remaining(hash);
 
             parcBuffer_Release(&hash);
@@ -128,7 +130,6 @@ name_Hash(Name *name, Hasher *hasher)
         }
 
         newName->wireFormat = parcBufferComposer_ProduceBuffer(composer);
-
         parcBufferComposer_Release(&composer);
     }
     return newName;
@@ -162,12 +163,14 @@ PARCBuffer *
 name_GetWireFormat(const Name *name, int n)
 {
     int capacity = n == name->numSegments ? parcBuffer_Remaining(name->wireFormat) : name->offsets[n];
-
-    PARCByteArray *byteArray = parcByteArray_Wrap(capacity, parcBuffer_Overlay(name->wireFormat, 0));
-    PARCBuffer *buffer = parcBuffer_WrapByteArray(byteArray, 0, capacity);
-    parcByteArray_Release(&byteArray);
-
+    PARCBuffer *buffer = parcBuffer_Wrap(parcBuffer_Overlay(name->wireFormat, 0), capacity, 0, capacity);
     return buffer;
+}
+
+PARCBuffer *
+name_GetSegmentWireFormat(const Name *name, int n)
+{
+    return NULL;
 }
 
 int

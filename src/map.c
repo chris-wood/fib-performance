@@ -1,10 +1,10 @@
 #include "map.h"
 #include "siphash24.h"
 #include "random.h"
+#include "siphasher.h"
 
 // Some defaults
-const int MapDefaultCapacity = 42;
-const int DefaultKeySize = 64 / 8;
+const int MapDefaultCapacity = 128;
 const int SiphashKeySize = 128 / 8;
 const int LinkedBucketDefaultCapacity = 100;
 
@@ -29,9 +29,7 @@ typedef struct {
 } _BucketMap;
 
 struct map {
-    bool rehash;
-    int keySize;
-    PARCBuffer *key;
+    SipHasher *hasher;
     void (*valueDelete)(void **instance);
 
     void *instance;
@@ -130,12 +128,13 @@ int
 _bucketMap_ComputeBucketNumberFromHash(_BucketMap *map, PARCBuffer *key)
 {
     int bucketNumber = 0;
-    while (parcBuffer_Remaining(key) > 0) {
-        bucketNumber += parcBuffer_GetUint8(key);
+    int length = parcBuffer_Remaining(key);
+    uint8_t *overlay = parcBuffer_Overlay(key, 0);
+    for (int i = 0; i < length; i++) {
+        bucketNumber += overlay[i];
     }
 
     bucketNumber %= map->numBuckets;
-    parcBuffer_Flip(key);
 
     return bucketNumber;
 }
@@ -219,7 +218,7 @@ void
 map_Destroy(Map **mapPtr)
 {
     Map *map = *mapPtr;
-    parcBuffer_Release(&map->key);
+    siphasher_Destroy(&map->hasher);
     map->destroy(&map->instance);
     free(map);
     *mapPtr = NULL;
@@ -231,8 +230,9 @@ map_Create(void (*delete)(void **instance))
     Map *map = (Map *) malloc(sizeof(Map));
 
     if (map != NULL) {
-        map->keySize = DefaultKeySize;
-        map->key = random_Bytes(parcBuffer_Allocate(SiphashKeySize));
+        PARCBuffer *key = random_Bytes(parcBuffer_Allocate(SiphashKeySize));
+        map->hasher = siphasher_Create(key);
+        parcBuffer_Release(&key);
 
         map->valueDelete = delete;
 
@@ -248,21 +248,7 @@ map_Create(void (*delete)(void **instance))
 PARCBuffer *
 _map_ComputeBucketKeyHash(Map *map, PARCBuffer *key)
 {
-    PARCBuffer *buffer = parcBuffer_Allocate(map->keySize);
-    assertNotNull(buffer, "Expected a non-NULL buffer to be allocated");
-    uint8_t *output = parcBuffer_Overlay(buffer, 0);
-
-    assertNotNull(key, "Expected a non-NULL key to be provided");
-    uint8_t *input = parcBuffer_Overlay(key, 0);
-    size_t length = parcBuffer_Remaining(key);
-
-    assertNotNull(map->key, "Expected a non-NULL map key to be provided for SIPHASH");
-    uint8_t *hashKey = parcBuffer_Overlay(map->key, 0);
-
-    int result = siphash(output, input, length, hashKey);
-    assertTrue(result == 0, "SIPHash failed");
-
-    return buffer;
+    return siphasher_Hash(map->hasher, key);
 }
 
 void

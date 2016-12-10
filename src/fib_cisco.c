@@ -7,7 +7,7 @@ typedef struct {
     bool isVirtual;
     int maxDepth;
     PARCBuffer *buffer;
-    PARCBitVector *vector;
+    Bitmap *vector;
 } _FIBCiscoEntry;
 
 struct fib_cisco {
@@ -23,9 +23,6 @@ _fibCisco_DeleteEntry(_FIBCiscoEntry **entryP)
 
     if (entry->buffer != NULL) {
         parcBuffer_Release(&entry->buffer);
-    }
-    if (entry->vector != NULL) {
-        parcBitVector_Release(&entry->vector);
     }
     free(entry);
     *entryP = NULL;
@@ -45,13 +42,13 @@ _fibCisco_CreateVirtualEntry(int depth)
 }
 
 static _FIBCiscoEntry *
-_fibCisco_CreateEntry(PARCBitVector *vector, PARCBuffer *buffer, int depth)
+_fibCisco_CreateEntry(Bitmap *vector, PARCBuffer *buffer, int depth)
 {
     _FIBCiscoEntry *entry = (_FIBCiscoEntry *) malloc(sizeof(_FIBCiscoEntry));
     if (entry != NULL) {
         entry->isVirtual = false;
         entry->maxDepth = depth;
-        entry->vector = parcBitVector_Acquire(vector);
+        entry->vector = vector;
         entry->buffer = parcBuffer_Acquire(buffer);
     }
     return entry;
@@ -92,7 +89,7 @@ _insertNamePrefix(FIBCisco *fib, const Name *prefix, int numSegments, _FIBCiscoE
     parcBuffer_Release(&buffer);
 }
 
-PARCBitVector *
+Bitmap *
 fibCisco_LPM(FIBCisco *fib, const Name *name)
 {
     int numSegments = name_GetSegmentCount(name);
@@ -111,7 +108,7 @@ fibCisco_LPM(FIBCisco *fib, const Name *name)
                 firstEntryMatch = entry;
                 break;
             } else if (!entry->isVirtual) {
-                return parcBitVector_Acquire(entry->vector);
+                return entry->vector;
             } 
         }
     }
@@ -125,13 +122,13 @@ fibCisco_LPM(FIBCisco *fib, const Name *name)
         if (startPrefix == fib->M) {
             entry = firstEntryMatch;
             if (!entry->isVirtual) {
-                return parcBitVector_Acquire(entry->vector);
+                return entry->vector;
             }
         }
 
         _FIBCiscoEntry *targetEntry = _lookupNamePrefix(fib, name, i); 
         if (targetEntry != NULL && !targetEntry->isVirtual) {
-            return parcBitVector_Acquire(targetEntry->vector);
+            return targetEntry->vector;
         } 
     }
 
@@ -157,7 +154,7 @@ _fibCisco_ExpandMapsToSize(FIBCisco *fib, int number)
 }
 
 bool
-fibCisco_Insert(FIBCisco *fib, const Name *name, PARCBitVector *vector)
+fibCisco_Insert(FIBCisco *fib, const Name *name, Bitmap *vector)
 {
     size_t numSegments = name_GetSegmentCount(name);
     _fibCisco_ExpandMapsToSize(fib, numSegments);
@@ -195,9 +192,9 @@ fibCisco_Insert(FIBCisco *fib, const Name *name, PARCBitVector *vector)
         existingEntry->isVirtual = false;
         existingEntry->maxDepth = MAX(numSegments, existingEntry->maxDepth);
         if (existingEntry->vector == NULL) {
-            existingEntry->vector = parcBitVector_Acquire(vector);
+            existingEntry->vector = vector;
         } else {
-            parcBitVector_SetVector(existingEntry->vector, vector);
+            bitmap_SetVector(existingEntry->vector, vector);
         }
     } else {
         _insertNamePrefix(fib, name, numSegments, entry);
@@ -235,7 +232,7 @@ fibCisco_Create(int M)
 }
 
 FIBInterface *CiscoFIBAsFIB = &(FIBInterface) {
-        .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibCisco_LPM,
-        .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibCisco_Insert,
+        .LPM = (Bitmap *(*)(void *instance, const Name *ccnxName)) fibCisco_LPM,
+        .Insert = (bool (*)(void *instance, const Name *ccnxName, Bitmap *vector)) fibCisco_Insert,
         .Destroy = (void (*)(void **instance)) fibCisco_Destroy,
 };

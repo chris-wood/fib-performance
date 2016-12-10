@@ -42,18 +42,18 @@ fibCaesarFilter_Create(int numPorts, int b, int m, int k)
     return fib;
 }
 
-PARCBitVector *
+Bitmap *
 fibCaesarFilter_LPM(FIBCaesarFilter *fib, const Name *name)
 {
     int numMatches = prefixBloomFilter_LPM(fib->pbf, name);
     if (numMatches >= 0) {
-        PARCBitVector *vector = parcBitVector_Create();
+        Bitmap *vector = bitmap_Create(fib->numPorts);
         PARCBuffer *key = name_GetWireFormat(name, numMatches);
         for (int i = 0; i < fib->numPorts; i++) {
             if (name_IsHashed(name) && bloom_TestHashed(fib->portFilters[i], key)) {
-                parcBitVector_Set(vector, i);
+                bitmap_Set(vector, i);
             } else if (bloom_Test(fib->portFilters[i], key)){
-                parcBitVector_Set(vector, i);
+                bitmap_Set(vector, i);
             }
         }
         parcBuffer_Release(&key);
@@ -63,7 +63,7 @@ fibCaesarFilter_LPM(FIBCaesarFilter *fib, const Name *name)
 }
 
 bool
-fibCaesarFilter_Insert(FIBCaesarFilter *fib, const Name *name, PARCBitVector *vector)
+fibCaesarFilter_Insert(FIBCaesarFilter *fib, const Name *name, Bitmap *vector)
 {
     int numSegments = name_GetSegmentCount(name);
     PARCBuffer *key = name_GetWireFormat(name, numSegments);
@@ -71,7 +71,7 @@ fibCaesarFilter_Insert(FIBCaesarFilter *fib, const Name *name, PARCBitVector *ve
     prefixBloomFilter_Add(fib->pbf, name);
 
     for (int i = 0; i < fib->numPorts; i++) {
-        if (parcBitVector_Get(vector, i) == 1) {
+        if (bitmap_Get(vector, i)) {
             if (name_IsHashed(name)) {
                 bloom_AddHashed(fib->portFilters[i], key);
             } else {
@@ -85,7 +85,7 @@ fibCaesarFilter_Insert(FIBCaesarFilter *fib, const Name *name, PARCBitVector *ve
 }
 
 FIBInterface *CaesarFilterFIBAsFIB = &(FIBInterface) {
-        .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibCaesarFilter_LPM,
-        .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibCaesarFilter_Insert,
+        .LPM = (Bitmap *(*)(void *instance, const Name *ccnxName)) fibCaesarFilter_LPM,
+        .Insert = (bool (*)(void *instance, const Name *ccnxName, Bitmap *vector)) fibCaesarFilter_Insert,
         .Destroy = (void (*)(void **instance)) fibCaesarFilter_Destroy,
 };

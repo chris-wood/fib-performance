@@ -6,11 +6,11 @@ struct fib_naive {
     Map **maps;
 };
 
-static PARCBitVector *
+static Bitmap *
 _fibNaive_LookupName(FIBNaive *fib, const Name *name, int count)
 {
     PARCBuffer *buffer = name_GetWireFormat(name, count);
-    PARCBitVector *result = NULL;
+    Bitmap *result = NULL;
 
     if (name_IsHashed(name)) {
         result = map_GetHashed(fib->maps[count - 1], buffer);
@@ -22,27 +22,23 @@ _fibNaive_LookupName(FIBNaive *fib, const Name *name, int count)
     return result;
 }
 
-PARCBitVector *
+Bitmap *
 fibNaive_LPM(FIBNaive *fib, const Name *name)
 {
     int numSegments = name_GetSegmentCount(name);
     int count = numSegments > fib->numMaps ? fib->numMaps : numSegments;
 
-    PARCBitVector *vector = NULL;
+    Bitmap *vector = NULL;
     for (int i = count; i > 0; i--) {
-        PARCBitVector *result = _fibNaive_LookupName(fib, name, i);
+        Bitmap *result = _fibNaive_LookupName(fib, name, i);
         if (result == NULL && vector != NULL) {
-            return parcBitVector_Acquire(vector);
+            return vector;
         } else { // vector == NULL
             vector = result;
         }
     }
 
-    if (vector != NULL) {
-        return parcBitVector_Acquire(vector);
-    } else {
-        return vector;
-    }
+    return vector;
 }
 
 static Map *
@@ -64,15 +60,17 @@ _fibNative_ExpandMapsToSize(FIBNaive *fib, int number)
 }
 
 bool
-fibNaive_Insert(FIBNaive *fib, const Name *name, PARCBitVector *vector)
+fibNaive_Insert(FIBNaive *fib, const Name *name, Bitmap *vector)
 {
-    PARCBitVector *lookup = fibNaive_LPM(fib, name);
-    if (lookup != NULL) {
-        parcBitVector_SetVector(lookup, vector);
-        return true;
+    size_t numSegments = name_GetSegmentCount(name);
+    if (numSegments < fib->numMaps) {
+        Bitmap *lookup = _fibNaive_LookupName(fib, name, numSegments);
+        if (lookup != NULL) {
+            bitmap_SetVector(lookup, vector);
+            return true;
+        }
     }
 
-    size_t numSegments = name_GetSegmentCount(name);
     _fibNative_ExpandMapsToSize(fib, numSegments);
 
     for (size_t i = 0; i < numSegments; i++) {
@@ -115,8 +113,8 @@ fibNative_Create()
 }
 
 FIBInterface *NativeFIBAsFIB = &(FIBInterface) {
-        .LPM = (PARCBitVector *(*)(void *instance, const Name *ccnxName)) fibNaive_LPM,
-        .Insert = (bool (*)(void *instance, const Name *ccnxName, PARCBitVector *vector)) fibNaive_Insert,
+        .LPM = (Bitmap *(*)(void *instance, const Name *ccnxName)) fibNaive_LPM,
+        .Insert = (bool (*)(void *instance, const Name *ccnxName, Bitmap *vector)) fibNaive_Insert,
         .Destroy = (void (*)(void **instance)) fibNaive_Destroy,
 };
 

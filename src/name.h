@@ -15,13 +15,14 @@ typedef struct name Name;
 Name *name_CreateFromCString(char *uri);
 void name_Destroy(Name **nameP);
 
-Name *name_Hash(Name *name, Hasher *hasher);
+Name *name_Hash(Name *name, Hasher *hasher, int hashSize);
 bool name_IsHashed(const Name *name);
 
 void name_Display(const Name *name);
 char *name_GetNameString(const Name *name);
 int name_GetSegmentCount(const Name *name);
 PARCBuffer *name_GetWireFormat(const Name *name, int n);
+PARCBuffer *name_GetSegmentWireFormat(const Name *name, int n);
 int name_GetSegmentLength(const Name *name, int n);
 uint8_t *name_GetSegmentOffset(const Name *name, int n);
 

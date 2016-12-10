@@ -44,7 +44,7 @@ hasher_HashArray(Hasher *hasher, size_t length, uint8_t input[length])
     return hasher->interface->HashArray(hasher->instance, length, input);
 }
 
-PARCBitVector *
+Bitmap *
 hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range)
 {
     return hasher->interface->HashToVector(hasher->instance, input, range);

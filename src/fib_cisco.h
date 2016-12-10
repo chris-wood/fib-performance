@@ -11,7 +11,7 @@ extern FIBInterface *CiscoFIBAsFIB;
 FIBCisco *fibCisco_Create(int M);
 void fibCisco_Destroy(FIBCisco **fibP);
 
-bool fibCisco_Insert(FIBCisco *fib, const Name *name, PARCBitVector *vector);
-PARCBitVector *fibCisco_LPM(FIBCisco *fib, const Name *name);
+bool fibCisco_Insert(FIBCisco *fib, const Name *name, Bitmap *vector);
+Bitmap *fibCisco_LPM(FIBCisco *fib, const Name *name);
 
 #endif

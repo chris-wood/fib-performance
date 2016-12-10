@@ -11,7 +11,7 @@ void fibCaesarFilter_Destroy(FIBCaesarFilter **fibP);
 
 extern FIBInterface *CaesarFilterFIBAsFIB;
 
-bool fibCaesarFilter_Insert(FIBCaesarFilter *fib, const Name *name, PARCBitVector *vector);
-PARCBitVector *fibCaesarFilter_LPM(FIBCaesarFilter *fib, const Name *name);
+bool fibCaesarFilter_Insert(FIBCaesarFilter *fib, const Name *name, Bitmap *vector);
+Bitmap *fibCaesarFilter_LPM(FIBCaesarFilter *fib, const Name *name);
 
 #endif

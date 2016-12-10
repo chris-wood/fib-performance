@@ -19,6 +19,6 @@ void sha256hasher_Destroy(SHA256Hasher **hasherP);
 
 PARCBuffer *sha256hasher_Hash(SHA256Hasher *hasher, PARCBuffer *input);
 PARCBuffer *sha256hasher_HashArray(SHA256Hasher *hasher, size_t length, uint8_t input[length]);
-PARCBitVector *sha256hasher_HashToVector(SHA256Hasher *hasher, PARCBuffer *input, int range);
+Bitmap *sha256hasher_HashToVector(SHA256Hasher *hasher, PARCBuffer *input, int range);
 
 #endif //FIB_PERF_SHA256HASHER_H

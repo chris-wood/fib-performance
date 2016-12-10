@@ -11,7 +11,7 @@ void fibNaive_Destroy(FIBNaive **fibP);
 
 extern FIBInterface *NativeFIBAsFIB;
 
-bool fibNaive_Insert(FIBNaive *fib, const Name *name, PARCBitVector *vector);
-PARCBitVector *fibNaive_LPM(FIBNaive *fib, const Name *name);
+bool fibNaive_Insert(FIBNaive *fib, const Name *name, Bitmap *vector);
+Bitmap *fibNaive_LPM(FIBNaive *fib, const Name *name);
 
 #endif

@@ -11,7 +11,7 @@ void fibCaesar_Destroy(FIBCaesar **fibP);
 
 extern FIBInterface *CaesarFIBAsFIB;
 
-bool fibCaesar_Insert(FIBCaesar *fib, const Name *name, PARCBitVector *vector);
-PARCBitVector *fibCaesar_LPM(FIBCaesar *fib, const Name *name);
+bool fibCaesar_Insert(FIBCaesar *fib, const Name *name, Bitmap *vector);
+Bitmap *fibCaesar_LPM(FIBCaesar *fib, const Name *name);
 
 #endif

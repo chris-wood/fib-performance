@@ -52,8 +52,13 @@ PARCBuffer *
 siphasher_Hash(SipHasher *hasher, PARCBuffer *input)
 {
     PARCBuffer *hashOutput = parcBuffer_Allocate(SIPHASH_HASH_LENGTH);
-    siphash(parcBuffer_Overlay(hashOutput, 0), parcBuffer_Overlay(input, 0),
-            parcBuffer_Remaining(input), parcBuffer_Overlay(hasher->keys[0], 0));
+    uint8_t *outputOverlay = parcBuffer_Overlay(hashOutput, 0);
+    uint8_t *inputOverlay = parcBuffer_Overlay(input, 0);
+    uint8_t *keyOverlay = parcBuffer_Overlay(hasher->keys[0], 0);
+    size_t inputSize = parcBuffer_Remaining(input);
+
+    siphash(outputOverlay, inputOverlay, inputSize, keyOverlay);
+
     return hashOutput;
 }
 
@@ -66,24 +71,24 @@ siphasher_HashArray(SipHasher *hasher, size_t length, uint8_t input[length])
     return hashOutput;
 }
 
-PARCBitVector *
+Bitmap *
 siphasher_HashToVector(SipHasher *hasher, PARCBuffer *input, int range)
 {
-    PARCBitVector *vector = parcBitVector_Create();
+    Bitmap *vector = bitmap_Create(range);
 
     for (int i = 0; i < hasher->numKeys; i++) {
         PARCBuffer *hashOutput = siphasher_Hash(hasher, input);
         size_t index = parcBuffer_GetUint64(hashOutput) % range;
-        parcBitVector_Set(vector, index);
+        bitmap_Set(vector, index);
         parcBuffer_Release(&hashOutput);
     }
 
     return vector;
 }
 
-HasherInterface *SiphashAsHasher = &(HasherInterface) {
+HasherInterface *SipHashAsHasher = &(HasherInterface) {
         .Hash = (PARCBuffer *(*)(void *, PARCBuffer *)) siphasher_Hash,
         .HashArray = (PARCBuffer *(*)(void *hasher, size_t length, uint8_t *input)) siphasher_HashArray,
-        .HashToVector = (PARCBitVector *(*)(void*hasher, PARCBuffer *input, int range)) siphasher_HashToVector,
+        .HashToVector = (Bitmap *(*)(void*hasher, PARCBuffer *input, int range)) siphasher_HashToVector,
         .Destroy = (void (*)(void **instance)) siphasher_Destroy,
 };

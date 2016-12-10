@@ -51,14 +51,14 @@ sha256hasher_HashArray(SHA256Hasher *hasher, size_t length, uint8_t input[length
     return digest;
 }
 
-PARCBitVector *
+Bitmap *
 sha256hasher_HashToVector(SHA256Hasher *hasher, PARCBuffer *input, int range)
 {
-    PARCBitVector *vector = parcBitVector_Create();
+    Bitmap *vector = bitmap_Create(range);
 
     PARCBuffer *hashOutput = sha256hasher_Hash(hasher, input);
     size_t index = parcBuffer_GetUint64(hashOutput) % range;
-    parcBitVector_Set(vector, index);
+    bitmap_Set(vector, index);
     parcBuffer_Release(&hashOutput);
 
     return vector;
@@ -67,6 +67,6 @@ sha256hasher_HashToVector(SHA256Hasher *hasher, PARCBuffer *input, int range)
 HasherInterface *SHA256HashAsHasher = &(HasherInterface) {
         .Hash = (PARCBuffer *(*)(void *, PARCBuffer *)) sha256hasher_Hash,
         .HashArray = (PARCBuffer *(*)(void *hasher, size_t length, uint8_t *input)) sha256hasher_HashArray,
-        .HashToVector = (PARCBitVector *(*)(void*hasher, PARCBuffer *input, int range)) sha256hasher_HashToVector,
+        .HashToVector = (Bitmap *(*)(void*hasher, PARCBuffer *input, int range)) sha256hasher_HashToVector,
         .Destroy = (void (*)(void **instance)) sha256hasher_Destroy,
 };

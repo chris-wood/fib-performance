@@ -34,6 +34,7 @@ LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, fibCaesarFilter_Create);
     LONGBOW_RUN_TEST_CASE(Core, fibCaesarFilter_LookupSimple);
+    LONGBOW_RUN_TEST_CASE(Core, fibCaesarFilter_LookupHashed);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -71,6 +72,20 @@ LONGBOW_TEST_CASE(Core, fibCaesarFilter_LookupSimple)
 
     fib_Destroy(&fib);
 }
+
+LONGBOW_TEST_CASE(Core, fibCaesarFilter_LookupHashed)
+{
+    FIBCaesarFilter *cisco = fibCaesarFilter_Create(128, 128, 128, 5);
+    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+
+    FIB *fib = fib_Create(cisco, CaesarFilterFIBAsFIB);
+    assertNotNull(fib, "Expected non-NULL FIB");
+
+    test_fib_hash_lookup(fib);
+
+    fib_Destroy(&fib);
+}
+
 
 int
 main(int argc, char *argv[argc])

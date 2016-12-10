@@ -21,6 +21,6 @@ void siphasher_Destroy(SipHasher **hasherP);
 
 PARCBuffer *siphasher_Hash(SipHasher *hasher, PARCBuffer *input);
 PARCBuffer *siphasher_HashArray(SipHasher *hasher, size_t length, uint8_t input[length]);
-PARCBitVector *siphasher_HashToVector(SipHasher *hasher, PARCBuffer *input, int range);
+Bitmap *siphasher_HashToVector(SipHasher *hasher, PARCBuffer *input, int range);
 
 #endif //FIB_PERF_SIPHASHER_H

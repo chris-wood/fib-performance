@@ -4,9 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include <parc/algol/parc_BitVector.h>
-
 #include "name.h"
+#include "bitmap.h"
 
 typedef enum {
     FIBMode_Hash,
@@ -26,10 +25,10 @@ typedef struct fib FIB;
 
 typedef struct {
     // Perform LPM to retrieve the name
-    PARCBitVector *(*LPM)(void *instance, const Name *ccnxName);
+    Bitmap *(*LPM)(void *instance, const Name *ccnxName);
 
     // Insert a new name into the FIB
-    bool (*Insert)(void *instance, const Name *ccnxName, PARCBitVector *vector);
+    bool (*Insert)(void *instance, const Name *ccnxName, Bitmap *vector);
 
     void (*Destroy)(void **instance);
 } FIBInterface;
@@ -37,7 +36,7 @@ typedef struct {
 FIB *fib_Create(void *instance, FIBInterface *interface);
 void fib_Destroy(FIB **fibP);
 
-PARCBitVector *fib_LPM(FIB *map, const Name *ccnxName);
-bool fib_Insert(FIB *map, const Name *ccnxName, PARCBitVector *vector);
+Bitmap *fib_LPM(FIB *map, const Name *ccnxName);
+bool fib_Insert(FIB *map, const Name *ccnxName, Bitmap *vector);
 
 #endif // fib_h_

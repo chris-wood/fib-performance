@@ -5,8 +5,9 @@
 #ifndef FIB_PERF_HASHER_H
 #define FIB_PERF_HASHER_H
 
+#include "bitmap.h"
+
 #include <parc/algol/parc_Buffer.h>
-#include <parc/algol/parc_BitVector.h>
 
 struct hasher;
 typedef struct hasher Hasher;
@@ -14,7 +15,7 @@ typedef struct hasher Hasher;
 typedef struct {
     PARCBuffer *(*Hash)(void *hasher, PARCBuffer *input);
     PARCBuffer *(*HashArray)(void *hasher, size_t length, uint8_t input[length]);
-    PARCBitVector *(*HashToVector)(void *hasher, PARCBuffer *input, int range);
+    Bitmap *(*HashToVector)(void *hasher, PARCBuffer *input, int range);
     void (*Destroy)(void **instance);
 } HasherInterface;
 
@@ -23,6 +24,6 @@ void hasher_Destroy(Hasher **hasherP);
 
 PARCBuffer *hasher_Hash(Hasher *hasher, PARCBuffer *input);
 PARCBuffer *hasher_HashArray(Hasher *hasher, size_t length, uint8_t input[length]);
-PARCBitVector *hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range);
+Bitmap *hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range);
 
 #endif //FIB_PERF_HASHER_H
