@@ -54,8 +54,9 @@ def parse_files(files):
                     insert_hashed[alg].append((mean, stdev, fraction))
 
 algorithms = ["naive", "cisco"] #, "caesar", "caesar-filter"]
+alg_names = ["Naive", "Cisco"] #, "Caesar", "Caesar-Filter"]
 widths = [4, 8, 12, 16, 20, 24, 28, 32]
-width = 1.0 / len(algorithms)
+width = (1.0 / len(algorithms)) * 0.9
 
 parse_files(sys.argv[1:])
 
@@ -78,25 +79,30 @@ def compute_values(alg):
     for i, width in enumerate(widths):
         hashed_mean = lookup_hashed[alg][i][0]
         mean = lookups[alg][0][0]
-            means[i] = (float(mean) - hashed_mean) / hashed_mean
+        means[i] = (float(mean) - hashed_mean) / hashed_mean
 
-    return means
+        hashed_stdev = lookup_hashed[alg][i][1]
+        stdev = lookups[alg][0][1]
+        stdevs[i] = (float(stdev) - hashed_stdev) / hashed_stdev
+
+    return means, stdevs
 
 fig, ax = plt.subplots()
 rects = []
 colors = ["r", "b"] # , "g", "y"]
 indices = np.arange(len(widths))
 for i, alg in enumerate(algorithms):
-    values = compute_values(alg)
-    rects_set = ax.bar(indices + (i * width), values, width, color=colors[i]) # log=True 
+    values, errs = compute_values(alg)
+    rects_set = ax.bar(indices + (i * width), values, width, yerr=errs, color=colors[i], align="center") # log=True
+    rects.append(rects_set)
 
 # add some text for labels, title and axes ticks
-ax.set_ylabel('Percentage Improvement')
-ax.set_xlabel('Hash Size [B]')
-#ax.set_xticks(indices + width)
+ax.set_ylabel('Percentage Improvement [%]')
+ax.set_xlabel('Name Component Hash Size [B]')
+ax.set_xticks(indices + width)
 #ax.set_yscale('log')
-#ax.set_xticklabels(tuple(map(lambda s : "{:.1e}".format(s), sizes)))
-#ax.legend((rects1[0], rects2[0]), ('SCR', 'IPBC'), loc=2)
+ax.set_xticklabels(tuple(widths))
+ax.legend((rects[0][0], rects[1][0]), (alg_names[0], alg_names[1]), loc=1)
 
 def autolabel(rects):
     # attach some text labels
@@ -105,8 +111,10 @@ def autolabel(rects):
         ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
                 '%d' % int(height),
                 ha='center', va='bottom')
-#autolabel(rects1)
-#autolabel(rects2)
+
+# autolabel(rects[0])
+# autolabel(rects[1])
+
 plt.grid(True)
 #plt.savefig('sizes.eps')
 plt.show()

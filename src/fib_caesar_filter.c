@@ -50,9 +50,13 @@ fibCaesarFilter_LPM(FIBCaesarFilter *fib, const Name *name)
         Bitmap *vector = bitmap_Create(fib->numPorts);
         PARCBuffer *key = name_GetWireFormat(name, numMatches);
         for (int i = 0; i < fib->numPorts; i++) {
-            if (name_IsHashed(name) && bloom_TestHashed(fib->portFilters[i], key)) {
-                bitmap_Set(vector, i);
-            } else if (bloom_Test(fib->portFilters[i], key)){
+            bool set = false;
+            if (name_IsHashed(name)) {
+                set = bloom_TestHashed(fib->portFilters[i], key);
+            } else {
+                set = bloom_Test(fib->portFilters[i], key);
+            }
+            if (set) {
                 bitmap_Set(vector, i);
             }
         }

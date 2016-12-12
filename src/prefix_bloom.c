@@ -66,17 +66,40 @@ prefixBloomFilter_Destroy(PrefixBloomFilter **bfP)
     *bfP = NULL;
 }
 
+static uint64_t
+_djb(size_t length, uint8_t *buffer) {
+    uint64_t hash = 5381;
+    int c;
+
+    for (size_t i = 0; i < length; i++) {
+        hash = ((hash << 5) + hash) + (buffer[i]); /* hash * 33 + c */
+    }
+    return hash;
+}
+
+static int
+_checkSum(size_t length, uint8_t *buffer)
+{
+    int sum = 0;
+    for (size_t i = 0; i < length; i++) {
+        sum += buffer[i];
+    }
+    return sum;
+}
+
 void
 prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
 {
     // 1. hash first segment to identify the block
     PARCBuffer *firstSegmentHash = NULL;
+    uint64_t blockIndex = 0;
     if (name_IsHashed(name)) {
         firstSegmentHash = name_GetWireFormat(name, 1);
+        blockIndex = _checkSum(parcBuffer_Remaining(firstSegmentHash), parcBuffer_Overlay(firstSegmentHash, 0)) % filter->b;
     } else {
-        firstSegmentHash = siphasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+        firstSegmentHash = name_GetWireFormat(name, 1);
+        blockIndex = _djb(parcBuffer_Remaining(firstSegmentHash), parcBuffer_Overlay(firstSegmentHash, 0)) % filter->b;
     }
-    uint64_t blockIndex = parcBuffer_GetUint64(firstSegmentHash) % filter->b;
     parcBuffer_Release(&firstSegmentHash);
 
     // 2. add the k hashes to the filter
@@ -84,6 +107,8 @@ prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
     if (name_IsHashed(name)) {
         bloom_AddHashed(filter->filterBlocks[blockIndex], nameValue);
     } else {
+//        int count = name_GetSegmentCount(name) - 1;
+//        bloom_AddRaw(filter->filterBlocks[blockIndex], name_GetSegmentLength(name, count), name_GetSegmentOffset(name, count));
         bloom_Add(filter->filterBlocks[blockIndex], nameValue);
     }
 
@@ -101,12 +126,14 @@ prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
 
     // 1. hash first segment to identify the block
     PARCBuffer *firstSegmentHash = NULL;
+    uint64_t blockIndex = 0;
     if (name_IsHashed(name)) {
         firstSegmentHash = name_GetWireFormat(name, 1);
+        blockIndex = _checkSum(parcBuffer_Remaining(firstSegmentHash), parcBuffer_Overlay(firstSegmentHash, 0)) % filter->b;
     } else {
-        firstSegmentHash = siphasher_HashArray(filter->hasher, name_GetSegmentLength(name, 0), name_GetSegmentOffset(name, 0));
+        firstSegmentHash = name_GetWireFormat(name, 1);
+        blockIndex = _djb(parcBuffer_Remaining(firstSegmentHash), parcBuffer_Overlay(firstSegmentHash, 0)) % filter->b;
     }
-    uint64_t blockIndex = parcBuffer_GetUint64(firstSegmentHash) % filter->b;
     parcBuffer_Release(&firstSegmentHash);
 
     // 2. do the LPM lookup, starting with the longest possible name
@@ -116,6 +143,7 @@ prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
         if (name_IsHashed(name)) {
             isPresent = bloom_TestHashed(filter->filterBlocks[blockIndex], nameValue);
         } else {
+//            isPresent = bloom_TestRaw(filter->filterBlocks[blockIndex], name_GetSegmentLength(name, count - 1), name_GetSegmentOffset(name, count - 1));
             isPresent = bloom_Test(filter->filterBlocks[blockIndex], nameValue);
         }
 

@@ -8,7 +8,7 @@ fib_perf = ARGV[0]
 load_file = ARGV[1]
 test_file = ARGV[2]
 
-algorithms = ["naive", "cisco", "caesar", "caesar-filter"]
+algorithms = ["naive", "cisco"] #, "caesar", "caesar-filter"]
 widths = [4, 8, 12, 16, 20, 24, 28, 32]
 
 algorithms.each {|alg| 

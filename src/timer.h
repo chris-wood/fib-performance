@@ -7,6 +7,8 @@
 
 #include <time.h>
 
+typedef struct timespec Timestamp;
+
 struct timespec timerStart(void);
 long timerEnd(struct timespec start_time);
 

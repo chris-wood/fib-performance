@@ -215,6 +215,12 @@ bloom_Add(BloomFilter *filter, PARCBuffer *value)
 }
 
 void
+bloom_AddRaw(BloomFilter *filter, int length, uint8_t value[length])
+{
+
+}
+
+void
 bloom_AddHashed(BloomFilter *filter, PARCBuffer *value)
 {
     int numBytesRequired = (filter->k * filter->ln2m) / 8;
@@ -248,6 +254,12 @@ bloom_Test(BloomFilter *filter, PARCBuffer *value)
     bool contains = bitmap_Contains(filter->array, hashVector);
     bitmap_Destroy(&hashVector);
     return contains;
+}
+
+bool
+bloom_TestRaw(BloomFilter *filter, int length, uint8_t value[length])
+{
+
 }
 
 bool

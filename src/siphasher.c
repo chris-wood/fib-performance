@@ -86,9 +86,25 @@ siphasher_HashToVector(SipHasher *hasher, PARCBuffer *input, int range)
     return vector;
 }
 
+Bitmap *
+siphasher_HashArrayToVector(SipHasher *hasher, size_t length, uint8_t input[length], int range)
+{
+    Bitmap *vector = bitmap_Create(range);
+
+    for (int i = 0; i < hasher->numKeys; i++) {
+        PARCBuffer *hashOutput = siphasher_HashArray(hasher, length, input);
+        size_t index = parcBuffer_GetUint64(hashOutput) % range;
+        bitmap_Set(vector, index);
+        parcBuffer_Release(&hashOutput);
+    }
+
+    return vector;
+}
+
 HasherInterface *SipHashAsHasher = &(HasherInterface) {
         .Hash = (PARCBuffer *(*)(void *, PARCBuffer *)) siphasher_Hash,
         .HashArray = (PARCBuffer *(*)(void *hasher, size_t length, uint8_t *input)) siphasher_HashArray,
         .HashToVector = (Bitmap *(*)(void*hasher, PARCBuffer *input, int range)) siphasher_HashToVector,
+        .HashArrayToVector = (Bitmap *(*)(void*hasher, size_t length, uint8_t *input, int range)) siphasher_HashArrayToVector,
         .Destroy = (void (*)(void **instance)) siphasher_Destroy,
 };

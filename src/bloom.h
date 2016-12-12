@@ -14,6 +14,9 @@ void bloom_Destroy(BloomFilter **bfP);
 void bloom_Add(BloomFilter *filter, PARCBuffer *value);
 bool bloom_Test(BloomFilter *filter, PARCBuffer *value);
 
+void bloom_AddRaw(BloomFilter *filter, int length, uint8_t value[length]);
+bool bloom_TestRaw(BloomFilter *filter, int length, uint8_t value[length]);
+
 void bloom_AddHashed(BloomFilter *filter, PARCBuffer *value);
 bool bloom_TestHashed(BloomFilter *filter, PARCBuffer *value);
 

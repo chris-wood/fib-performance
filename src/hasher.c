@@ -49,3 +49,9 @@ hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range)
 {
     return hasher->interface->HashToVector(hasher->instance, input, range);
 }
+
+Bitmap *
+hasher_HashArrayToVector(Hasher *hasher, size_t length, uint8_t input[length], int range)
+{
+    return hasher->interface->HashArrayToVector(hasher, length, input, range);
+}

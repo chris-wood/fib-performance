@@ -33,6 +33,8 @@ set(libfib_SOURCES
         src/bloom.c
         src/prefix_bloom.c
         src/merged_bloom.c
+        src/timer.c
+        src/bitmap.c
     )
 
 link_directories(
@@ -72,6 +74,7 @@ enable_testing()
 
 # Data structure tests
 AddTest(test_name)
+AddTest(test_bitmap)
 AddTest(test_map)
 AddTest(test_patricia)
 AddTest(test_bloom)
