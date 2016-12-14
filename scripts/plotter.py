@@ -22,7 +22,7 @@ def parse_files(files):
 
     for fname in files:
         splits = fname.split("_")
-        alg = splits[0]
+        alg = splits[0] 
 
         if alg not in inserts:
             inserts[alg] = []

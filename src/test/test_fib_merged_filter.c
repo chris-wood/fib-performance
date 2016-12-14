@@ -2,7 +2,7 @@
 // Created by caw on 11/29/16.
 //
 
-#include "../merged_merged_bloom.h"
+#include "../fib_merged_filter.h"
 
 #include <LongBow/testing.h>
 #include <LongBow/debugging.h>
@@ -32,8 +32,8 @@ LONGBOW_TEST_RUNNER_TEARDOWN(merged_bloom)
 LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, merged_bloom_Create);
-//    LONGBOW_RUN_TEST_CASE(Core, merged_bloom_Add);
-//    LONGBOW_RUN_TEST_CASE(Core, merged_bloom_AddTest);
+    LONGBOW_RUN_TEST_CASE(Core, fibMergedBloom_LookupSimple);
+    LONGBOW_RUN_TEST_CASE(Core, fibMergedBloom_LookupHashed);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -47,16 +47,33 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(Core)
     if (!parcMemoryTesting_ExpectedOutstanding(0, "%s mismanaged memory.", longBowTestCase_GetFullName(testCase))) {
         return LONGBOW_STATUS_MEMORYLEAK;
     }
-
     return LONGBOW_STATUS_SUCCEEDED;
 }
 
-LONGBOW_TEST_CASE(Core, merged_bloom_Create)
+LONGBOW_TEST_CASE(Core, fibMergedBloom_LookupSimple)
 {
-//    BloomFilter *bf = merged_bloom_Create(128, 3);
-//    assertNotNull(bf, "Expected a non-NULL merged_bloom to be created");
-//    merged_bloom_Destroy(&bf);
-//    assertNull(bf, "Expected a NULL merged_bloom after merged_bloom_Destroy");
+    MergedBloomFilter *cisco = fibCisco_Create(3);
+    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+
+    FIB *fib = fib_Create(cisco, CiscoFIBAsFIB);
+    assertNotNull(fib, "Expected non-NULL FIB");
+
+    test_fib_lookup(fib);
+
+    fib_Destroy(&fib);
+}
+
+LONGBOW_TEST_CASE(Core, fibMergedBloom_LookupHashed)
+{
+    FIBCisco *cisco = fibCisco_Create(3);
+    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+
+    FIB *fib = fib_Create(cisco, CiscoFIBAsFIB);
+    assertNotNull(fib, "Expected non-NULL FIB");
+
+    test_fib_hash_lookup(fib);
+
+    fib_Destroy(&fib);
 }
 
 int
