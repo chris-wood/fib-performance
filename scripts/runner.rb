@@ -1,12 +1,12 @@
-if ARGV.length != 3
-    puts "ruby runner.sh <fib-perf> <load_file> <test_file>"
+if ARGV.length != 4
+    puts "ruby runner.sh <fib-perf> <load_file> <test_file> <suffix>"
     exit
 end
-
 
 fib_perf = ARGV[0]
 load_file = ARGV[1]
 test_file = ARGV[2]
+suffix = ARGV[3]
 
 table_algorithms = ["naive", "cisco"]
 filter_algorithms = ["caesar", "caesar-filter", "merged-filter"]
@@ -14,7 +14,7 @@ widths = [4, 8, 12, 16, 20, 24, 28, 32]
 numfilters = [2, 3, 4, 5, 6]
 
 table_algorithms.each {|alg|
-    fname = "#{alg}_out.txt"
+    fname = "#{alg}_#{suffix}_out.txt"
 
     # Run without hashing
     output = `#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg}`
@@ -31,7 +31,7 @@ table_algorithms.each {|alg|
 
 filter_algorithms.each {|alg|
     numfilters.each{|k|
-        fname = "#{alg}_#{k}_out.txt"
+        fname = "#{alg}_#{k}_#{suffix}_out.txt"
 
         output = `#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -f #{k}`
         puts output
