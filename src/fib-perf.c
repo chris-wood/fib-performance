@@ -11,11 +11,14 @@
 #include "fib_cisco.h"
 #include "fib_caesar.h"
 #include "fib_caesar_filter.h"
+#include "fib_merged_filter.h"
 #include "sha256hasher.h"
 #include "timer.h"
 #include "bitmap.h"
 
 #define DEFAULT_NUM_PORTS 256
+#define DEFAULT_NUM_FILTERS 2 // from Caesar paper
+#define DEFAULT_FILTER_SIZE 128
 
 typedef struct timed_result {
     long time;
@@ -71,8 +74,9 @@ void usage() {
     fprintf(stderr, "usage: fib_perf\n");
     fprintf(stderr, "   - load_file = A file that contains names to load the FIB\n");
     fprintf(stderr, "   - test_file = A file that contains names to pump through and test the FIB\n");
+    fprintf(stderr, "   - filters   = The number of filters to use for BF-based FIBs\n");
     fprintf(stderr, "   - n         = The maximum length prefix to use when inserting names into the FIB\n");
-    fprintf(stderr, "   - alg       = The FIB data structure to use: ['naive', 'cisco', 'caesar', 'caesar-filter']\n");
+    fprintf(stderr, "   - alg       = The FIB data structure to use: ['naive', 'cisco', 'caesar', 'caesar-filter', 'merged-bf']\n");
     fprintf(stderr, "   - ports     = The number of ports supported\n");
     fprintf(stderr, "   - digest    = A flag to indicate that names should be hashed. Currently, SHA256 is used.\n");
 }
@@ -84,6 +88,7 @@ typedef struct {
     Hasher *hasher;
     int hashSize;
     int numPorts;
+    int numFilters;
     uint32_t maxNameLength;
 } FIBOptions;
 
@@ -95,6 +100,7 @@ parseCommandLineOptions(int argc, char **argv)
             { "test_file",   required_argument,  NULL, 't' },
             { "n",           required_argument,  NULL, 'n' },
             { "alg",         required_argument,  NULL, 'a' },
+            { "filters",     required_argument,  NULL, 'f' },
             { "num_ports",   required_argument,  NULL, 'p'},
             { "digest",      required_argument,  NULL, 'd'},
             { "help",        no_argument,        NULL, 'h'},
@@ -114,10 +120,11 @@ parseCommandLineOptions(int argc, char **argv)
     options->hashSize = 0;
     options->hasher = NULL;
     options->numPorts = DEFAULT_NUM_PORTS;
+    options->numFilters = DEFAULT_NUM_FILTERS;
 
     int c;
     while (optind < argc) {
-        if ((c = getopt_long(argc, argv, "hl:t:n:a:d:p:", longopts, NULL)) != -1) {
+        if ((c = getopt_long(argc, argv, "hl:t:n:a:d:p:f:", longopts, NULL)) != -1) {
             switch(c) {
                 case 'l':
                     options->loadFile = malloc(strlen(optarg) + 1);
@@ -139,11 +146,14 @@ parseCommandLineOptions(int argc, char **argv)
                         FIBNaive *nativeFIB = fibNative_Create();
                         fib = fib_Create(nativeFIB, NativeFIBAsFIB);
                     } else if (strcmp(optarg, "caesar") == 0) {
-                        FIBCaesar *caesarFIB = fibCaesar_Create(128, 128, 7);
+                        FIBCaesar *caesarFIB = fibCaesar_Create(DEFAULT_FILTER_SIZE, DEFAULT_FILTER_SIZE, options->numFilters);
                         fib = fib_Create(caesarFIB, CaesarFIBAsFIB);
                     } else if (strcmp(optarg, "caesar-filter") == 0) {
-                        FIBCaesarFilter *filterFIB = fibCaesarFilter_Create(options->numPorts, 128, 128, 7);
+                        FIBCaesarFilter *filterFIB = fibCaesarFilter_Create(options->numPorts, DEFAULT_FILTER_SIZE, DEFAULT_FILTER_SIZE, options->numFilters);
                         fib = fib_Create(filterFIB, CaesarFilterFIBAsFIB);
+                    } else if (strcmp(optarg, "merged-filter") == 0) {
+                        FIBMergedFilter *filterFIB = fibMergedFilter_Create(options->numPorts, DEFAULT_FILTER_SIZE, options->numFilters);
+                        fib = fib_Create(filterFIB, MergedFilterFIBAsFIB);
                     } else {
                         perror("Invalid algorithm specified\n");
                         usage();

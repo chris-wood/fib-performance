@@ -13,6 +13,7 @@ typedef struct bitmap Bitmap;
 
 Bitmap *bitmap_Create(int size);
 void bitmap_Destroy(Bitmap **bitmapP);
+void bitmap_Display(Bitmap *bitmap);
 
 bool bitmap_Get(Bitmap *bitmap, int bit);
 bool bitmap_Contains(Bitmap *bitmap, Bitmap *other);

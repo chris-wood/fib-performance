@@ -5,12 +5,13 @@
 #include "../fib_merged_filter.h"
 
 #include <LongBow/testing.h>
-#include <LongBow/debugging.h>
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_SafeMemory.h>
 
 #include <parc/testing/parc_MemoryTesting.h>
+
+#include "test_fib.c"
 
 LONGBOW_TEST_RUNNER(merged_bloom)
 {
@@ -31,7 +32,6 @@ LONGBOW_TEST_RUNNER_TEARDOWN(merged_bloom)
 
 LONGBOW_TEST_FIXTURE(Core)
 {
-    LONGBOW_RUN_TEST_CASE(Core, merged_bloom_Create);
     LONGBOW_RUN_TEST_CASE(Core, fibMergedBloom_LookupSimple);
     LONGBOW_RUN_TEST_CASE(Core, fibMergedBloom_LookupHashed);
 }
@@ -52,10 +52,10 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(Core)
 
 LONGBOW_TEST_CASE(Core, fibMergedBloom_LookupSimple)
 {
-    MergedBloomFilter *cisco = fibCisco_Create(3);
-    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+    FIBMergedFilter *filter = fibMergedFilter_Create(128, 128, 3);
+    assertNotNull(filter, "Expected a non-NULL FIBCisco to be created");
 
-    FIB *fib = fib_Create(cisco, CiscoFIBAsFIB);
+    FIB *fib = fib_Create(filter, MergedFilterFIBAsFIB);
     assertNotNull(fib, "Expected non-NULL FIB");
 
     test_fib_lookup(fib);
@@ -65,10 +65,10 @@ LONGBOW_TEST_CASE(Core, fibMergedBloom_LookupSimple)
 
 LONGBOW_TEST_CASE(Core, fibMergedBloom_LookupHashed)
 {
-    FIBCisco *cisco = fibCisco_Create(3);
-    assertNotNull(cisco, "Expected a non-NULL FIBCisco to be created");
+    FIBMergedFilter *filter = fibMergedFilter_Create(128, 128, 3);
+    assertNotNull(filter, "Expected a non-NULL FIBCisco to be created");
 
-    FIB *fib = fib_Create(cisco, CiscoFIBAsFIB);
+    FIB *fib = fib_Create(filter, MergedFilterFIBAsFIB);
     assertNotNull(fib, "Expected non-NULL FIB");
 
     test_fib_hash_lookup(fib);

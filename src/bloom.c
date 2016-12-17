@@ -53,7 +53,6 @@ bloom_Create(int m, int k)
         }
 
         bf->hasher = siphasher_CreateWithKeys(k, bf->keys);
-
     }
     return bf;
 }
@@ -84,8 +83,9 @@ bloom_AddName(BloomFilter *filter, Name *name)
     // compute the bit for the first hash (k = 0)
     PARCBuffer *segmentHash = name_GetWireFormat(newName, name_GetSegmentCount(name));
     size_t checkSum = 0;
+    uint8_t *segmentHashOverlay = parcBuffer_Overlay(segmentHash, 0);
     for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
-        checkSum += parcBuffer_GetUint8(segmentHash);
+        checkSum += segmentHashOverlay[b];
     }
 
     // set the target bit
@@ -107,8 +107,9 @@ bloom_AddName(BloomFilter *filter, Name *name)
         PARCBuffer *segmentHash = name_XORSegment(newName, name_GetSegmentCount(name) - 1, firstHash);
 
         size_t checkSum = 0;
+        uint8_t *segmentHashOverlay = parcBuffer_Overlay(segmentHash, 0);
         for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
-            checkSum += parcBuffer_GetUint8(segmentHash);
+            checkSum += segmentHashOverlay[b];
         }
         checkSum %= filter->m;
 
@@ -119,6 +120,8 @@ bloom_AddName(BloomFilter *filter, Name *name)
         parcBuffer_Release(&firstComponent);
         parcBuffer_Release(&firstHash);
     }
+
+    name_Destroy(&newName);
 }
 
 static void
@@ -149,8 +152,9 @@ bloom_TestName(BloomFilter *filter, Name *name)
     for (int d = 0; d < name_GetSegmentCount(newName); d++) {
         PARCBuffer *segmentHash = name_GetWireFormat(newName, d + 1);
         size_t checkSum = 0;
+        uint8_t *segmentHashOverlay = parcBuffer_Overlay(segmentHash, 0);
         for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
-            checkSum += parcBuffer_GetUint8(segmentHash);
+            checkSum += segmentHashOverlay[b];
         }
         checkSum %= filter->m;
         bitMatrix[0][d] = checkSum;
@@ -171,8 +175,9 @@ bloom_TestName(BloomFilter *filter, Name *name)
             PARCBuffer *segmentHash = name_XORSegment(newName, d, firstHash);
 
             size_t checkSum = 0;
+            uint8_t *segmentHashOverlay = parcBuffer_Overlay(segmentHash, 0);
             for (int b = 0; b < parcBuffer_Remaining(segmentHash); b++) {
-                checkSum += parcBuffer_GetUint8(segmentHash);
+                checkSum += segmentHashOverlay[b];
             }
             checkSum %= filter->m;
 
@@ -198,11 +203,13 @@ bloom_TestName(BloomFilter *filter, Name *name)
 
         if (allMatch) {
             _freeBitMatrix(bitMatrix, filter->k);
-            return d;
+            name_Destroy(&newName);
+            return d + 1;
         }
     }
 
     _freeBitMatrix(bitMatrix, filter->k);
+    name_Destroy(&newName);
     return -1;
 }
 
@@ -217,7 +224,9 @@ bloom_Add(BloomFilter *filter, PARCBuffer *value)
 void
 bloom_AddRaw(BloomFilter *filter, int length, uint8_t value[length])
 {
-
+    Bitmap *hashVector = siphasher_HashArrayToVector(filter->hasher, length, value, filter->m);
+    bitmap_SetVector(filter->array, hashVector);
+    bitmap_Destroy(&hashVector);
 }
 
 void
@@ -259,7 +268,10 @@ bloom_Test(BloomFilter *filter, PARCBuffer *value)
 bool
 bloom_TestRaw(BloomFilter *filter, int length, uint8_t value[length])
 {
-
+    Bitmap *hashVector = siphasher_HashArrayToVector(filter->hasher, length, value, filter->m);
+    bool contains = bitmap_Contains(filter->array, hashVector);
+    bitmap_Destroy(&hashVector);
+    return contains;
 }
 
 bool

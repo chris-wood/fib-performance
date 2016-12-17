@@ -4,6 +4,7 @@
 
 #include "bitmap.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <LongBow/runtime.h>
@@ -25,8 +26,18 @@ bitmap_Create(int size)
         map->bitSize = size;
         map->byteSize = size / 8;
         map->map = (uint32_t *) malloc(sizeof(uint32_t) * (map->byteSize / sizeof(uint32_t)));
+        memset(map->map, 0, sizeof(uint32_t) * (map->byteSize / sizeof(uint32_t)));
     }
     return map;
+}
+
+void
+bitmap_Display(Bitmap *bitmap)
+{
+    for (int i = 0; i < (bitmap->byteSize / sizeof(uint32_t)); i++) {
+        printf("%08x", bitmap->map[i]);
+    }
+    printf("\n");
 }
 
 void
@@ -104,7 +115,7 @@ bool
 bitmap_Equals(Bitmap *bitmap, Bitmap *other)
 {
     if (bitmap->bitSize != other->bitSize) {
-        assertFalse(true, "Fatal error. Bitmaps were not the same size.");
+        assertFalse(true, "Fatal error. Bitmaps were not the same size: %d and %d", bitmap->bitSize, other->bitSize);
     }
     for (int i = 0; i < bitmap->bitSize; i++) {
         if (bitmap_Get(bitmap, i) != bitmap_Get(other, i)) {

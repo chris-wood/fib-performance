@@ -22,6 +22,7 @@ set(libfib_SOURCES
         src/fib_naive.c
         src/fib_caesar.c
         src/fib_caesar_filter.c
+        src/fib_merged_filter.c
         src/map.c
         src/name.c
         src/hasher.c
@@ -32,7 +33,6 @@ set(libfib_SOURCES
         src/random.c
         src/bloom.c
         src/prefix_bloom.c
-        src/merged_bloom.c
         src/timer.c
         src/bitmap.c
     )
@@ -85,3 +85,4 @@ AddTest(test_naive_fib)
 AddTest(test_cisco_fib)
 AddTest(test_caesar_fib)
 AddTest(test_caesar_bloom_fib)
+AddTest(test_fib_merged_filter)

@@ -174,6 +174,18 @@ name_GetSegmentWireFormat(const Name *name, int n)
 }
 
 int
+name_GetPrefixLength(const Name *name, int n)
+{
+    return n == name->numSegments ? parcBuffer_Remaining(name->wireFormat) : name->offsets[n];
+}
+
+uint8_t *
+name_GetBuffer(const Name *name)
+{
+    return parcBuffer_Overlay(name->wireFormat, 0);
+}
+
+int
 name_GetSegmentLength(const Name *name, int n)
 {
     return name->sizes[n];
@@ -193,11 +205,12 @@ name_XORSegment(const Name *name, int index, PARCBuffer *vector)
     int size = name->sizes[0];
     assertTrue(parcBuffer_Remaining(vector) == size, "Size mismatch -- invalid use of name_XORSegment");
 
+    uint8_t *vectorBuffer = parcBuffer_Overlay(vector, 0);
     uint8_t *sourceSegment = name_GetSegmentOffset(name, index);
     PARCBuffer *xor = parcBuffer_Allocate(size); // all segments are of the same length here
+    uint8_t *result = parcBuffer_Overlay(xor, 0);
     for (int i = 0; i < size; i++) {
-        parcBuffer_PutUint8(xor, parcBuffer_GetAtIndex(vector, size) ^ sourceSegment[i]);
+        result[i] = vectorBuffer[i] ^ sourceSegment[i];
     }
-    parcBuffer_Flip(xor);
     return xor;
 }

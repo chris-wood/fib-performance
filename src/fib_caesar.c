@@ -3,8 +3,6 @@
 #include "map.h"
 #include "prefix_bloom.h"
 
-#include <parc/algol/parc_SafeMemory.h>
-
 struct fib_caesar {
     int numMaps;
     PrefixBloomFilter *pbf;
@@ -86,10 +84,10 @@ fibCaesar_Insert(FIBCaesar *fib, const Name *name, Bitmap *vector)
         bitmap_SetVector(match, vector);
     }
 
+    prefixBloomFilter_Add(fib->pbf, name);
+
     int numSegments = name_GetSegmentCount(name);
     _fibCaesar_ExpandMapsToSize(fib, numSegments);
-
-    prefixBloomFilter_Add(fib->pbf, name);
     Map *table = fib->maps[numSegments - 1];
 
     PARCBuffer *key = name_GetWireFormat(name, numSegments);

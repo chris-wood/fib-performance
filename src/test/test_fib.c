@@ -25,7 +25,7 @@ void test_fib_lookup(FIB *fib)
     bitmap_Set(vector3, 2);
     bitmap_Set(vector3, 13);
     Bitmap *vector4 = bitmap_Create(128);
-    bitmap_Set(vector4, 42);
+    bitmap_Set(vector4, 19);
 
     fib_Insert(fib, name1, vector1);
 

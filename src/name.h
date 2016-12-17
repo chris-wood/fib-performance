@@ -24,7 +24,9 @@ int name_GetSegmentCount(const Name *name);
 PARCBuffer *name_GetWireFormat(const Name *name, int n);
 PARCBuffer *name_GetSegmentWireFormat(const Name *name, int n);
 int name_GetSegmentLength(const Name *name, int n);
+int name_GetPrefixLength(const Name *name, int n);
 uint8_t *name_GetSegmentOffset(const Name *name, int n);
+uint8_t *name_GetBuffer(const Name *name);
 
 PARCBuffer *name_XORSegment(const Name *name, int index, PARCBuffer *vector);
 
