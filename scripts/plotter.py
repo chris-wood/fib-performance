@@ -27,8 +27,9 @@ def parse_files(files):
         splits = fname.split("_")
 
         # alg_fibsize_{out | filter}
+        print splits
         if "out" not in splits[2]:
-            alg = splits[0] + "-" + splits[1] + "-" + splits[2]
+            alg = splits[0]  
         else:
             alg = splits[0] + "-" + splits[1]
 
@@ -99,11 +100,11 @@ def compute_values(alg):
     for i, width in enumerate(widths):
         hashed_mean = lookup_hashed[alg][i][0]
         mean = lookups[alg][0][0]
-        means[i] = (float(mean) - hashed_mean) / hashed_mean
+        means[i] = ((float(mean) - hashed_mean) / hashed_mean) * 100.0
 
         hashed_stdev = lookup_hashed[alg][i][1]
         stdev = lookups[alg][0][1]
-        stdevs[i] = (float(stdev) - hashed_stdev) / hashed_stdev
+        stdevs[i] = ((float(stdev) - hashed_stdev) / hashed_stdev) * 100.0
 
     return means, stdevs
 
@@ -156,6 +157,6 @@ def plot_filter_improvement(algorithms, alg_names):
     plt.show()
 
 plot_hash_improvement(hash_algorithms, hash_alg_names)
-plot_filter_improvement(caesar_algorithms, caesar_alg_names)
-plot_filter_improvement(caesar_filter_algorithms, caesar_filter_alg_names)
-plot_filter_improvement(merged_filter_algorithms, merged_filter_alg_names)
+#plot_filter_improvement(caesar_algorithms, caesar_alg_names)
+#plot_filter_improvement(caesar_filter_algorithms, caesar_filter_alg_names)
+#plot_filter_improvement(merged_filter_algorithms, merged_filter_alg_names)
