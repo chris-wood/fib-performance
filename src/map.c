@@ -4,7 +4,7 @@
 #include "siphasher.h"
 
 // Some defaults
-const int MapDefaultCapacity = 128;
+const int MapDefaultCapacity = 85246;
 const int SiphashKeySize = 128 / 8;
 const int LinkedBucketDefaultCapacity = 100;
 
