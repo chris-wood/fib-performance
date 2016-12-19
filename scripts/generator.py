@@ -25,7 +25,10 @@ def url_to_segments(url):
             current += c
         index += 1
 
-    return segments
+    trimmed = [''.join(e for e in segment if e.isalnum()) for segment in segments]
+    trimmed = filter(lambda s : len(s) > 0, trimmed)
+
+    return trimmed
 
 def segments_to_name(segments):
     name = "ccnx:/" + "/".join(segments)
@@ -35,7 +38,9 @@ def segments_to_name(segments):
 
 def url_to_name(url):
     segments = url_to_segments(url)
-    return segments_to_name(segments)
+    if len(segments) > 0:
+        return segments_to_name(segments)
+    return None
 
 def random_string(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -46,12 +51,17 @@ def extend_name(segments, segment_sampler, segment_length_sampler):
         segments.append(random_string(segment_length_sampler()))
     return segments_to_name(segments)
 
-def generate_load():
+def generate_load(load):
     names = []
+    count = 0
     for line in sys.stdin:
         if len(line) > 0:
             name = url_to_name(line)
-            names.append(name)
+            if name != None:
+                names.append(name)
+                count += 1
+        if load != 0 and count > load:
+            break
     for n in names:
         print n
 
@@ -85,14 +95,18 @@ def segment_length_sampler():
         value = int(random.normalvariate(SEGMENT_LENGTH_MEAN + count, SEGMENT_LENGTH_STDEV)) # values from Unibas data set -- fixed for now
     return value
 
-def generate_test(increase_factor):
+def generate_test(load, increase_factor):
     base_names = []
+    count = 0
     for line in sys.stdin:
         if len(line) > 0:
             segments = url_to_segments(line)
             base_names.append(segments)
+            count += 1
+            
+        if load != 0 and count > load:
+            break
 
-    count = len(base_names)
     total = increase_factor * count
 
     for i in range(total):
@@ -108,11 +122,14 @@ def main(args):
     if len(args) < 2:
         usage(args)
 
-    if args[1] == "load":
-        generate_load()
-    elif args[1] == "test":
-        increase_factor = int(args[2])
-        generate_test(increase_factor)
+    load = int(args[1])
+    cmd = args[2]
+
+    if cmd == "load":
+        generate_load(load)
+    elif cmd == "test":
+        factor = int(args[3])
+        generate_test(load, factor)
     else:
         usage(args)
 

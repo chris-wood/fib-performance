@@ -17,12 +17,14 @@ table_algorithms.each {|alg|
     fname = "#{alg}_#{suffix}_out.txt"
 
     # Run without hashing
+    puts "#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg}" 
     output = `#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg}`
     puts output
     File.open(fname, 'a') { |file| file.write(output) }
 
     # Run with hashing
     widths.each {|width|
+        puts "#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -d #{width}"
         output_hashed = `#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -d #{width}`
         puts output_hashed
         File.open(fname, 'a') { |file| file.write(output_hashed) }
@@ -33,11 +35,13 @@ filter_algorithms.each {|alg|
     numfilters.each{|k|
         fname = "#{alg}_#{k}_#{suffix}_out.txt"
 
+        puts "#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -f #{k}"
         output = `#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -f #{k}`
         puts output
         File.open(fname, 'a') { |file| file.write(output) }
 
         widths.each {|width|
+            puts "#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -d #{width} -f #{k}"
             output_hashed = `#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -d #{width} -f #{k}`
             puts output_hashed
             File.open(fname, 'a') { |file| file.write(output_hashed) }

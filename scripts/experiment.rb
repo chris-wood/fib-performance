@@ -8,7 +8,7 @@ url_file = ARGV[1]
 
 # Change these as needed
 expansion = 5
-num_experiments = 100
+num_experiments = 1 #100
 fractions = (1..10).map {|n| n * 0.1}
 
 # Count the number of lines in the file
@@ -23,20 +23,27 @@ counts.each{|count|
         # Shuffle the data 
         load_data.shuffle!
         test_data.shuffle!
-
-        puts load_data
     
         tmp_load = "/tmp/load_tmp_#{count}_#{n}.txt"
-        tmp_test = "/tmp/test_tmp_#{count}_#{n}.txt"                     
+        tmp_test = "/tmp/test_tmp_#{count}_#{n}.txt"
+
         File.open(tmp_load, 'w') { |file| load_data.each{|line| file.write(line + "\n")} }
         File.open(tmp_test, 'w') { |file| test_data.each{|line| file.write(line + "\n")} }
 
         suffix = "#{count}_#{n}"
+        puts suffix
+
         out = `ruby runner.rb #{fib_perf} #{tmp_load} #{tmp_test} #{suffix}`.to_i
         if out != 0
             puts "check it out"
             exit
         end 
+
+        #File.delete tmp_load
+        #File.delete tmp_test
     }
+
+    # Only do the first one
+    exit
 }
 
