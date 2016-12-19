@@ -25,10 +25,12 @@ def parse_files(files):
 
     for fname in files:
         splits = fname.split("_")
-        if "out" not in splits[1]:
-            alg = splits[0] + "-" + splits[1]
+
+        # alg_fibsize_{out | filter}
+        if "out" not in splits[2]:
+            alg = splits[0] + "-" + splits[1] + "-" + splits[2]
         else:
-            alg = splits[0]
+            alg = splits[0] + "-" + splits[1]
 
         print "parsing %s" % alg
 
