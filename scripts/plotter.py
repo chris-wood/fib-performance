@@ -27,11 +27,10 @@ def parse_files(files):
         splits = fname.split("_")
 
         # alg_fibsize_{out | filter}
-        print splits
-        if "out" not in splits[2]:
-            alg = splits[0]  
-        else:
+        if "out" not in splits[3]:
             alg = splits[0] + "-" + splits[1]
+        else:
+            alg = splits[0]
 
         print "parsing %s" % alg
 
@@ -68,7 +67,7 @@ widths = [4, 8, 12, 16, 20, 24, 28, 32]
 hash_algorithms = ["naive", "cisco"]
 hash_alg_names = ["Naive", "Cisco"]
 
-filters = [2, 3, 4, 5, 6]
+filters = [2, 3, 4] #, 5] #, 6]
 caesar_algorithms = []
 caesar_alg_names = []
 caesar_filter_algorithms = []
@@ -100,11 +99,11 @@ def compute_values(alg):
     for i, width in enumerate(widths):
         hashed_mean = lookup_hashed[alg][i][0]
         mean = lookups[alg][0][0]
-        means[i] = ((float(mean) - hashed_mean) / hashed_mean) * 100.0
+        means[i] = (float(mean) - hashed_mean) / hashed_mean
 
         hashed_stdev = lookup_hashed[alg][i][1]
         stdev = lookups[alg][0][1]
-        stdevs[i] = ((float(stdev) - hashed_stdev) / hashed_stdev) * 100.0
+        stdevs[i] = (float(stdev) - hashed_stdev) / hashed_stdev
 
     return means, stdevs
 
@@ -149,14 +148,14 @@ def plot_filter_improvement(algorithms, alg_names):
     ax.set_xticks(indices + width)
     #ax.set_yscale('log')
     ax.set_xticklabels(tuple(widths))
-    ax.legend((rects[0][0], rects[1][0], rects[2][0], rects[3][0], rects[4][0]), \
-        (alg_names[0], alg_names[1], alg_names[2], alg_names[3], alg_names[4]), loc=1)
+    ax.legend((rects[0][0], rects[1][0], rects[2][0]), \
+        (alg_names[0], alg_names[1], alg_names[2]), loc=1)
 
     plt.grid(True)
     #plt.savefig('sizes.eps')
     plt.show()
 
 plot_hash_improvement(hash_algorithms, hash_alg_names)
-#plot_filter_improvement(caesar_algorithms, caesar_alg_names)
-#plot_filter_improvement(caesar_filter_algorithms, caesar_filter_alg_names)
-#plot_filter_improvement(merged_filter_algorithms, merged_filter_alg_names)
+plot_filter_improvement(caesar_algorithms, caesar_alg_names)
+plot_filter_improvement(caesar_filter_algorithms, caesar_filter_alg_names)
+plot_filter_improvement(merged_filter_algorithms, merged_filter_alg_names)
