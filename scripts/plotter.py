@@ -107,7 +107,7 @@ def compute_values(alg):
 
     return means, stdevs
 
-def plot_hash_improvement(hash_algorithms, hash_alg_names):
+def plot_hash_improvement(fname, hash_algorithms, hash_alg_names):
     width = (1.0 / len(hash_algorithms)) * 0.9
     fig, ax = plt.subplots()
     rects = []
@@ -127,10 +127,10 @@ def plot_hash_improvement(hash_algorithms, hash_alg_names):
     ax.legend((rects[0][0], rects[1][0]), (hash_alg_names[0], hash_alg_names[1]), loc=1)
 
     plt.grid(True)
-    #plt.savefig('sizes.eps')
-    plt.show()
+    plt.savefig(fname)
+    #plt.show()
 
-def plot_filter_improvement(algorithms, alg_names):
+def plot_filter_improvement(fname, algorithms, alg_names):
     width = (1.0 / len(algorithms)) * 0.9
     fig, ax = plt.subplots()
     rects = []
@@ -152,10 +152,10 @@ def plot_filter_improvement(algorithms, alg_names):
         (alg_names[0], alg_names[1], alg_names[2]), loc=1)
 
     plt.grid(True)
-    #plt.savefig('sizes.eps')
-    plt.show()
+    plt.savefig(fname)
+    #plt.show()
 
-plot_hash_improvement(hash_algorithms, hash_alg_names)
-plot_filter_improvement(caesar_algorithms, caesar_alg_names)
-plot_filter_improvement(caesar_filter_algorithms, caesar_filter_alg_names)
-plot_filter_improvement(merged_filter_algorithms, merged_filter_alg_names)
+plot_hash_improvement("hash.pdf",hash_algorithms, hash_alg_names)
+plot_filter_improvement("caesar.pdf", caesar_algorithms, caesar_alg_names)
+plot_filter_improvement("caesar_filter.pdf", caesar_filter_algorithms, caesar_filter_alg_names)
+plot_filter_improvement("merged_filter.pdf", merged_filter_algorithms, merged_filter_alg_names)
