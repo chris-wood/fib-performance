@@ -11,6 +11,10 @@
 #include "bloom.h"
 #include "siphasher.h"
 
+// debug
+#include <stdio.h>
+#include "timer.h"
+
 struct prefix_bloom_filter {
     int k;
     int m;
@@ -69,7 +73,6 @@ prefixBloomFilter_Destroy(PrefixBloomFilter **bfP)
 static uint64_t
 _djb(size_t length, uint8_t *buffer) {
     uint64_t hash = 5381;
-    int c;
 
     for (size_t i = 0; i < length; i++) {
         hash = ((hash << 5) + hash) + (buffer[i]); /* hash * 33 + c */
@@ -87,8 +90,8 @@ _checkSum(size_t length, uint8_t *buffer)
     return sum;
 }
 
-void
-prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
+static uint64_t
+_computeBlockIndex(PrefixBloomFilter *filter, const Name *name)
 {
     PARCBuffer *firstSegmentHash = NULL;
     uint64_t blockIndex = 0;
@@ -101,16 +104,17 @@ prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
     }
     parcBuffer_Release(&firstSegmentHash);
 
-    if (!name_IsHashed(name)) {
-        return bloom_AddName(filter->filterBlocks[blockIndex], name);
-    } else {
-        // 1. hash first segment to identify the block
-        PARCBuffer *firstSegmentHash = name_GetWireFormat(name, 1);
-        uint64_t blockIndex = _checkSum(parcBuffer_Remaining(firstSegmentHash), parcBuffer_Overlay(firstSegmentHash, 0)) % filter->b;
-        parcBuffer_Release(&firstSegmentHash);
+    return blockIndex;
+}
 
-        // 2. add the k hashes to the filter
-        PARCBuffer *nameValue = name_GetWireFormat(name, name_GetSegmentCount(name));
+void
+prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
+{
+    uint64_t blockIndex = _computeBlockIndex(filter, name);
+    if (!name_IsHashed(name)) {
+        return bloom_AddName(filter->filterBlocks[blockIndex], (Name *) name);
+    } else {
+        PARCBuffer *nameValue = name_GetWireFormat((Name *) name, name_GetSegmentCount(name));
         bloom_AddHashed(filter->filterBlocks[blockIndex], nameValue);
         parcBuffer_Release(&nameValue);
     }
@@ -119,19 +123,16 @@ prefixBloomFilter_Add(PrefixBloomFilter *filter, const Name *name)
 int
 prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
 {
-    PARCBuffer *firstSegmentHash = NULL;
-    uint64_t blockIndex = 0;
-    if (name_IsHashed(name)) {
-        firstSegmentHash = name_GetWireFormat(name, 1);
-        blockIndex = _checkSum(parcBuffer_Remaining(firstSegmentHash), parcBuffer_Overlay(firstSegmentHash, 0)) % filter->b;
-    } else {
-        firstSegmentHash = name_GetWireFormat(name, 1);
-        blockIndex = _djb(parcBuffer_Remaining(firstSegmentHash), parcBuffer_Overlay(firstSegmentHash, 0)) % filter->b;
-    }
-    parcBuffer_Release(&firstSegmentHash);
-
+    Timestamp start = timerStart();
+    uint64_t blockIndex = _computeBlockIndex(filter, name);
+    long elapsed = timerEnd(start);
+    printf("Block: %ld\n", elapsed);
     if (!name_IsHashed(name)) {
-        return bloom_TestName(filter->filterBlocks[blockIndex], name);
+        start = timerStart();
+        int other = bloom_TestName(filter->filterBlocks[blockIndex], (Name *) name);
+        elapsed = timerEnd(start);
+        printf("TestName: %ld\n", elapsed);
+        return other;
     } else {
         for (int count = name_GetSegmentCount(name); count > 0; count--) {
             bool isPresent = false;

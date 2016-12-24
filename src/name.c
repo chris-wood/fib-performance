@@ -95,7 +95,9 @@ name_Destroy(Name **nameP)
 {
     Name *name = *nameP;
 
-    parcMemory_Deallocate(&name->uri);
+    if (name->uri != NULL) {
+        parcMemory_Deallocate(&name->uri);
+    }
     parcBuffer_Release(&name->wireFormat);
     parcMemory_Deallocate(&name->offsets);
     parcMemory_Deallocate(&name->sizes);
@@ -109,28 +111,25 @@ name_Hash(Name *name, Hasher *hasher, int hashSize)
 {
     Name *newName = parcMemory_Allocate(sizeof(Name));
     if (newName!= NULL) {
-        newName->uri = parcMemory_StringDuplicate(name->uri, strlen(name->uri));
+        newName->uri = NULL;
         newName->numSegments = name->numSegments;
         newName->offsets = parcMemory_Allocate(sizeof(int) * name->numSegments);
         newName->sizes = parcMemory_Allocate(sizeof(int) * name->numSegments);
         newName->isHashed = true;
 
-        PARCBufferComposer *composer = parcBufferComposer_Create();
+        newName->wireFormat = parcBuffer_Allocate(name->numSegments * hashSize);
+        uint8_t *overlay = parcBuffer_Overlay(newName->wireFormat, 0);
         for (int i = 1; i <= name->numSegments; i++) {
             PARCBuffer *prefix = name_GetWireFormat(name, i);
             PARCBuffer *hash = hasher_Hash(hasher, prefix);
-            parcBuffer_SetLimit(hash, hashSize); // 64 bits per segment
 
-            parcBufferComposer_PutBuffer(composer, hash);
+            memcpy(overlay + (hashSize * (i - 1)), parcBuffer_Overlay(hash, 0), hashSize);
             newName->offsets[i - 1] = i == 1 ? 0 : newName->offsets[i - 2] + newName->sizes[i - 2];
-            newName->sizes[i - 1] = parcBuffer_Remaining(hash);
+            newName->sizes[i - 1] = hashSize;
 
             parcBuffer_Release(&hash);
             parcBuffer_Release(&prefix);
         }
-
-        newName->wireFormat = parcBufferComposer_ProduceBuffer(composer);
-        parcBufferComposer_Release(&composer);
     }
     return newName;
 }

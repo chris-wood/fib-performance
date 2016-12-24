@@ -6,6 +6,10 @@
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_BitVector.h>
 
+// debug
+#include <stdio.h>
+#include "timer.h"
+
 struct bloom_filter {
     int m;
     int ln2m;
@@ -98,7 +102,7 @@ bloom_AddName(BloomFilter *filter, Name *name)
     for (int i = 1; i < filter->k; i++) {
 
         // the first component for the other hashes is always fed through the hasher
-        PARCBuffer *firstComponent = name_GetWireFormat(name, 1);
+        PARCBuffer *firstComponent = name_GetWireFormat(newName, 1);
         PARCBuffer *firstHash = hasher_Hash(filter->vectorHashers[i], firstComponent);
 
         // the rest are derived by XORing this first segment with the d-th segment of the first hash function, i.e.,
@@ -137,7 +141,10 @@ int
 bloom_TestName(BloomFilter *filter, Name *name)
 {
     // compute the d hashes for the first (k = 0) hash
+    Timestamp start = timerStart();
     Name *newName = name_Hash(name, filter->vectorHashers[0], 8);
+    long elapsed = timerEnd(start);
+    printf("Hash name: %ld\n", elapsed);
 
     // Allocate space for the bit matrix
     int **bitMatrix = (int **) malloc(filter->k * sizeof(int *));
@@ -149,6 +156,7 @@ bloom_TestName(BloomFilter *filter, Name *name)
     }
 
     // Compute the first row of the bit matrix
+    start = timerStart();
     for (int d = 0; d < name_GetSegmentCount(newName); d++) {
         PARCBuffer *segmentHash = name_GetWireFormat(newName, d + 1);
         size_t checkSum = 0;
@@ -160,18 +168,22 @@ bloom_TestName(BloomFilter *filter, Name *name)
         bitMatrix[0][d] = checkSum;
         parcBuffer_Release(&segmentHash);
     }
+    elapsed = timerEnd(start);
+    printf("First row: %ld\n", elapsed);
 
     // use XOR to seed out the remaining hash values for the d prefixes, for each other hash function
     for (int i = 1; i < filter->k; i++) {
 
+        start = timerStart();
+
         // the first component for the other hashes is always fed through the hasher
-        PARCBuffer *firstComponent = name_GetWireFormat(name, 1);
+        PARCBuffer *firstComponent = name_GetWireFormat(newName, 1);
         PARCBuffer *firstHash = hasher_Hash(filter->vectorHashers[i], firstComponent);
 
         // the rest are derived by XORing this first segment with the d-th segment of the first hash function, i.e.,
         //    H_{i,j} = H_{i, 1} XOR H_{1, j}
         // where i = k and j = d
-        for (int d = 0; d < name_GetSegmentCount(name); d++) {
+        for (int d = 0; d < name_GetSegmentCount(newName); d++) {
             PARCBuffer *segmentHash = name_XORSegment(newName, d, firstHash);
 
             size_t checkSum = 0;
@@ -189,6 +201,9 @@ bloom_TestName(BloomFilter *filter, Name *name)
 
         parcBuffer_Release(&firstComponent);
         parcBuffer_Release(&firstHash);
+
+        elapsed = timerEnd(start);
+        printf("%dth vector: %ld\n", i, elapsed);
     }
 
     // Now do LPM on the bit matrix

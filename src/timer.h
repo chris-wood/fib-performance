@@ -9,7 +9,7 @@
 
 typedef struct timespec Timestamp;
 
-struct timespec timerStart(void);
-long timerEnd(struct timespec start_time);
+Timestamp timerStart(void);
+long timerEnd(Timestamp startTime);
 
 #endif //FIB_PERF_TIMER_H
