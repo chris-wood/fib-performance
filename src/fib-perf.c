@@ -328,7 +328,7 @@ main(int argc, char **argv)
     double mean = parcBasicStats_Mean(insertStats);
     double stdev = parcBasicStats_StandardDeviation(insertStats);
     double fraction = (double) insertionResults->count / insertionResults->total;
-    printf("insert,%d,%f,%f,%f\n", options->hashSize, mean, stdev, fraction);
+    printf("insert,%2d,%f,%f,%f\n", options->hashSize, mean, stdev, fraction);
 
     // Display the results
     PARCBasicStats *testStats = parcBasicStats_Create();
@@ -341,7 +341,7 @@ main(int argc, char **argv)
     mean = parcBasicStats_Mean(testStats);
     stdev = parcBasicStats_StandardDeviation(testStats);
     fraction = (double) testResults->count / testResults->total;
-    printf("lookup,%d,%f,%f,%f\n", options->hashSize, mean, stdev, fraction);
+    printf("lookup,%2d,%f,%f,%f\n", options->hashSize, mean, stdev, fraction);
 
     parcBasicStats_Release(&insertStats);
     parcBasicStats_Release(&testStats);

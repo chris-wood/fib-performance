@@ -14,6 +14,7 @@ struct fib_merged_filter {
 
     Bitmap **filters;
     SipHasher *hasher;
+    Hasher *mainHasher;
     PARCBuffer **keys;
 };
 
@@ -32,7 +33,7 @@ fibMergedFilter_Destroy(FIBMergedFilter **filterP)
     }
     free(filter->filters);
 
-    siphasher_Destroy(&filter->hasher);
+    hasher_Destroy(&filter->mainHasher);
 
     free(filter);
     *filterP = NULL;
@@ -59,7 +60,7 @@ fibMergedFilter_Create(int N, int m, int k) // N and m determine the matrix dime
         filter->k = k;
         filter->ln2m = _log2(m);
 
-        filter->filters = (BloomFilter **) malloc(sizeof(BloomFilter *) * N);
+        filter->filters = (Bitmap **) malloc(sizeof(Bitmap *) * N);
         for (int i = 0; i < N; i++) {
             filter->filters[i] = bitmap_Create(m);
         }
@@ -73,6 +74,7 @@ fibMergedFilter_Create(int N, int m, int k) // N and m determine the matrix dime
         }
 
         filter->hasher = siphasher_CreateWithKeys(filter->k, filter->keys);
+        filter->mainHasher = hasher_Create(filter->hasher, SipHashAsHasher);
     }
     return filter;
 }
@@ -102,13 +104,14 @@ _hashedNameToVector(FIBMergedFilter *filter, PARCBuffer *value)
 bool
 fibMergedFilter_Insert(FIBMergedFilter *filter, Name *name, Bitmap *vector)
 {
-    PARCBuffer *value = name_GetWireFormat(name, name_GetSegmentCount(name));
-    Bitmap *columns = NULL;
-    if (name_IsHashed(name)) {
-        columns = _hashedNameToVector(filter, value);
-    } else {
-        columns = siphasher_HashToVector(filter->hasher, value, filter->m);
+    Name *newName = name;
+    if (!name_IsHashed(name)) {
+        newName = name_Hash(name, filter->mainHasher, 8);
     }
+
+    PARCBuffer *value = name_GetWireFormat(newName, name_GetSegmentCount(newName));
+    Bitmap *columns = _hashedNameToVector(filter, value);
+    parcBuffer_Release(&value);
 
     for (int r = 0; r < filter->N; r++) {
         if (bitmap_Get(vector, r)) {
@@ -120,8 +123,10 @@ fibMergedFilter_Insert(FIBMergedFilter *filter, Name *name, Bitmap *vector)
         }
     }
 
+    if (!name_IsHashed(name)) {
+        name_Destroy(&newName);
+    }
     bitmap_Destroy(&columns);
-    parcBuffer_Release(&value);
 
     return true;
 }
@@ -129,15 +134,16 @@ fibMergedFilter_Insert(FIBMergedFilter *filter, Name *name, Bitmap *vector)
 Bitmap *
 fibMergedFilter_LPM(FIBMergedFilter *filter, Name *name)
 {
-    // We still have to do LPM starting from the back...
+    Name *newName = name;
+    if (!name_IsHashed(name)) {
+        newName = name_Hash(name, filter->mainHasher, 8);
+    }
+
+    // We still have to do LPM starting from the back
     for (int p = name_GetSegmentCount(name); p > 0; p--) {
-        PARCBuffer *value = name_GetWireFormat(name, p);
-        Bitmap *columns = NULL;
-        if (name_IsHashed(name)) {
-            columns = _hashedNameToVector(filter, value);
-        } else {
-            columns = siphasher_HashToVector(filter->hasher, value, filter->m);
-        }
+        PARCBuffer *value = name_GetWireFormat(newName, p);
+        Bitmap *columns = _hashedNameToVector(filter, value);
+        parcBuffer_Release(&value);
 
         Bitmap *output = bitmap_Create(filter->N);
         bool set = false;
@@ -159,11 +165,17 @@ fibMergedFilter_LPM(FIBMergedFilter *filter, Name *name)
         }
 
         bitmap_Destroy(&columns);
-        parcBuffer_Release(&value);
 
         if (set) {
+            if (!name_IsHashed(name)) {
+                name_Destroy(&newName);
+            }
             return output;
         }
+    }
+
+    if (!name_IsHashed(name)) {
+        name_Destroy(&newName);
     }
 
     return NULL;

@@ -118,7 +118,10 @@ name_Hash(Name *name, Hasher *hasher, int hashSize)
         newName->isHashed = true;
 
         newName->wireFormat = parcBuffer_Allocate(name->numSegments * hashSize);
-        uint8_t *overlay = parcBuffer_Overlay(newName->wireFormat, 0);
+        uint8_t *overlay = NULL;
+        if (parcBuffer_Remaining(newName->wireFormat)) {
+            overlay = parcBuffer_Overlay(newName->wireFormat, 0);
+        }
         for (int i = 1; i <= name->numSegments; i++) {
             PARCBuffer *prefix = name_GetWireFormat(name, i);
             PARCBuffer *hash = hasher_Hash(hasher, prefix);
