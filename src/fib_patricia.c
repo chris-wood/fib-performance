@@ -1,15 +1,21 @@
 #include "fib_patricia.h"
 
+#include "patricia.h"
+
 #include <parc/algol/parc_SafeMemory.h>
 
+struct fib_patricia {
+    Patricia *trie;
+};
+
 PARCBitVector *
-fibPatricia_LPM(FIBPatricia *fib, const CCNxName *name)
+fibPatricia_LPM(FIBPatricia *fib, const Name *name)
 {
     return NULL; 
 }
 
 bool
-fibPatricia_Insert(FIBPatricia *fib, const CCNxName *name, PARCBitVector *vector)
+fibPatricia_Insert(FIBPatricia *fib, const Name *name, Bitmap *vector)
 {
     return false;
 }
@@ -17,15 +23,15 @@ fibPatricia_Insert(FIBPatricia *fib, const CCNxName *name, PARCBitVector *vector
 FIBPatricia *
 fibPatricia_Create()
 {
-    FIBPatricia *native = (FIBPatricia *) malloc(sizeof(FIBPatricia));
-    if (native != NULL) {
-        // XXX: 
+    FIBPatricia *fib = (FIBPatricia *) malloc(sizeof(FIBPatricia));
+    if (fib != NULL) {
+        fib = patricia_Create();
     }
 
-    return native;
+    return fib;
 }
 
 FIBInterface *PatriciaFIBAsFIB = &(FIBInterface) {
-    .LPM = (PARCBitVector *(*)(void *instance, const CCNxName *ccnxName)) fibPatricia_Insert,
-    .Insert = (bool (*)(void *instance, const CCNxName *ccnxName, PARCBitVector *vector)) fibPatricia_LPM,
+    .LPM = (Bitmap *(*)(void *instance, const Name *ccnxName)) fibPatricia_LPM,
+    .Insert = (bool (*)(void *instance, const Name *ccnxName, Bitmap *vector)) fibPatricia_Insert,
 };

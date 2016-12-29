@@ -60,18 +60,18 @@ fibCaesar_LPM(FIBCaesar *fib, const Name *name)
 {
     int numMatches = prefixBloomFilter_LPM(fib->pbf, name);
     if (numMatches > 0 && numMatches <= fib->numMaps) {
-        Map *table = fib->maps[numMatches - 1];
-
-        PARCBuffer *key = name_GetWireFormat(name, numMatches);
-        Bitmap *match = NULL;
-        if (name_IsHashed(name)) {
-            match = map_GetHashed(table, key);
-        } else {
-            match = map_Get(table, key);
-        }
-
-        parcBuffer_Release(&key);
-        return match;
+//        Map *table = fib->maps[numMatches - 1];
+//
+//        PARCBuffer *key = name_GetWireFormat(name, numMatches);
+//        Bitmap *match = NULL;
+//        if (name_IsHashed(name)) {
+//            match = map_GetHashed(table, key);
+//        } else {
+//            match = map_Get(table, key);
+//        }
+//
+//        parcBuffer_Release(&key);
+//        return match;
     }
     return NULL;
 }

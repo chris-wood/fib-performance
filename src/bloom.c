@@ -15,6 +15,7 @@ struct bloom_filter {
     int ln2m;
     int k;
 
+    int **bitMatrix;
     SipHasher *hasher;
     Hasher **vectorHashers;
     Bitmap *array;
@@ -30,6 +31,16 @@ _log2(int x) {
         bits++;
     }
     return bits;
+}
+
+void
+_freeBitMatrix(BloomFilter *filter, int numCols)
+{
+    for (int i = 0; i < filter->k; i++) {
+        for (int j = 0; j < numCols; j++) {
+            filter->bitMatrix[i][j] = 0;
+        }
+    }
 }
 
 BloomFilter *
@@ -57,6 +68,14 @@ bloom_Create(int m, int k)
         }
 
         bf->hasher = siphasher_CreateWithKeys(k, bf->keys);
+
+        bf->bitMatrix  = (int **) malloc(k * sizeof(int *));
+        for (int i = 0; i < k; i++) {
+            bf->bitMatrix[i] = (int *) malloc(1024 * sizeof(int));
+            for (int j = 0; j < 1024; j++) {
+                bf->bitMatrix[i][j] = 0;
+            }
+        }
     }
     return bf;
 }
@@ -74,6 +93,11 @@ bloom_Destroy(BloomFilter **bfP)
     siphasher_Destroy(&bf->hasher);
     parcMemory_Deallocate(&bf->keys);
     free(bf->vectorHashers);
+
+    for (int k = 0; k < bf->k; k++) {
+        free(bf->bitMatrix[k]);
+    }
+    free(bf->bitMatrix);
 
     *bfP = NULL;
 }
@@ -128,15 +152,6 @@ bloom_AddName(BloomFilter *filter, Name *name)
     name_Destroy(&newName);
 }
 
-static void
-_freeBitMatrix(int **bitMatrix, int rows)
-{
-    for (int k = 0; k < rows; k++) {
-        free(bitMatrix[k]);
-    }
-    free(bitMatrix);
-}
-
 int
 bloom_TestName(BloomFilter *filter, Name *name)
 {
@@ -145,15 +160,6 @@ bloom_TestName(BloomFilter *filter, Name *name)
     Name *newName = name_Hash(name, filter->vectorHashers[0], 8);
     long elapsed = timerEnd(start);
     printf("Hash name: %ld\n", elapsed);
-
-    // Allocate space for the bit matrix
-    int **bitMatrix = (int **) malloc(filter->k * sizeof(int *));
-    for (int k = 0; k < filter->k; k++) {
-        bitMatrix[k] = (int *) malloc(name_GetSegmentCount(newName) * sizeof(int));
-        for (int d = 0; d < name_GetSegmentCount(newName); d++) {
-            bitMatrix[k][d] = 0;
-        }
-    }
 
     // Compute the first row of the bit matrix
     start = timerStart();
@@ -165,7 +171,7 @@ bloom_TestName(BloomFilter *filter, Name *name)
             checkSum += segmentHashOverlay[b];
         }
         checkSum %= filter->m;
-        bitMatrix[0][d] = checkSum;
+        filter->bitMatrix[0][d] = checkSum;
         parcBuffer_Release(&segmentHash);
     }
     elapsed = timerEnd(start);
@@ -194,7 +200,7 @@ bloom_TestName(BloomFilter *filter, Name *name)
             checkSum %= filter->m;
 
             // Finally, set the target bit in the matrix
-            bitMatrix[i][d] = checkSum;
+            filter->bitMatrix[i][d] = checkSum;
 
             parcBuffer_Release(&segmentHash);
         }
@@ -210,20 +216,20 @@ bloom_TestName(BloomFilter *filter, Name *name)
     for (int d = name_GetSegmentCount(name) - 1; d >= 0; d--) {
         bool allMatch = true;
         for (int k = 0; k < filter->k; k++) {
-            if (bitmap_Get(filter->array, bitMatrix[k][d]) != 1) {
+            if (bitmap_Get(filter->array, filter->bitMatrix[k][d]) != 1) {
                 allMatch = false;
                 break;
             }
         }
 
         if (allMatch) {
-            _freeBitMatrix(bitMatrix, filter->k);
+            _freeBitMatrix(filter, filter->k);
             name_Destroy(&newName);
             return d + 1;
         }
     }
 
-    _freeBitMatrix(bitMatrix, filter->k);
+    _freeBitMatrix(filter, filter->k);
     name_Destroy(&newName);
     return -1;
 }
