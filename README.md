@@ -1,26 +1,13 @@
-# FIB hashing experiment
-
-We want to test the performance cost or gain from using readable or
-hashed names. The experiment works as follows:
-
-Input:
-    - A list of CCNx names L
-    - A number n for the longest prefix to insert into the FIB
-
-Procedure:
-    - Prepopulate the FIB with every name up to n components
-    - For each name N in L:
-        - Measure the time to lookup N
-    - Compute some statistics for the times
-
-
-Goal:
-- Support different FIB algorithms
-- Support parallel and sequential lookup algorithms
+# FIB data structures
 
 Algorithms:
 - Naive hash table [done]
 - (hash table - Cisco) So et al. [done]
-- (patricia trie with name compression) Song et al. [in progress]
-- (bloom filter with hash table - Caesar) Perino et al. [in progress]
-- (merged bloom filter) Dong et al. [in progress]
+- (patricia trie with name compression) Song et al. [in proress]
+- (bloom filter with hash table (or bloom filter list) - Caesar) Perino et al. [done]
+- (merged bloom filter) Dong et al. [done]
+
+# Experiments
+- For each hash-based FIB, compare the lookup times for hashed vs non-hashed names [done]
+- For trie-based FIBs, compare the lookup times against hash-based FIBs with hashed and non-hashed names [done]
+
