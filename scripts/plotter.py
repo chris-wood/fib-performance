@@ -99,11 +99,11 @@ def compute_values(alg):
     for i, width in enumerate(widths):
         hashed_mean = lookup_hashed[alg][i][0]
         mean = lookups[alg][0][0]
-        means[i] = (float(mean) - hashed_mean) / hashed_mean
+        means[i] = ((float(mean) - hashed_mean) / hashed_mean) * 100.0
 
         hashed_stdev = lookup_hashed[alg][i][1]
         stdev = lookups[alg][0][1]
-        stdevs[i] = (float(stdev) - hashed_stdev) / hashed_stdev
+        stdevs[i] = ((float(stdev) - hashed_stdev) / hashed_stdev) * 100.0
 
     return means, stdevs
 

@@ -39,11 +39,8 @@ counts.each{|count|
             exit
         end 
 
-        #File.delete tmp_load
-        #File.delete tmp_test
+        File.delete tmp_load
+        File.delete tmp_test
     }
-
-    # Only do the first one
-    exit
 }
 
