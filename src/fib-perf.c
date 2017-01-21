@@ -121,6 +121,7 @@ parseCommandLineOptions(int argc, char **argv)
     options->hasher = NULL;
     options->numPorts = DEFAULT_NUM_PORTS;
     options->numFilters = DEFAULT_NUM_FILTERS;
+    options->tWidth = 2;
 
     int c;
     while (optind < argc) {
@@ -129,6 +130,10 @@ parseCommandLineOptions(int argc, char **argv)
                 case 'l':
                     options->loadFile = malloc(strlen(optarg) + 1);
                     strcpy(options->loadFile, optarg);
+                    break;
+                case 'f':
+                    sscanf(optarg, "%u", &(options->numFilters));
+                    options->tWidth = options->numFilters;
                     break;
                 case 't':
                     options->testFile = malloc(strlen(optarg) + 1);
@@ -154,6 +159,12 @@ parseCommandLineOptions(int argc, char **argv)
                     } else if (strcmp(optarg, "merged-filter") == 0) {
                         FIBMergedFilter *filterFIB = fibMergedFilter_Create(options->numPorts, DEFAULT_FILTER_SIZE, options->numFilters);
                         fib = fib_Create(filterFIB, MergedFilterFIBAsFIB);
+                    } else if (strcmp(optarg, "patricia") == 0) {
+                        FIBPatricia *patriciaFIB = fibPatricia_Create();
+                        fib = fib_Create(patriciaFIB, PatriciaFIBAsFIB);
+                    } else if (strcmp(optarg, "tbf") == 0) {
+                        FIBTBF *tbf = fibTBF_Create(options->numFilters);
+                        fib = fib_Create(tbf, TBFAsFIB);
                     } else {
                         perror("Invalid algorithm specified\n");
                         usage();

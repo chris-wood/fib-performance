@@ -170,6 +170,17 @@ name_GetWireFormat(const Name *name, int n)
 }
 
 PARCBuffer *
+name_GetSubWireFormat(const Name *name, int start, int end)
+{
+    int offset = name->offsets[start];
+    int capacity = end == name->numSegments ? parcBuffer_Remaining(name->wireFormat) : name->offsets[end];
+    capacity -= offset;
+
+    PARCBuffer *buffer = parcBuffer_Wrap(parcBuffer_Overlay(name->wireFormat, 0) + offset, capacity, 0, capacity);
+    return buffer;
+}
+
+PARCBuffer *
 name_GetSegmentWireFormat(const Name *name, int n)
 {
     return NULL;

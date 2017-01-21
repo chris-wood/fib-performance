@@ -10,7 +10,7 @@ suffix = ARGV[3]
 
 table_algorithms = ["naive", "cisco"]
 filter_algorithms = ["caesar", "caesar-filter", "merged-filter"]
-trie_algorithms = []
+trie_algorithms = ["patricia"]
 widths = [4, 8, 12, 16, 20, 24, 28, 32]
 numfilters = [2, 3, 4, 5, 6]
 
@@ -55,6 +55,18 @@ trie_algorithms.each {|alg|
 
     puts "#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg}" 
     output = `#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg}`
+    puts output
+    File.open(fname, 'a') { |file| file.write(output) }
+}
+
+# Custom FIBs
+alg = "tbf"
+Ts = [2,3,4,5,6]
+
+Ts.each{|T| 
+    fname = "#{alg}_#{suffix}_#{T}_out.txt"
+    puts "#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -f #{T}" 
+    output = `#{fib_perf} -l #{load_file} -t #{test_file} -a #{alg} -f #{T}`
     puts output
     File.open(fname, 'a') { |file| file.write(output) }
 }

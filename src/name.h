@@ -22,6 +22,7 @@ void name_Display(const Name *name);
 char *name_GetNameString(const Name *name);
 int name_GetSegmentCount(const Name *name);
 PARCBuffer *name_GetWireFormat(const Name *name, int n);
+PARCBuffer *name_GetSubWireFormat(const Name *name, int start, int end);
 PARCBuffer *name_GetSegmentWireFormat(const Name *name, int n);
 int name_GetSegmentLength(const Name *name, int n);
 int name_GetPrefixLength(const Name *name, int n);
