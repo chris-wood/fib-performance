@@ -9,8 +9,21 @@ typedef struct {
     Bitmap *vector;
 
     BloomFilter **filters;
-    int numMaps;
+    int numFilters;
 } _fibEntry;
+
+static _fibEntry *
+_fibEntry_Create(int type)
+{
+    _fibEntry *entry = (_fibEntry *) malloc(sizeof(_fibEntry));
+    if (entry != NULL) {
+        entry->type = type;
+        entry->vector = NULL;
+        entry->filters = NULL;
+        entry->numFilters = 0;
+    }
+    return entry;
+}
 
 typedef enum {
     _FIBEntryType_Bitmap,
@@ -25,98 +38,123 @@ struct fib_tbf {
     Map *map;
 };
 
+#define MIN(a, b) (a < b ? a : b)
+
 Bitmap *
 fibTBF_LPM(FIBTBF *fib, const Name *name)
 {
     int numSegments = name_GetSegmentCount(name);
-    bool isShortName = numSegments < fib->T;
+    bool isShortName = numSegments <= fib->T;
 
-    PARCBitVector *tSegment = name_GetWireFormat(name, MIN(fib->T, numSegments);
-    _fibEntry *trieLookup = patricia_Get(fib->trie, tSegment);
+    PARCBuffer *tSegment = name_GetWireFormat(name, MIN(fib->T, numSegments));
+    _fibEntry *entry = patricia_Get(fib->trie, tSegment);
 
-    if (trieLookup == NULL) {
+    if (entry == NULL) {
         return NULL;
     } else if (isShortName) {
-        return trieLookup->vector;
+        return entry->vector;
     } else {
         // Lookup prefix with the BFs
-        Bitmap **maps = entry->filters;
+        BloomFilter **maps = entry->filters;
 
         // Expand the set of filters, if necessary
         int B = numSegments - fib->T;
-        if (B > entry->numMaps) {
-            entry->filters = (BloomFilter **) realloc(entry->filters, B);
-            for (int i = entry->numMaps; i < B; i++) {
+        if (B > entry->numFilters) {
+            entry->filters = (BloomFilter **) realloc(entry->filters, B * sizeof(BloomFilter *));
+            for (int i = entry->numFilters; i < B; i++) {
                 entry->filters[i] = bloom_Create(fib->m, fib->k);
             }
-            entry->numMaps = B;
+            entry->numFilters = B;
         }
 
         // Find the longest prefix
         int i = 0;
-        for (i = MIN(entry->numMaps, numSegments); i > fib->T; i--) {
-            PARCBuffer *subPrefix = name_GetSubWireFormat(name, T, T + i);
-            if (bloom_Test(entry->filters, subPrefix)) {
+        for (i = MIN(entry->numFilters + fib->T, numSegments); i > fib->T; i--) {
+            PARCBuffer *subPrefix = name_GetSubWireFormat(name, fib->T, i);
+            parcBuffer_Display(subPrefix, 0);
+            if (bloom_Test(entry->filters[i - fib->T - 1], subPrefix)) {
                 parcBuffer_Release(&subPrefix);
                 break;
             }
             parcBuffer_Release(&subPrefix);
         }
 
-        PARCBuffer *matchingPrefix = name_GetWireFormat(name, fib->T + i);
-        return map_Get(fib->map, matchingPrefix);
+        // We didn't find a hit in the bloom filters, so return the vector associated with the trie lookup
+        if (i == fib->T) {
+            return entry->vector;
+        } else {
+            PARCBuffer *matchingPrefix = name_GetWireFormat(name, i);
+            parcBuffer_Display(matchingPrefix, 0);
+            void *result = map_Get(fib->map, matchingPrefix);
+            parcBuffer_Release(&matchingPrefix);
+            return result;
+        }
     }
 
     return NULL;
 }
 
-#define MIN(a, b) (a < b ? a : b)
-
 bool
 fibTBF_Insert(FIBTBF *fib, const Name *name, Bitmap *egressVector)
 {
     int numSegments = name_GetSegmentCount(name);
-    bool isShortName = numSegments < fib->T;
+    bool isShortName = numSegments <= fib->T;
 
-    PARCBitVector *tSegment = name_GetWireFormat(name, MIN(fib->T, numSegments);
-    _fibEntry *trieLookup = patricia_Get(fib->trie, tSegment);
+    PARCBuffer *tSegment = name_GetWireFormat(name, MIN(fib->T, numSegments));
+    _fibEntry *entry = patricia_Get(fib->trie, tSegment);
 
-    if (trieLookup == NULL) {
+    if (entry != NULL) {
+        if (entry->type == _FIBEntryType_BF) { // insert into a BF and then the main map
+            // XXX: move to function
+            int B = numSegments - fib->T;
+            if (B > entry->numFilters) {
+                entry->filters = (BloomFilter **) realloc(entry->filters, B * sizeof(BloomFilter *));
+                for (int i = entry->numFilters; i < B; i++) {
+                    entry->filters[i] = bloom_Create(fib->m, fib->k);
+                }
+                entry->numFilters = B;
+            }
 
-    } else {
-        if (isShortName) {
+            PARCBuffer *suffix = name_GetSubWireFormat(name, fib->T, numSegments);
+            bloom_Add(entry->filters[numSegments - 1], suffix);
+            parcBuffer_Release(&suffix);
 
-        } else {
+
+            PARCBuffer *entireName = name_GetWireFormat(name, numSegments);
+//            parcBuffer_Display(entireName, 0);
+            map_Insert(fib->map, entireName, egressVector);
+            parcBuffer_Release(&entireName);
+        } else { // insert into a trie
 
         }
-    }
+    } else {
+        if (isShortName) {
+            _fibEntry *newEntry = _fibEntry_Create(_FIBEntryType_Bitmap);
+            newEntry->vector = egressVector;
+            patricia_Insert(fib->trie, tSegment, newEntry);
+        } else {
+            _fibEntry *newEntry = _fibEntry_Create(_FIBEntryType_BF);
+            int B = numSegments - fib->T;
+            if (B > newEntry->numFilters) {
+                newEntry->filters = (BloomFilter **) malloc(B * sizeof(BloomFilter *));
+                for (int i = newEntry->numFilters; i < B; i++) {
+                    newEntry->filters[i] = bloom_Create(fib->m, fib->k);
+                }
+                newEntry->numFilters = B;
+            }
 
-//    _fibEntry *entry = malloc(sizeof(_fibEntry));
-//    if (numSegments < fib->T) {
-//        entry->type = _FIBEntryType_Bitmap;
-//        entry->value = (void *) egressVector;
-//    } else {
-//        entry->type = _FIBEntryType_BF;
-//        entry->value = (void *) prefixBloomFilter_Create(fib->b, fib->m, fib->k);
-//    }
-//
-//    if (isShortName) {
-//        if (trieLookup == NULL) { // XXX: create new entry
-//
-//        } else if (isExactMatch) { // merge
-//
-//        } else { // add new entry
-//
-//        }
-//        // XXX: need to check if we're inserting a new value or merging...
-////        patricia_Insert(fib->trie, tSegment, egressVector);
-//    } else {
-//        if (trieLookup == NULL) { // add new BF
-//
-//        } else { // add to existing PBF
-//
-//        }
-//    }
+            PARCBuffer *suffix = name_GetSubWireFormat(name, fib->T, numSegments);
+            bloom_Add(newEntry->filters[numSegments - fib->T], suffix);
+            parcBuffer_Release(&suffix);
+
+            PARCBuffer *entireName = name_GetWireFormat(name, numSegments);
+//            parcBuffer_Display(entireName, 0);
+            map_Insert(fib->map, entireName, egressVector);
+            parcBuffer_Release(&entireName);
+
+            patricia_Insert(fib->trie, tSegment, newEntry);
+        }
+    }
 
     // If N < T, insert item that contains bitmap
     // Else, insert item that contains PBF
@@ -136,7 +174,7 @@ fibTBF_Destroy(FIBTBF **fibP)
 }
 
 FIBTBF *
-fibNative_Create(int T, int m, int k)
+fibTBF_Create(int T, int m, int k)
 {
     FIBTBF *fib= (FIBTBF *) malloc(sizeof(FIBTBF));
     if (fib != NULL) {
@@ -149,7 +187,7 @@ fibNative_Create(int T, int m, int k)
     return fib;
 }
 
-FIBInterface *NativeFIBAsFIB = &(FIBInterface) {
+FIBInterface *TBFAsFIB = &(FIBInterface) {
         .LPM = (Bitmap *(*)(void *instance, const Name *ccnxName)) fibTBF_LPM,
         .Insert = (bool (*)(void *instance, const Name *ccnxName, Bitmap *vector)) fibTBF_Insert,
         .Destroy = (void (*)(void **instance)) fibTBF_Destroy,

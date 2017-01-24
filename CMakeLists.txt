@@ -24,6 +24,7 @@ set(libfib_SOURCES
         src/fib_caesar_filter.c
         src/fib_merged_filter.c
         src/fib_patricia.c
+        src/fib_tbf.c
         src/map.c
         src/name.c
         src/hasher.c
@@ -88,3 +89,4 @@ AddTest(test_caesar_fib)
 AddTest(test_caesar_bloom_fib)
 AddTest(test_fib_merged_filter)
 AddTest(test_patricia_fib)
+AddTest(test_tbf_fib)

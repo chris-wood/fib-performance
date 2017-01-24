@@ -7,7 +7,7 @@ struct fib_tbf;
 typedef struct fib_tbf FIBTBF;
 
 FIBTBF *fibTBF_Create(int T, int m, int k);
-void fibTBF_Destroy(FIBNaive **fibP);
+void fibTBF_Destroy(FIBTBF **fibP);
 
 extern FIBInterface *TBFAsFIB;
 
