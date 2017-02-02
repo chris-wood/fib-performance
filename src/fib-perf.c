@@ -15,6 +15,8 @@
 #include "sha256hasher.h"
 #include "timer.h"
 #include "bitmap.h"
+#include "fib_patricia.h"
+#include "fib_tbf.h"
 
 #define DEFAULT_NUM_PORTS 256
 #define DEFAULT_NUM_FILTERS 2 // from Caesar paper
@@ -89,6 +91,8 @@ typedef struct {
     int hashSize;
     int numPorts;
     int numFilters;
+    int filterSize;
+    int trieDepth;
     uint32_t maxNameLength;
 } FIBOptions;
 
@@ -101,6 +105,8 @@ parseCommandLineOptions(int argc, char **argv)
             { "n",           required_argument,  NULL, 'n' },
             { "alg",         required_argument,  NULL, 'a' },
             { "filters",     required_argument,  NULL, 'f' },
+            { "trie_depth",  required_argument,  NULL, 'x' },
+            { "filter_size", required_argument,  NULL, 's' },
             { "num_ports",   required_argument,  NULL, 'p'},
             { "digest",      required_argument,  NULL, 'd'},
             { "help",        no_argument,        NULL, 'h'},
@@ -121,11 +127,12 @@ parseCommandLineOptions(int argc, char **argv)
     options->hasher = NULL;
     options->numPorts = DEFAULT_NUM_PORTS;
     options->numFilters = DEFAULT_NUM_FILTERS;
-    options->tWidth = 2;
+    options->filterSize = DEFAULT_FILTER_SIZE;
+    options->trieDepth = 2;
 
     int c;
     while (optind < argc) {
-        if ((c = getopt_long(argc, argv, "hl:t:n:a:d:p:f:", longopts, NULL)) != -1) {
+        if ((c = getopt_long(argc, argv, "hl:t:n:a:d:p:f:x:s:", longopts, NULL)) != -1) {
             switch(c) {
                 case 'l':
                     options->loadFile = malloc(strlen(optarg) + 1);
@@ -133,11 +140,16 @@ parseCommandLineOptions(int argc, char **argv)
                     break;
                 case 'f':
                     sscanf(optarg, "%u", &(options->numFilters));
-                    options->tWidth = options->numFilters;
                     break;
                 case 't':
                     options->testFile = malloc(strlen(optarg) + 1);
                     strcpy(options->testFile, optarg);
+                    break;
+                case 'x':
+                    sscanf(optarg, "%u", &(options->trieDepth));
+                    break;
+                case 's':
+                    sscanf(optarg, "%u", &(options->numFilters));
                     break;
                 case 'n':
                     sscanf(optarg, "%u", &(options->maxNameLength));
@@ -151,19 +163,19 @@ parseCommandLineOptions(int argc, char **argv)
                         FIBNaive *nativeFIB = fibNative_Create();
                         fib = fib_Create(nativeFIB, NativeFIBAsFIB);
                     } else if (strcmp(optarg, "caesar") == 0) {
-                        FIBCaesar *caesarFIB = fibCaesar_Create(DEFAULT_FILTER_SIZE, DEFAULT_FILTER_SIZE, options->numFilters);
+                        FIBCaesar *caesarFIB = fibCaesar_Create(options->filterSize, options->filterSize, options->numFilters);
                         fib = fib_Create(caesarFIB, CaesarFIBAsFIB);
                     } else if (strcmp(optarg, "caesar-filter") == 0) {
-                        FIBCaesarFilter *filterFIB = fibCaesarFilter_Create(options->numPorts, DEFAULT_FILTER_SIZE, DEFAULT_FILTER_SIZE, options->numFilters);
+                        FIBCaesarFilter *filterFIB = fibCaesarFilter_Create(options->numPorts, options->filterSize, options->filterSize, options->numFilters);
                         fib = fib_Create(filterFIB, CaesarFilterFIBAsFIB);
                     } else if (strcmp(optarg, "merged-filter") == 0) {
-                        FIBMergedFilter *filterFIB = fibMergedFilter_Create(options->numPorts, DEFAULT_FILTER_SIZE, options->numFilters);
+                        FIBMergedFilter *filterFIB = fibMergedFilter_Create(options->numPorts, options->filterSize, options->numFilters);
                         fib = fib_Create(filterFIB, MergedFilterFIBAsFIB);
                     } else if (strcmp(optarg, "patricia") == 0) {
                         FIBPatricia *patriciaFIB = fibPatricia_Create();
                         fib = fib_Create(patriciaFIB, PatriciaFIBAsFIB);
                     } else if (strcmp(optarg, "tbf") == 0) {
-                        FIBTBF *tbf = fibTBF_Create(options->numFilters);
+                        FIBTBF *tbf = fibTBF_Create(options->trieDepth, options->filterSize, options->numFilters);
                         fib = fib_Create(tbf, TBFAsFIB);
                     } else {
                         perror("Invalid algorithm specified\n");

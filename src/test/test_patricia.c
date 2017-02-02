@@ -54,7 +54,7 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(Core)
 
 LONGBOW_TEST_CASE(Core, patricia_Create)
 {
-    Patricia *trie = patricia_Create();
+    Patricia *trie = patricia_Create(NULL);
     assertNotNull(trie, "Expected a non-NULL trie to be created");
     patricia_Destroy(&trie);
     assertNull(trie, "Expected a NULL trie after map_Destroy");
@@ -62,7 +62,7 @@ LONGBOW_TEST_CASE(Core, patricia_Create)
 
 LONGBOW_TEST_CASE(Core, patricia_Insert_Empty)
 {
-    Patricia *trie = patricia_Create();
+    Patricia *trie = patricia_Create(NULL);
     assertNotNull(trie, "Expected a non-NULL trie to be created");
 
     PARCBuffer *key = parcBuffer_AllocateCString("abc");
@@ -81,7 +81,7 @@ LONGBOW_TEST_CASE(Core, patricia_Insert_Empty)
 
 LONGBOW_TEST_CASE(Core, patricia_Insert_Sibling)
 {
-    Patricia *trie = patricia_Create();
+    Patricia *trie = patricia_Create(NULL);
     assertNotNull(trie, "Expected a non-NULL trie to be created");
 
     PARCBuffer *key1 = parcBuffer_AllocateCString("abc");
@@ -110,7 +110,7 @@ LONGBOW_TEST_CASE(Core, patricia_Insert_Sibling)
 
 LONGBOW_TEST_CASE(Core, patricia_Insert_Longer)
 {
-    Patricia *trie = patricia_Create();
+    Patricia *trie = patricia_Create(NULL);
     assertNotNull(trie, "Expected a non-NULL trie to be created");
 
     PARCBuffer *key1 = parcBuffer_AllocateCString("abc");
@@ -139,7 +139,7 @@ LONGBOW_TEST_CASE(Core, patricia_Insert_Longer)
 
 LONGBOW_TEST_CASE(Core, patricia_Insert_Split)
 {
-    Patricia *trie = patricia_Create();
+    Patricia *trie = patricia_Create(NULL);
     assertNotNull(trie, "Expected a non-NULL trie to be created");
 
     PARCBuffer *key1 = parcBuffer_AllocateCString("abc");

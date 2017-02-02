@@ -10,6 +10,8 @@ struct _patricia_node;
 typedef struct _patricia_node {
     PARCBuffer *label;
     void *value;
+    void (*valueDestructor)(void **valueP);
+
     bool isLeaf;
 
     int numEdges;
@@ -27,13 +29,16 @@ _patriciaNode_Destroy(_PatriciaNode **nodeP)
     for (int i = 0; i < node->numEdges; i++) {
         _patriciaNode_Destroy(&node->edges[i]);
     }
+    if (node->valueDestructor != NULL && node->value != NULL) {
+        node->valueDestructor(&(node->value));
+    }
 
     free(node);
     *nodeP = NULL;
 }
 
 _PatriciaNode *
-_patriciaNode_CreateLeaf(PARCBuffer *label, void *value)
+_patriciaNode_CreateLeaf(PARCBuffer *label, void *value, void (*valueDestructor)(void **valueP))
 {
     _PatriciaNode *node = (_PatriciaNode *) malloc(sizeof(_PatriciaNode));
     if (node != NULL) {
@@ -42,6 +47,7 @@ _patriciaNode_CreateLeaf(PARCBuffer *label, void *value)
         node->numEdges = 0;
         node->edges = NULL;
         node->value = value;
+        node->valueDestructor = valueDestructor;
     }
     return node;
 }
@@ -77,15 +83,17 @@ _patriciaNode_Display(_PatriciaNode *node, int indentation)
 
 struct patricia {
     _PatriciaNode *head;
+    void (*valueDestructor)(void **valueP);
 };
 
 Patricia *
-patricia_Create()
+patricia_Create(void (*valueDestructor)(void **valueP))
 {
     Patricia *patricia = (Patricia *) malloc(sizeof(Patricia));
     if (patricia != NULL) {
         PARCBuffer *emptyLabel = parcBuffer_Allocate(1);
-        patricia->head = _patriciaNode_CreateLeaf(emptyLabel, NULL);
+        patricia->head = _patriciaNode_CreateLeaf(emptyLabel, NULL, valueDestructor);
+        patricia->valueDestructor = valueDestructor;
         parcBuffer_Release(&emptyLabel);
     }
     return patricia;
@@ -166,9 +174,9 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
                 parcBuffer_SetPosition(leftPrefix, parcBuffer_Position(leftPrefix) + sharedCount);
                 parcBuffer_SetPosition(rightPrefix, parcBuffer_Position(rightPrefix) + sharedCount);
 
-                _PatriciaNode *splitRight = _patriciaNode_CreateLeaf(rightPrefix, item);
-                _PatriciaNode *splitLeft = _patriciaNode_CreateLeaf(sharedPrefix, NULL); // no item goes here
-                _PatriciaNode *newLeft = _patriciaNode_CreateLeaf(leftPrefix, next->value); // no item goes here
+                _PatriciaNode *splitRight = _patriciaNode_CreateLeaf(rightPrefix, item, trie->valueDestructor);
+                _PatriciaNode *splitLeft = _patriciaNode_CreateLeaf(sharedPrefix, NULL, trie->valueDestructor); // no item goes here
+                _PatriciaNode *newLeft = _patriciaNode_CreateLeaf(leftPrefix, next->value, trie->valueDestructor); // no item goes here
 
                 curr->edges[i] = splitLeft;
                 _patriciaNode_Destroy(&next);
@@ -191,7 +199,7 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
     }
  
     // Handle the insertion into the trie
-    _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix, item);
+    _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix, item, trie->valueDestructor);
     if (current == NULL) {
         _PatriciaNode *target = prev == NULL ? trie->head : prev;
         _patriciaNode_AddEdge(target, newEdge);

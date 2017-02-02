@@ -38,7 +38,7 @@ fibPatricia_Create()
 {
     FIBPatricia *fib = (FIBPatricia *) malloc(sizeof(FIBPatricia));
     if (fib != NULL) {
-        fib->trie = patricia_Create();
+        fib->trie = patricia_Create(NULL);
     }
 
     return fib;

@@ -6,7 +6,7 @@
 struct patricia;
 typedef struct patricia Patricia;
 
-Patricia *patricia_Create();
+Patricia *patricia_Create(void (*valueDestructor)(void **valueP));
 void patricia_Destroy(Patricia **patricia);
 
 void patricia_Insert(Patricia *trie, PARCBuffer *key, void *item);

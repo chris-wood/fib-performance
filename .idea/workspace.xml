@@ -2,18 +2,21 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" buildAllGenerated="true">
     <generated>
-      <config projectName="fib_perf" targetName="test_prefix_bloom" />
+      <config projectName="fib_perf" targetName="test_fib_merged_filter" />
       <config projectName="fib_perf" targetName="test_bloom" />
-      <config projectName="fib_perf" targetName="test_" />
-      <config projectName="fib_perf" targetName="test_name" />
-      <config projectName="fib_perf" targetName="test_patricia" />
-      <config projectName="fib_perf" targetName="test_caesar_fib" />
-      <config projectName="fib_perf" targetName="test_caesar_bloom_fib" />
-      <config projectName="fib_perf" targetName="test_naive_fib" />
-      <config projectName="fib_perf" targetName="test_cisco_fib" />
       <config projectName="fib_perf" targetName="test_map" />
+      <config projectName="fib_perf" targetName="test_patricia" />
+      <config projectName="fib_perf" targetName="test_patricia_fib" />
       <config projectName="fib_perf" targetName="fib_perf" />
+      <config projectName="fib_perf" targetName="test_prefix_bloom" />
+      <config projectName="fib_perf" targetName="test_" />
+      <config projectName="fib_perf" targetName="test_caesar_fib" />
+      <config projectName="fib_perf" targetName="test_name" />
       <config projectName="fib_perf" targetName="test_bitmap" />
+      <config projectName="fib_perf" targetName="test_cisco_fib" />
+      <config projectName="fib_perf" targetName="test_naive_fib" />
+      <config projectName="fib_perf" targetName="test_tbf_fib" />
+      <config projectName="fib_perf" targetName="test_caesar_bloom_fib" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -29,24 +32,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d20d5bc1-1079-4a0d-94d9-968a82787ae0" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/scripts/caesar-filter_out.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/scripts/caesar_out.txt" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/cisco_out.txt" afterPath="$PROJECT_DIR$/scripts/cisco_out.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/naive_out.txt" afterPath="$PROJECT_DIR$/scripts/naive_out.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/plotter.py" afterPath="$PROJECT_DIR$/scripts/plotter.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/runner.rb" afterPath="$PROJECT_DIR$/scripts/runner.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/bloom.c" afterPath="$PROJECT_DIR$/src/bloom.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/bloom.h" afterPath="$PROJECT_DIR$/src/bloom.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib_caesar_filter.c" afterPath="$PROJECT_DIR$/src/fib_caesar_filter.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/hasher.c" afterPath="$PROJECT_DIR$/src/hasher.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/hasher.h" afterPath="$PROJECT_DIR$/src/hasher.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/prefix_bloom.c" afterPath="$PROJECT_DIR$/src/prefix_bloom.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sha256hasher.c" afterPath="$PROJECT_DIR$/src/sha256hasher.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/siphasher.c" afterPath="$PROJECT_DIR$/src/siphasher.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/timer.h" afterPath="$PROJECT_DIR$/src/timer.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib-perf.c" afterPath="$PROJECT_DIR$/src/fib-perf.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib_caesar.c" afterPath="$PROJECT_DIR$/src/fib_caesar.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib_patricia.c" afterPath="$PROJECT_DIR$/src/fib_patricia.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib_tbf.c" afterPath="$PROJECT_DIR$/src/fib_tbf.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/patricia.c" afterPath="$PROJECT_DIR$/src/patricia.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/patricia.h" afterPath="$PROJECT_DIR$/src/patricia.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/test_patricia.c" afterPath="$PROJECT_DIR$/src/test/test_patricia.c" />
     </list>
+    <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -63,133 +59,117 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="prefix_bloom.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/prefix_bloom.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2100">
-              <caret line="140" column="50" lean-forward="false" selection-start-line="140" selection-start-column="50" selection-end-line="140" selection-end-column="50" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="fib_caesar.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/fib_caesar.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="16" lean-forward="false" selection-start-line="2" selection-start-column="16" selection-end-line="2" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_fib.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/test_fib.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="585">
-              <caret line="46" column="0" lean-forward="true" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="bloom.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/bloom.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3270">
-              <caret line="218" column="1" lean-forward="false" selection-start-line="218" selection-start-column="1" selection-end-line="218" selection-end-column="1" />
-              <folding>
-                <marker date="1481412014000" expanded="true" signature="320:432" ph="{...}" />
-                <marker date="1481412014000" expanded="true" signature="475:1366" ph="{...}" />
-                <marker date="1481412014000" expanded="true" signature="1406:1724" ph="{...}" />
-                <marker date="1481412014000" expanded="true" signature="1778:3428" ph="{...}" />
-                <marker date="1481412014000" expanded="true" signature="3484:3579" ph="{...}" />
-                <marker date="1481412014000" expanded="true" signature="3633:6252" ph="{...}" />
-                <marker date="1481412014000" expanded="true" signature="6309:6477" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="hasher.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/hasher.h">
+      <file leaf-file-name="fib.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/fib.c">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="420">
-              <caret line="28" column="98" lean-forward="false" selection-start-line="28" selection-start-column="98" selection-end-line="28" selection-end-column="98" />
+              <caret line="28" column="0" lean-forward="false" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fib_tbf.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/fib_tbf.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="598">
+              <caret line="179" column="46" lean-forward="false" selection-start-line="179" selection-start-column="46" selection-end-line="179" selection-end-column="46" />
               <folding>
-                <element signature="e#91#110#0" expanded="true" />
-                <marker date="1481412107000" expanded="true" signature="210:561" ph="{...}" />
+                <element signature="e#0#20#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="siphasher.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/siphasher.c">
+      <file leaf-file-name="generator.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1425">
-              <caret line="95" column="57" lean-forward="false" selection-start-line="95" selection-start-column="57" selection-end-line="95" selection-end-column="57" />
+            <state relative-caret-position="-179">
+              <caret line="69" column="25" lean-forward="false" selection-start-line="69" selection-start-column="25" selection-end-line="69" selection-end-column="25" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="plotter.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/plotter.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-75">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
-                <marker date="1481412190000" expanded="true" signature="206:474" ph="{...}" />
-                <marker date="1481412190000" expanded="true" signature="553:899" ph="{...}" />
-                <marker date="1481412190000" expanded="true" signature="945:1145" ph="{...}" />
-                <marker date="1481412190000" expanded="true" signature="1213:1617" ph="{...}" />
-                <marker date="1481412190000" expanded="true" signature="1709:1921" ph="{...}" />
-                <marker date="1481412190000" expanded="true" signature="2004:2330" ph="{...}" />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sha256hasher.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/sha256hasher.c">
+      <file leaf-file-name="runner.rb" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/runner.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1230">
-              <caret line="82" column="33" lean-forward="false" selection-start-line="82" selection-start-column="33" selection-end-line="82" selection-end-column="33" />
+            <state relative-caret-position="289">
+              <caret line="45" column="31" lean-forward="false" selection-start-line="45" selection-start-column="30" selection-end-line="45" selection-end-column="31" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fib-perf.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/fib-perf.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1200">
+              <caret line="22" column="8" lean-forward="false" selection-start-line="22" selection-start-column="8" selection-end-line="22" selection-end-column="8" />
               <folding>
-                <marker date="1481412239000" expanded="true" signature="216:421" ph="{...}" />
-                <marker date="1481412239000" expanded="true" signature="473:599" ph="{...}" />
-                <marker date="1481412239000" expanded="true" signature="673:978" ph="{...}" />
-                <marker date="1481412239000" expanded="true" signature="1076:1388" ph="{...}" />
-                <marker date="1481412239000" expanded="true" signature="1477:1736" ph="{...}" />
+                <element signature="e#0#18#0" expanded="true" />
+                <marker date="1486047194000" expanded="true" signature="835:1153" ph="{...}" />
+                <marker date="1486047194000" expanded="true" signature="1209:1236" ph="{...}" />
+                <marker date="1486047194000" expanded="true" signature="1799:2557" ph="{...}" />
+                <marker date="1486047194000" expanded="true" signature="2574:2774" ph="{...}" />
+                <marker date="1486047194000" expanded="true" signature="7638:8141" ph="{...}" />
+                <marker date="1486047194000" expanded="true" signature="8197:9557" ph="{...}" />
+                <marker date="1486047194000" expanded="true" signature="9613:10918" ph="{...}" />
+                <marker date="1486047194000" expanded="true" signature="10952:12255" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="hasher.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/hasher.c">
+      <file leaf-file-name="test_caesar_fib.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/test_caesar_fib.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="795">
-              <caret line="53" column="47" lean-forward="false" selection-start-line="53" selection-start-column="47" selection-end-line="53" selection-end-column="47" />
+            <state relative-caret-position="350">
+              <caret line="60" column="1" lean-forward="false" selection-start-line="60" selection-start-column="1" selection-end-line="60" selection-end-column="1" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fib_tbf.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/fib_tbf.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fib_caesar.c" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/fib_caesar.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="450">
+              <caret line="73" column="21" lean-forward="false" selection-start-line="73" selection-start-column="21" selection-end-line="73" selection-end-column="21" />
               <folding>
-                <marker date="1481412097000" expanded="true" signature="258:446" ph="{...}" />
-                <marker date="1481412097000" expanded="true" signature="486:628" ph="{...}" />
-                <marker date="1481412097000" expanded="true" signature="690:754" ph="{...}" />
-                <marker date="1481412097000" expanded="true" signature="840:917" ph="{...}" />
-                <marker date="1481412097000" expanded="true" signature="994:1073" ph="{...}" />
+                <element signature="e#0#23#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="bloom.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/bloom.h">
+      <file leaf-file-name="fib_patricia.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/fib_patricia.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="17" selection-end-column="75" />
-              <folding>
-                <element signature="e#35#70#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="fib_caesar_filter.c" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/fib_caesar_filter.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="56" column="32" lean-forward="false" selection-start-line="56" selection-start-column="32" selection-end-line="56" selection-end-column="32" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -199,18 +179,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>DefaultKeySize</find>
-      <find>keySize</find>
-      <find>sip</find>
-      <find>Sip</find>
-      <find>map_Insert</find>
-      <find>map_Get</find>
-      <find>map</find>
-      <find>preProcessed</find>
-      <find>_appendTimedResult</find>
-      <find>vectorHashers</find>
-      <find>name_GetWireFormat</find>
-      <find>rehash</find>
       <find>_appendTime</find>
       <find>name_GetSegmentCount</find>
       <find>MapDefaultCapacity</find>
@@ -229,6 +197,18 @@
       <find>parcBitVector</find>
       <find>bitmap_Release</find>
       <find>BitVector</find>
+      <find>numMaps</find>
+      <find>Naive</find>
+      <find>patricia_fib</find>
+      <find>fibPatricia</find>
+      <find>GetWIreformat</find>
+      <find>patricia_Crea</find>
+      <find>bloom_Create</find>
+      <find>bitmap_bitmap_</find>
+      <find>bitmap_</find>
+      <find>tbf</find>
+      <find>Display</find>
+      <find>tWidth</find>
     </findStrings>
     <replaceStrings>
       <replace>bloom</replace>
@@ -239,6 +219,9 @@
       <replace>Bitmap</replace>
       <replace>bitmap</replace>
       <replace>bitmap_Destroy</replace>
+      <replace>numFilters</replace>
+      <replace>tbf_fib</replace>
+      <replace>fibTBF</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -247,12 +230,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/patricia.c" />
-        <option value="$PROJECT_DIR$/src/test/test_name.c" />
-        <option value="$PROJECT_DIR$/src/test/test_patricia.c" />
-        <option value="$PROJECT_DIR$/src/prefix_bloom.h" />
-        <option value="$PROJECT_DIR$/src/test/test_merged_bloom.c" />
-        <option value="$PROJECT_DIR$/src/test/shared_fib_util.c.c" />
         <option value="$PROJECT_DIR$/src/test/shared_fib_util.h" />
         <option value="$PROJECT_DIR$/src/test/shared_fib_util.c" />
         <option value="$PROJECT_DIR$/src/merged_bloom.c" />
@@ -267,10 +244,7 @@
         <option value="$PROJECT_DIR$/src/test/test_caesar_bloom_fib.c" />
         <option value="$PROJECT_DIR$/src/timer.c" />
         <option value="$PROJECT_DIR$/src/map.c" />
-        <option value="$PROJECT_DIR$/scripts/runner.rb" />
         <option value="$PROJECT_DIR$/src/name.h" />
-        <option value="$PROJECT_DIR$/src/name.c" />
-        <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/src/test/test_bitmap.c" />
         <option value="$PROJECT_DIR$/src/fib.h" />
         <option value="$PROJECT_DIR$/src/fib.c" />
@@ -286,7 +260,6 @@
         <option value="$PROJECT_DIR$/src/bitmap.h" />
         <option value="$PROJECT_DIR$/src/bitmap.c" />
         <option value="$PROJECT_DIR$/src/test/test_fib.c" />
-        <option value="$PROJECT_DIR$/src/fib-perf.c" />
         <option value="$PROJECT_DIR$/src/fib_caesar_filter.c" />
         <option value="$PROJECT_DIR$/src/timer.h" />
         <option value="$PROJECT_DIR$/src/bloom.h" />
@@ -295,16 +268,27 @@
         <option value="$PROJECT_DIR$/src/hasher.h" />
         <option value="$PROJECT_DIR$/src/siphasher.c" />
         <option value="$PROJECT_DIR$/src/sha256hasher.c" />
-        <option value="$PROJECT_DIR$/src/fib_caesar.c" />
         <option value="$PROJECT_DIR$/src/prefix_bloom.c" />
+        <option value="$PROJECT_DIR$/src/fib_tbf.h" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/src/test/test_tbf_fib.c" />
+        <option value="$PROJECT_DIR$/src/name.c" />
+        <option value="$PROJECT_DIR$/src/patricia.h" />
+        <option value="$PROJECT_DIR$/src/fib_patricia.c" />
+        <option value="$PROJECT_DIR$/src/test/test_patricia.c" />
+        <option value="$PROJECT_DIR$/src/patricia.c" />
+        <option value="$PROJECT_DIR$/src/fib_tbf.c" />
+        <option value="$PROJECT_DIR$/src/fib-perf.c" />
+        <option value="$PROJECT_DIR$/scripts/runner.rb" />
+        <option value="$PROJECT_DIR$/src/fib_caesar.c" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="4" />
-    <option name="y" value="23" />
-    <option name="width" value="1436" />
-    <option name="height" value="877" />
+    <option name="y" value="22" />
+    <option name="width" value="1676" />
+    <option name="height" value="1028" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -328,7 +312,7 @@
         <subPane>
           <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="fib-performance" />
+              <option name="myItemId" value="fib_perf" />
               <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -338,7 +322,7 @@
           </PATH>
           <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="fib-performance" />
+              <option name="myItemId" value="fib_perf" />
               <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -352,7 +336,7 @@
           </PATH>
           <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="fib-performance" />
+              <option name="myItemId" value="fib_perf" />
               <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -365,6 +349,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fib_perf" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fib-performance" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scripts" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -384,6 +382,26 @@
     </configuration>
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="fib_perf" TARGET_NAME="fib_perf" CONFIG_NAME="Debug">
       <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="" />
+      <working_directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <method />
+    </configuration>
+    <configuration default="true" type="GoRunFileConfiguration" factoryName="Go Single File">
+      <module name="" />
+      <working_directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="" />
+      <working_directory value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <kind value="DIRECTORY" />
       <method />
     </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
@@ -564,7 +582,19 @@
       <envs />
       <method />
     </configuration>
-    <list size="11">
+    <configuration default="false" name="test_fib_merged_filter" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="fib_perf" TARGET_NAME="test_fib_merged_filter" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="fib_perf" RUN_TARGET_NAME="test_fib_merged_filter">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="test_patricia_fib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="fib_perf" TARGET_NAME="test_patricia_fib" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="fib_perf" RUN_TARGET_NAME="test_patricia_fib">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="test_tbf_fib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="fib_perf" TARGET_NAME="test_tbf_fib" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="fib_perf" RUN_TARGET_NAME="test_tbf_fib">
+      <envs />
+      <method />
+    </configuration>
+    <list size="14">
       <item index="0" class="java.lang.String" itemvalue="Application.Build All" />
       <item index="1" class="java.lang.String" itemvalue="Application.test_map" />
       <item index="2" class="java.lang.String" itemvalue="Application.test_patricia" />
@@ -576,32 +606,52 @@
       <item index="8" class="java.lang.String" itemvalue="Application.test_caesar_fib" />
       <item index="9" class="java.lang.String" itemvalue="Application.test_caesar_bloom_fib" />
       <item index="10" class="java.lang.String" itemvalue="Application.test_bitmap" />
+      <item index="11" class="java.lang.String" itemvalue="Application.test_fib_merged_filter" />
+      <item index="12" class="java.lang.String" itemvalue="Application.test_patricia_fib" />
+      <item index="13" class="java.lang.String" itemvalue="Application.test_tbf_fib" />
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
   </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d20d5bc1-1079-4a0d-94d9-968a82787ae0" name="Default" comment="" />
+      <created>1484964498414</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1484964498414</updated>
+      <workItem from="1484964502507" duration="1571000" />
+      <workItem from="1485235175187" duration="8031000" />
+      <workItem from="1486009374402" duration="2752000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="12354000" />
+  </component>
   <component name="ToolWindowManager">
-    <frame x="4" y="23" width="1436" height="877" extended-state="6" />
+    <frame x="4" y="22" width="1676" height="1028" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16364902" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1402148" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3274244" sideWeight="0.49442896" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3279703" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32920793" sideWeight="0.505571" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32920793" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32846716" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3274244" sideWeight="0.49442896" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39833158" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3279703" sideWeight="0.49442896" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3279703" sideWeight="0.49442896" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39851484" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -620,92 +670,15 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="36" />
+      <option name="time" value="44" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/test_merged_bloom.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/merged_bloom.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="50" column="1" lean-forward="false" selection-start-line="50" selection-start-column="1" selection-end-line="50" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/merged_bloom.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="6" lean-forward="false" selection-start-line="20" selection-start-column="6" selection-end-line="20" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/random.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../CCNx_Distillery/src/Libparc/parc/algol/parc_Object.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="378" column="0" lean-forward="false" selection-start-line="378" selection-start-column="0" selection-end-line="378" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/test_map.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="21" column="35" lean-forward="false" selection-start-line="21" selection-start-column="35" selection-end-line="21" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/test_naive_fib.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="82" column="24" lean-forward="false" selection-start-line="82" selection-start-column="4" selection-end-line="82" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/test_cisco_fib.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="185">
           <caret line="34" column="1" lean-forward="false" selection-start-line="34" selection-start-column="1" selection-end-line="34" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/patricia.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/patricia.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="31" column="0" lean-forward="true" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/generator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/test_caesar_fib.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="36" column="50" lean-forward="false" selection-start-line="36" selection-start-column="50" selection-end-line="36" selection-end-column="50" />
         </state>
       </provider>
     </entry>
@@ -723,13 +696,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/runner.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="27" lean-forward="false" selection-start-line="20" selection-start-column="27" selection-end-line="20" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/name.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
@@ -737,26 +703,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/name.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="121" column="71" lean-forward="false" selection-start-line="121" selection-start-column="71" selection-end-line="121" selection-end-column="71" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="76" column="19" lean-forward="false" selection-start-line="76" selection-start-column="19" selection-end-line="76" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/test_caesar_bloom_fib.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-505">
           <caret line="33" column="1" lean-forward="false" selection-start-line="33" selection-start-column="1" selection-end-line="33" selection-end-column="1" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -767,13 +717,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/fib.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="16" lean-forward="false" selection-start-line="0" selection-start-column="16" selection-end-line="0" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/random.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -781,24 +724,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/map.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="132" column="35" lean-forward="false" selection-start-line="132" selection-start-column="35" selection-end-line="132" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/map.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
           <caret line="10" column="30" lean-forward="true" selection-start-line="10" selection-start-column="30" selection-end-line="10" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/fib_patricia.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-10">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -845,13 +774,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/siphash24.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/sha256hasher.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
@@ -880,23 +802,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/bitmap.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="109" column="36" lean-forward="false" selection-start-line="109" selection-start-column="36" selection-end-line="109" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/fib-perf.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="335" column="18" lean-forward="false" selection-start-line="335" selection-start-column="18" selection-end-line="335" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#18#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/fib_caesar.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
@@ -922,25 +827,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
           <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="17" selection-end-column="75" />
-          <folding>
-            <element signature="e#35#70#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/bloom.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3270">
-          <caret line="218" column="1" lean-forward="false" selection-start-line="218" selection-start-column="1" selection-end-line="218" selection-end-column="1" />
-          <folding>
-            <marker date="1481412014000" expanded="true" signature="320:432" ph="{...}" />
-            <marker date="1481412014000" expanded="true" signature="475:1366" ph="{...}" />
-            <marker date="1481412014000" expanded="true" signature="1406:1724" ph="{...}" />
-            <marker date="1481412014000" expanded="true" signature="1778:3428" ph="{...}" />
-            <marker date="1481412014000" expanded="true" signature="3484:3579" ph="{...}" />
-            <marker date="1481412014000" expanded="true" signature="3633:6252" ph="{...}" />
-            <marker date="1481412014000" expanded="true" signature="6309:6477" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -948,13 +834,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="795">
           <caret line="53" column="47" lean-forward="false" selection-start-line="53" selection-start-column="47" selection-end-line="53" selection-end-column="47" />
-          <folding>
-            <marker date="1481412097000" expanded="true" signature="258:446" ph="{...}" />
-            <marker date="1481412097000" expanded="true" signature="486:628" ph="{...}" />
-            <marker date="1481412097000" expanded="true" signature="690:754" ph="{...}" />
-            <marker date="1481412097000" expanded="true" signature="840:917" ph="{...}" />
-            <marker date="1481412097000" expanded="true" signature="994:1073" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -962,25 +841,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="28" column="98" lean-forward="false" selection-start-line="28" selection-start-column="98" selection-end-line="28" selection-end-column="98" />
-          <folding>
-            <element signature="e#91#110#0" expanded="true" />
-            <marker date="1481412107000" expanded="true" signature="210:561" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/siphasher.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1425">
-          <caret line="95" column="57" lean-forward="false" selection-start-line="95" selection-start-column="57" selection-end-line="95" selection-end-column="57" />
-          <folding>
-            <marker date="1481412190000" expanded="true" signature="206:474" ph="{...}" />
-            <marker date="1481412190000" expanded="true" signature="553:899" ph="{...}" />
-            <marker date="1481412190000" expanded="true" signature="945:1145" ph="{...}" />
-            <marker date="1481412190000" expanded="true" signature="1213:1617" ph="{...}" />
-            <marker date="1481412190000" expanded="true" signature="1709:1921" ph="{...}" />
-            <marker date="1481412190000" expanded="true" signature="2004:2330" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -988,45 +848,228 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1230">
           <caret line="82" column="33" lean-forward="false" selection-start-line="82" selection-start-column="33" selection-end-line="82" selection-end-column="33" />
-          <folding>
-            <marker date="1481412239000" expanded="true" signature="216:421" ph="{...}" />
-            <marker date="1481412239000" expanded="true" signature="473:599" ph="{...}" />
-            <marker date="1481412239000" expanded="true" signature="673:978" ph="{...}" />
-            <marker date="1481412239000" expanded="true" signature="1076:1388" ph="{...}" />
-            <marker date="1481412239000" expanded="true" signature="1477:1736" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/fib_caesar.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="16" lean-forward="false" selection-start-line="2" selection-start-column="16" selection-end-line="2" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/prefix_bloom.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2100">
-          <caret line="140" column="50" lean-forward="false" selection-start-line="140" selection-start-column="50" selection-end-line="140" selection-end-column="50" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/test_fib.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="585">
-          <caret line="46" column="0" lean-forward="true" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
-          <folding />
+          <caret line="140" column="43" lean-forward="false" selection-start-line="140" selection-start-column="43" selection-end-line="140" selection-end-column="43" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/fib_caesar_filter.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="56" column="32" lean-forward="false" selection-start-line="56" selection-start-column="32" selection-end-line="56" selection-end-column="32" />
+        <state relative-caret-position="1035">
+          <caret line="69" column="0" lean-forward="false" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/test_patricia_fib.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="25" column="1" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="91" column="20" lean-forward="false" selection-start-line="91" selection-start-column="20" selection-end-line="91" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/bloom.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="183">
+          <caret line="282" column="0" lean-forward="false" selection-start-line="282" selection-start-column="0" selection-end-line="282" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/name.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="318">
+          <caret line="178" column="0" lean-forward="false" selection-start-line="178" selection-start-column="0" selection-end-line="178" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/siphash24.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="213">
+          <caret line="102" column="0" lean-forward="true" selection-start-line="102" selection-start-column="0" selection-end-line="102" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/siphasher.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="183">
+          <caret line="59" column="0" lean-forward="false" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/map.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="183">
+          <caret line="264" column="0" lean-forward="false" selection-start-line="264" selection-start-column="0" selection-end-line="264" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/test_fib.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="40" column="35" lean-forward="false" selection-start-line="40" selection-start-column="35" selection-end-line="40" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/test_tbf_fib.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="795">
+          <caret line="53" column="19" lean-forward="false" selection-start-line="53" selection-start-column="19" selection-end-line="53" selection-end-column="19" />
+          <folding>
+            <element signature="e#37#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/patricia.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="64" lean-forward="false" selection-start-line="8" selection-start-column="64" selection-end-line="8" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fib_patricia.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="32" column="17" lean-forward="false" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/test_patricia.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1170">
+          <caret line="78" column="0" lean-forward="false" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#24#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/bitmap.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="46" column="0" lean-forward="false" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/patricia.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1575">
+          <caret line="105" column="0" lean-forward="false" selection-start-line="105" selection-start-column="0" selection-end-line="105" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fib.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="0" lean-forward="false" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-179">
+          <caret line="69" column="25" lean-forward="false" selection-start-line="69" selection-start-column="25" selection-end-line="69" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/plotter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-75">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fib_patricia.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fib_tbf.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="598">
+          <caret line="179" column="46" lean-forward="false" selection-start-line="179" selection-start-column="46" selection-end-line="179" selection-end-column="46" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fib_tbf.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/runner.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="45" column="31" lean-forward="false" selection-start-line="45" selection-start-column="30" selection-end-line="45" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fib-perf.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1200">
+          <caret line="22" column="8" lean-forward="false" selection-start-line="22" selection-start-column="8" selection-end-line="22" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <marker date="1486047194000" expanded="true" signature="835:1153" ph="{...}" />
+            <marker date="1486047194000" expanded="true" signature="1209:1236" ph="{...}" />
+            <marker date="1486047194000" expanded="true" signature="1799:2557" ph="{...}" />
+            <marker date="1486047194000" expanded="true" signature="2574:2774" ph="{...}" />
+            <marker date="1486047194000" expanded="true" signature="7638:8141" ph="{...}" />
+            <marker date="1486047194000" expanded="true" signature="8197:9557" ph="{...}" />
+            <marker date="1486047194000" expanded="true" signature="9613:10918" ph="{...}" />
+            <marker date="1486047194000" expanded="true" signature="10952:12255" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/test_caesar_fib.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="350">
+          <caret line="60" column="1" lean-forward="false" selection-start-line="60" selection-start-column="1" selection-end-line="60" selection-end-column="1" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fib_caesar.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="73" column="21" lean-forward="false" selection-start-line="73" selection-start-column="21" selection-end-line="73" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
