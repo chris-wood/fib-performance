@@ -126,12 +126,12 @@ prefixBloomFilter_LPM(PrefixBloomFilter *filter, const Name *name)
     Timestamp start = timerStart();
     uint64_t blockIndex = _computeBlockIndex(filter, name);
     long elapsed = timerEnd(start);
-    printf("Block: %ld\n", elapsed);
+//    printf("Block: %ld\n", elapsed);
     if (!name_IsHashed(name)) {
         start = timerStart();
         int other = bloom_TestName(filter->filterBlocks[blockIndex], (Name *) name);
         elapsed = timerEnd(start);
-        printf("TestName: %ld\n", elapsed);
+//        printf("TestName: %ld\n", elapsed);
         return other;
     } else {
         for (int count = name_GetSegmentCount(name); count > 0; count--) {

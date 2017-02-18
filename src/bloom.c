@@ -159,7 +159,7 @@ bloom_TestName(BloomFilter *filter, Name *name)
     Timestamp start = timerStart();
     Name *newName = name_Hash(name, filter->vectorHashers[0], 8);
     long elapsed = timerEnd(start);
-    printf("Hash name: %ld\n", elapsed);
+//    printf("Hash name: %ld\n", elapsed);
 
     // Compute the first row of the bit matrix
     start = timerStart();
@@ -175,7 +175,7 @@ bloom_TestName(BloomFilter *filter, Name *name)
         parcBuffer_Release(&segmentHash);
     }
     elapsed = timerEnd(start);
-    printf("First row: %ld\n", elapsed);
+//    printf("First row: %ld\n", elapsed);
 
     // use XOR to seed out the remaining hash values for the d prefixes, for each other hash function
     for (int i = 1; i < filter->k; i++) {
@@ -209,7 +209,7 @@ bloom_TestName(BloomFilter *filter, Name *name)
         parcBuffer_Release(&firstHash);
 
         elapsed = timerEnd(start);
-        printf("%dth vector: %ld\n", i, elapsed);
+//        printf("%dth vector: %ld\n", i, elapsed);
     }
 
     // Now do LPM on the bit matrix

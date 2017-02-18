@@ -4,6 +4,11 @@
 #include "patricia.h"
 #include "bloom.h"
 
+typedef enum {
+    _FIBEntryType_Bitmap,
+    _FIBEntryType_BF,
+} _FIBEntryType;
+
 typedef struct {
     int type;
     Bitmap *vector;
@@ -17,9 +22,9 @@ _fibEntry_Destroy(_fibEntry **entryP)
 {
     _fibEntry *entry = *entryP;
 
-//    if (entry->vector != NULL) {
-//        bitmap_Destroy(&entry->vector);
-//    }
+    if (entry->vector != NULL) {
+        bitmap_Destroy(&entry->vector);
+    }
     for (int i = 0; i < entry->numFilters; i++) {
         bloom_Destroy(&(entry->filters[i]));
     }
@@ -44,11 +49,6 @@ _fibEntry_Create(int type)
     }
     return entry;
 }
-
-typedef enum {
-    _FIBEntryType_Bitmap,
-    _FIBEntryType_BF,
-} _FIBEntryType;
 
 struct fib_tbf {
     int T;
@@ -143,7 +143,7 @@ fibTBF_Insert(FIBTBF *fib, const Name *name, Bitmap *egressVector)
             map_Insert(fib->map, entireName, egressVector);
             parcBuffer_Release(&entireName);
         } else { // insert into a trie
-
+            // XXX: TODO
         }
     } else {
         if (isShortName) {
