@@ -78,16 +78,6 @@ fibTBF_LPM(FIBTBF *fib, const Name *name)
         // Lookup prefix with the BFs
         BloomFilter **maps = entry->filters;
 
-        // Expand the set of filters, if necessary
-        int B = numSegments - fib->T;
-        if (B > entry->numFilters) {
-            entry->filters = (BloomFilter **) realloc(entry->filters, B * sizeof(BloomFilter *));
-            for (int i = entry->numFilters; i < B; i++) {
-                entry->filters[i] = bloom_Create(fib->m, fib->k);
-            }
-            entry->numFilters = B;
-        }
-
         // Find the longest prefix
         int i = 0;
         for (i = MIN(entry->numFilters + fib->T, numSegments); i > fib->T; i--) {
@@ -128,7 +118,7 @@ fibTBF_Insert(FIBTBF *fib, const Name *name, Bitmap *egressVector)
             int B = numSegments - fib->T;
             if (B > entry->numFilters) {
                 entry->filters = (BloomFilter **) realloc(entry->filters, B * sizeof(BloomFilter *));
-                for (int i = entry->numFilters; i < B; i++) {
+                for (int i = entry->numFilters; i <= B; i++) {
                     entry->filters[i] = bloom_Create(fib->m, fib->k);
                 }
                 entry->numFilters = B;
@@ -155,7 +145,7 @@ fibTBF_Insert(FIBTBF *fib, const Name *name, Bitmap *egressVector)
             int B = numSegments - fib->T;
             if (B > newEntry->numFilters) {
                 newEntry->filters = (BloomFilter **) malloc(B * sizeof(BloomFilter *));
-                for (int i = newEntry->numFilters; i < B; i++) {
+                for (int i = newEntry->numFilters; i <= B; i++) {
                     newEntry->filters[i] = bloom_Create(fib->m, fib->k);
                 }
                 newEntry->numFilters = B;

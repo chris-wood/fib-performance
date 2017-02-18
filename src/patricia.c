@@ -21,6 +21,16 @@ _patriciaNodeValue_Create(void *item, void (*valueDestructor)(void **valueP))
         value->refCount = 1;
         value->valueDestructor = valueDestructor;
     }
+    return value;
+}
+
+static void *
+_patriciaNodeValue_Value(_PatriciaNodeValue *value)
+{
+    if (value != NULL) {
+        return value->value;
+    }
+    return NULL;
 }
 
 static _PatriciaNodeValue *
@@ -31,6 +41,7 @@ _patriciaNodeValue_Acquire(_PatriciaNodeValue *value)
     }
 
     value->refCount++;
+
     return value;
 }
 
@@ -38,6 +49,10 @@ static void
 _patriciaNodeValue_Release(_PatriciaNodeValue **valueP)
 {
     _PatriciaNodeValue *value = (_PatriciaNodeValue *) *valueP;
+    if (value != NULL) {
+        return;
+    }
+
     value->refCount--;
     if (value->refCount == 0) {
         if (value->valueDestructor != NULL && value->value != NULL) {
@@ -173,9 +188,9 @@ _sharedPrefix(PARCBuffer *x, PARCBuffer *y)
 }
 
 void 
-patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
+patricia_Insert(Patricia *trie, PARCBuffer *key, void *opaqueValue)
 {
-    _PatriciaNodeValue *value = _patriciaNodeValue_Create(item, trie->valueDestructor);
+    _PatriciaNodeValue *value = _patriciaNodeValue_Create(opaqueValue, trie->valueDestructor);
 
     _PatriciaNode *current = trie->head;
     if (current->isLeaf) {
@@ -245,7 +260,8 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
     }
  
     // Handle the insertion into the trie
-    _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix, item);
+    _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix, value);
+
     if (current == NULL) {
         _PatriciaNode *target = prev == NULL ? trie->head : prev;
         _patriciaNode_AddEdge(target, newEdge);
@@ -253,6 +269,7 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *item)
         _patriciaNode_AddEdge(current, newEdge);
     }
 
+    _patriciaNodeValue_Release(&value);
     parcBuffer_Release(&prefix);
 }
 
@@ -290,7 +307,7 @@ patricia_Get(Patricia *trie, PARCBuffer *key)
     if (current == NULL) {
         return NULL;
     } else if (current->isLeaf && elementsFound <= labelLength) {
-        return current->value;
+        return _patriciaNodeValue_Value(current->value);
     } else {
         return NULL;
     }

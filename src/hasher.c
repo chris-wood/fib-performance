@@ -15,7 +15,7 @@ struct hasher {
 Hasher *
 hasher_Create(void *instance, HasherInterface *interface)
 {
-    Hasher *hasher = parcMemory_Allocate(sizeof(Hasher));
+    Hasher *hasher = (Hasher *) malloc(sizeof(Hasher));
     if (hasher != NULL) {
         hasher->instance = instance;
         hasher->interface = interface;
@@ -28,7 +28,7 @@ hasher_Destroy(Hasher **hasherP)
 {
     Hasher *hasher = *hasherP;
     hasher->interface->Destroy(&hasher->instance);
-    parcMemory_Deallocate(hasherP);
+    free(hasherP);
     *hasherP = NULL;
 }
 
