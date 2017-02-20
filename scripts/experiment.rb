@@ -9,7 +9,7 @@ url_file = ARGV[1]
 # Change these as needed
 expansion = 5
 num_experiments = 1 #100
-fractions = (1..10).map {|n| n * 0.1}
+fractions = (1..10).map {|n| n * 0.001}
 
 # Count the number of lines in the file
 lines = `wc -l #{url_file}`.split(" ")[0].to_i
@@ -20,10 +20,10 @@ counts.each{|count|
     test_data = `python generator.py #{count} test < #{url_file} #{expansion}`.split("\n")
 
     (1..num_experiments).each{|n|
-        # Shuffle the data 
+        # Shuffle the data
         load_data.shuffle!
         test_data.shuffle!
-    
+
         tmp_load = "/tmp/load_tmp_#{count}_#{n}.txt"
         tmp_test = "/tmp/test_tmp_#{count}_#{n}.txt"
 
@@ -37,10 +37,11 @@ counts.each{|count|
         if out != 0
             puts "check it out"
             exit
-        end 
+        end
 
-        File.delete tmp_load
-        File.delete tmp_test
+        # File.delete tmp_load
+        # File.delete tmp_test
+
+        abort
     }
 }
-

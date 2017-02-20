@@ -48,6 +48,8 @@ _encodeNameToWireFormat(Name *name)
         name->wireFormat = parcBuffer_Acquire(buffer);
         parcBuffer_Release(&buffer);
         ccnxName_Release(&ccnxName);
+
+        assertTrue(parcBuffer_IsValid(name->wireFormat), "Expected the wire format to be created correctly");
     }
 }
 
@@ -176,7 +178,8 @@ name_GetSubWireFormat(const Name *name, int start, int end)
     int capacity = end == name->numSegments ? parcBuffer_Remaining(name->wireFormat) : name->offsets[end];
     capacity -= offset;
 
-    PARCBuffer *buffer = parcBuffer_Wrap(parcBuffer_Overlay(name->wireFormat, 0) + offset, capacity, 0, capacity);
+    PARCBuffer *buffer = parcBuffer_Wrap(parcBuffer_Overlay(name->wireFormat, 0), parcBuffer_Remaining(name->wireFormat), offset, parcBuffer_Remaining(name->wireFormat));
+    assertTrue(parcBuffer_IsValid(buffer), "Expected buffer to be valid");
     return buffer;
 }
 
