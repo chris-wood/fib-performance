@@ -31,9 +31,11 @@ LONGBOW_TEST_FIXTURE(Core)
 {
     LONGBOW_RUN_TEST_CASE(Core, patricia_Create);
     LONGBOW_RUN_TEST_CASE(Core, patricia_Insert_Empty);
+    LONGBOW_RUN_TEST_CASE(Core, patricia_Insert_Equal);
     LONGBOW_RUN_TEST_CASE(Core, patricia_Insert_Sibling);
     LONGBOW_RUN_TEST_CASE(Core, patricia_Insert_Longer);
     LONGBOW_RUN_TEST_CASE(Core, patricia_Insert_Split);
+    LONGBOW_RUN_TEST_CASE(Core, patricia_Insert_LongSplit);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Core)
@@ -76,6 +78,72 @@ LONGBOW_TEST_CASE(Core, patricia_Insert_Empty)
     
     parcBuffer_Release(&key);
     parcBuffer_Release(&value);
+    patricia_Destroy(&trie);
+}
+
+LONGBOW_TEST_CASE(Core, patricia_Insert_LongSplit)
+{
+    Patricia *trie = patricia_Create(NULL);
+    assertNotNull(trie, "Expected a non-NULL trie to be created");
+
+    PARCBuffer *key1 = parcBuffer_AllocateCString("001");
+    PARCBuffer *key2 = parcBuffer_AllocateCString("002");
+    PARCBuffer *key3 = parcBuffer_AllocateCString("003");
+    PARCBuffer *key4 = parcBuffer_AllocateCString("004");
+
+    PARCBuffer *value1 = parcBuffer_AllocateCString("hello1");
+    PARCBuffer *value2 = parcBuffer_AllocateCString("hello2");
+    PARCBuffer *value3 = parcBuffer_AllocateCString("hello3");
+    PARCBuffer *value4 = parcBuffer_AllocateCString("hello4");
+
+    patricia_Insert(trie, key1, (void *) value1);
+    patricia_Insert(trie, key2, (void *) value2);
+//    patricia_Insert(trie, key3, (void *) value3);
+//    patricia_Insert(trie, key4, (void *) value4);
+
+    PARCBuffer *actual1 = (PARCBuffer *) patricia_Get(trie, key1);
+    assertNotNull(actual1, "Expected to get something back");
+    assertTrue(parcBuffer_Equals(actual1, value1), "Expected to get the same value back");
+
+    PARCBuffer *actual2 = (PARCBuffer *) patricia_Get(trie, key2);
+    assertNotNull(actual2, "Expected to get something back");
+    assertTrue(parcBuffer_Equals(actual2, value2), "Expected to get the same value back");
+
+//    PARCBuffer *actual3 = (PARCBuffer *) patricia_Get(trie, key3);
+//    assertNotNull(actual3, "Expected to get something back");
+//    assertTrue(parcBuffer_Equals(actual3, value3), "Expected to get the same value back");
+//
+//    PARCBuffer *actual4 = (PARCBuffer *) patricia_Get(trie, key4);
+//    assertNotNull(actual4, "Expected to get something back");
+//    assertTrue(parcBuffer_Equals(actual4, value4), "Expected to get the same value back");
+
+    parcBuffer_Release(&key1);
+    parcBuffer_Release(&value1);
+    parcBuffer_Release(&key2);
+    parcBuffer_Release(&value2);
+    parcBuffer_Release(&key3);
+    parcBuffer_Release(&value3);
+    parcBuffer_Release(&key4);
+    parcBuffer_Release(&value4);
+    patricia_Destroy(&trie);
+}
+
+LONGBOW_TEST_CASE(Core, patricia_Insert_Equal)
+{
+    Patricia *trie = patricia_Create(NULL);
+    assertNotNull(trie, "Expected a non-NULL trie to be created");
+
+    PARCBuffer *key1 = parcBuffer_AllocateCString("/a/b/c/d");
+    PARCBuffer *value1 = parcBuffer_AllocateCString("hello1");
+
+    patricia_Insert(trie, key1, (void *) value1);
+    PARCBuffer *actual = (PARCBuffer *) patricia_Get(trie, key1);
+
+    assertNotNull(actual, "Expected to get something back");
+    assertTrue(parcBuffer_Equals(actual, value1), "Expected to get the same value back");
+
+    parcBuffer_Release(&key1);
+    parcBuffer_Release(&value1);
     patricia_Destroy(&trie);
 }
 

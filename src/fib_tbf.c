@@ -36,6 +36,18 @@ _fibEntry_Destroy(_fibEntry **entryP)
     *entryP = NULL;
 }
 
+static void
+_fibEntry_AssertIsValid(_fibEntry *entry)
+{
+    assertTrue(entry->type == _FIBEntryType_Bitmap || entry->type == _FIBEntryType_BF, "Invalid entry type");
+
+    if (entry->type == _FIBEntryType_Bitmap) {
+        assertTrue(entry->vector != NULL, "Invalid entry vector");
+    } else {
+        assertTrue(entry->filters != NULL, "Invalid entry filters");
+    }
+
+}
 
 static _fibEntry *
 _fibEntry_Create(int type)
@@ -68,11 +80,14 @@ fibTBF_LPM(FIBTBF *fib, const Name *name)
 
     PARCBuffer *tSegment = name_GetWireFormat(name, MIN(fib->T, numSegments));
     _fibEntry *entry = patricia_Get(fib->trie, tSegment);
-    parcBuffer_Release(&tSegment);
 
+    parcBuffer_Release(&tSegment);
     if (entry == NULL) {
         return NULL;
-    } else if (isShortName) {
+    }
+
+    _fibEntry_AssertIsValid(entry);
+    if (isShortName) {
         return entry->vector;
     } else {
         // Lookup prefix with the BFs
@@ -106,6 +121,8 @@ fibTBF_LPM(FIBTBF *fib, const Name *name)
 bool
 fibTBF_Insert(FIBTBF *fib, const Name *name, Bitmap *egressVector)
 {
+    name_AssertIsValid(name);
+
     int numSegments = name_GetSegmentCount(name);
     bool isShortName = numSegments <= fib->T;
 
@@ -113,11 +130,14 @@ fibTBF_Insert(FIBTBF *fib, const Name *name, Bitmap *egressVector)
     _fibEntry *entry = patricia_Get(fib->trie, tSegment);
 
     if (entry != NULL) {
-        if (entry->type == _FIBEntryType_BF) { // insert into a BF and then the main map
-            // XXX: move to function
+        if (isShortName) { // if it's a short name, then insert into the BitMap
+            bitmap_SetVector(entry->vector, egressVector);
+        } else { // else, insert into the BF
             int B = numSegments - fib->T;
+            assertTrue(B > 0, "A BF entry must have at least T segments");
+
             if (B > entry->numFilters) {
-                entry->filters = (BloomFilter **) realloc(entry->filters, B * sizeof(BloomFilter *));
+                entry->filters = (BloomFilter **) realloc(entry->filters, (B + 1) * sizeof(BloomFilter *));
                 for (int i = entry->numFilters; i <= B; i++) {
                     entry->filters[i] = bloom_Create(fib->m, fib->k);
                 }
@@ -125,42 +145,39 @@ fibTBF_Insert(FIBTBF *fib, const Name *name, Bitmap *egressVector)
             }
 
             PARCBuffer *suffix = name_GetSubWireFormat(name, fib->T, numSegments);
-            bloom_Add(entry->filters[numSegments - 1], suffix);
+            bloom_Add(entry->filters[B], suffix);
             parcBuffer_Release(&suffix);
-
 
             PARCBuffer *entireName = name_GetWireFormat(name, numSegments);
             map_Insert(fib->map, entireName, egressVector);
             parcBuffer_Release(&entireName);
-        } else { // insert into a trie
-            // XXX: TODO
         }
     } else {
+        _fibEntry *newEntry = NULL;
         if (isShortName) {
-            _fibEntry *newEntry = _fibEntry_Create(_FIBEntryType_Bitmap);
+            newEntry = _fibEntry_Create(_FIBEntryType_Bitmap);
             newEntry->vector = egressVector;
-            patricia_Insert(fib->trie, tSegment, newEntry);
         } else {
-            _fibEntry *newEntry = _fibEntry_Create(_FIBEntryType_BF);
+            newEntry = _fibEntry_Create(_FIBEntryType_BF);
+            newEntry->vector = egressVector;
             int B = numSegments - fib->T;
-            if (B > newEntry->numFilters) {
-                newEntry->filters = (BloomFilter **) malloc(B * sizeof(BloomFilter *));
-                for (int i = newEntry->numFilters; i <= B; i++) {
-                    newEntry->filters[i] = bloom_Create(fib->m, fib->k);
-                }
-                newEntry->numFilters = B;
+
+            newEntry->filters = (BloomFilter **) malloc((B + 1) * sizeof(BloomFilter *));
+            for (int i = 0; i <= B; i++) {
+                newEntry->filters[i] = bloom_Create(fib->m, fib->k);
             }
+            newEntry->numFilters = B;
 
             PARCBuffer *suffix = name_GetSubWireFormat(name, fib->T, numSegments);
-            bloom_Add(newEntry->filters[numSegments - fib->T], suffix);
+            bloom_Add(newEntry->filters[B], suffix);
             parcBuffer_Release(&suffix);
 
             PARCBuffer *entireName = name_GetWireFormat(name, numSegments);
             map_Insert(fib->map, entireName, egressVector);
             parcBuffer_Release(&entireName);
-
-            patricia_Insert(fib->trie, tSegment, newEntry);
         }
+
+        patricia_Insert(fib->trie, tSegment, newEntry);
     }
 
     parcBuffer_Release(&tSegment);

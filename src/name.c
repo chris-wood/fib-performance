@@ -103,7 +103,6 @@ name_Destroy(Name **nameP)
     parcBuffer_Release(&name->wireFormat);
     parcMemory_Deallocate(&name->offsets);
     parcMemory_Deallocate(&name->sizes);
-
     parcMemory_Deallocate(nameP);
     *nameP = NULL;
 }
@@ -171,9 +170,18 @@ name_GetWireFormat(const Name *name, int n)
     return buffer;
 }
 
+void
+name_AssertIsValid(const Name *name)
+{
+    assertTrue(parcBuffer_IsValid(name->wireFormat), "Invalid wire format");
+    assertTrue(name->offsets != NULL, "NULL offsets");
+    assertTrue(name->sizes != NULL, "NULL sizes");
+}
+
 PARCBuffer *
 name_GetSubWireFormat(const Name *name, int start, int end)
 {
+    assertTrue(parcBuffer_IsValid(name->wireFormat), "Name's wire format is invalid -- what happened?");
     int offset = name->offsets[start];
     int capacity = end == name->numSegments ? parcBuffer_Remaining(name->wireFormat) : name->offsets[end];
     capacity -= offset;

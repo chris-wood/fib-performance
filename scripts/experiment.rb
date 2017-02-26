@@ -39,9 +39,7 @@ counts.each{|count|
             exit
         end
 
-        # File.delete tmp_load
-        # File.delete tmp_test
-
-        abort
+        File.delete tmp_load
+        File.delete tmp_test
     }
 }

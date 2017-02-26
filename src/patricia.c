@@ -163,8 +163,8 @@ patricia_Destroy(Patricia **patriciaP)
     *patriciaP = NULL;
 }
 
-static void
-_patricia_Display(Patricia *trie)
+void
+patricia_Display(Patricia *trie)
 {
     _patriciaNode_Display(trie->head, 0);
 }
@@ -199,7 +199,7 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *opaqueValue)
         current = NULL;
     }
 
-    PARCBuffer *prefix = parcBuffer_Copy(key);
+    PARCBuffer *prefix = parcBuffer_Duplicate(key);
     _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix, value);
 
     // Base case, when we've got nothing in the trie
@@ -211,125 +211,66 @@ patricia_Insert(Patricia *trie, PARCBuffer *key, void *opaqueValue)
 
     // Otherwise, search for the insertion spot
     size_t elementsFound = 0;
-    size_t labelLength = parcBuffer_Remaining(key);
+    size_t prefixLength = parcBuffer_Remaining(prefix);
     _PatriciaNode *prev = NULL;
 
-    while (elementsFound < labelLength) {
+    while (elementsFound < prefixLength) {
+        // If we've reached a leaf and haven't added all of our symbols, then just tack it on to the current node
+        if (current->isLeaf) {
+            _patriciaNode_AddEdge(current, newEdge);
+            parcBuffer_Release(&prefix);
+            return;
+        }
+
+        // Otherwise, traverse down the node's children
+        bool inserted = false;
         for (int i = 0; i < current->numChildren; i++) {
             prev = current;
             _PatriciaNode *next = current->children[i];
-            int prefixCount = parcBuffer_Remaining(prefix);
+            int prefixCount = parcBuffer_Remaining(next->label);
             int sharedCount = _sharedPrefix(prefix, next->label);
 
-            if (prefixCount == sharedCount) {
-                _patriciaNode_AddEdge(current, newEdge);
-                parcBuffer_Release(&prefix);
-                return;
+            // If we consumed all of the current node, go to the next layer
+            if (sharedCount == prefixCount ) {
+                parcBuffer_SetPosition(prefix, parcBuffer_Position(prefix) + sharedCount);
+                elementsFound += sharedCount;
+                current = next;
+                inserted = true;
+                break;
             } else if (sharedCount > 0) {
-                PARCBuffer *sharedPrefix = parcBuffer_Copy(next->label); // "ab"
-                PARCBuffer *leftPrefix = parcBuffer_Copy(sharedPrefix); // "c"
-                PARCBuffer *rightPrefix = parcBuffer_Copy(prefix); // "d"
+                PARCBuffer *sharedPrefix = parcBuffer_Duplicate(next->label); // "ab"
+                PARCBuffer *leftPrefix = parcBuffer_Duplicate(sharedPrefix); // "c"
+                PARCBuffer *rightPrefix = parcBuffer_Duplicate(prefix); // "d"
 
-                parcBuffer_SetLimit(sharedPrefix, sharedCount);
+                parcBuffer_SetLimit(sharedPrefix, parcBuffer_Position(sharedPrefix) + sharedCount);
                 parcBuffer_SetPosition(leftPrefix, parcBuffer_Position(leftPrefix) + sharedCount);
                 parcBuffer_SetPosition(rightPrefix, parcBuffer_Position(rightPrefix) + sharedCount);
 
                 _PatriciaNode *newNode = _patriciaNode_CreateLeaf(sharedPrefix, NULL); // this becomes a non-leaf node
                 _PatriciaNode *splitRight = _patriciaNode_CreateLeaf(rightPrefix, value);
-                _PatriciaNode *splitLeft = _patriciaNode_CreateLeaf(leftPrefix, next->value); // no item goes here
+                _PatriciaNode *splitLeft = _patriciaNode_CreateLeaf(leftPrefix, next->value);
 
                 current->children[i] = newNode;
-                _patriciaNode_Destroy(&next);
-
                 _patriciaNode_AddEdge(newNode, splitLeft);
                 _patriciaNode_AddEdge(newNode, splitRight);
 
-                parcBuffer_SetPosition(prefix, parcBuffer_Position(prefix) + parcBuffer_Remaining(prefix));
+                _patriciaNode_Destroy(&next);
 
                 parcBuffer_Release(&sharedPrefix);
                 parcBuffer_Release(&leftPrefix);
                 parcBuffer_Release(&rightPrefix);
-            } else {
-                _patriciaNode_AddEdge(prev, newEdge);
+                _patriciaNode_Destroy(&newEdge);
                 parcBuffer_Release(&prefix);
                 return;
             }
         }
-    }
 
-//    // Search until we can make no further progress.
-//    PARCBuffer *prefix = parcBuffer_Copy(key);
-//    while (current != NULL && !current->isLeaf && elementsFound < labelLength) {
-//        _PatriciaNode *curr = current;
-//        current = NULL;
-//        for (int i = 0; i < curr->numChildren; i++) {
-//            _PatriciaNode *next = curr->children[i];
-//
-//            // Sanity checks
-//            if (next == NULL) {
-//                continue;
-//            }
-//            assertTrue(parcBuffer_IsValid(prefix), "prefix is invalid");
-//            assertTrue(parcBuffer_IsValid(next->label), "next->label is invalid");
-//
-//            int prefixCount = parcBuffer_Remaining(prefix);
-//            int sharedCount = _sharedPrefix(prefix, next->label);
-//
-//            if (prefixCount == sharedCount) { // jump to the next level
-//                prev = curr;
-//                current = next;
-//
-//                size_t nextLabelLength = parcBuffer_Remaining(next->label);
-//                elementsFound += nextLabelLength;
-//
-//                parcBuffer_SetPosition(prefix , parcBuffer_Position(prefix) + nextLabelLength);
-//                break;
-//            } else if (sharedCount > 0) { // split up the node and return
-//                // abc | abd -> ab, c, d
-//                PARCBuffer *sharedPrefix = parcBuffer_Copy(next->label); // "ab"
-//                PARCBuffer *leftPrefix = parcBuffer_Copy(sharedPrefix); // "c"
-//                PARCBuffer *rightPrefix = parcBuffer_Copy(prefix); // "d"
-//
-//                parcBuffer_SetLimit(sharedPrefix, sharedCount);
-//                parcBuffer_SetPosition(leftPrefix, parcBuffer_Position(leftPrefix) + sharedCount);
-//                parcBuffer_SetPosition(rightPrefix, parcBuffer_Position(rightPrefix) + sharedCount);
-//
-//                _PatriciaNode *splitRight = _patriciaNode_CreateLeaf(rightPrefix, value);
-//                _PatriciaNode *splitLeft = _patriciaNode_CreateLeaf(sharedPrefix, NULL); // no item goes here
-//                _PatriciaNode *newLeft = _patriciaNode_CreateLeaf(leftPrefix, next->value); // no item goes here
-//
-//                curr->children[i] = splitLeft;
-//                _patriciaNode_Destroy(&next);
-//
-//                _patriciaNode_AddEdge(splitLeft, newLeft);
-//                _patriciaNode_AddEdge(splitLeft, splitRight);
-//
-//                parcBuffer_SetPosition(prefix, parcBuffer_Position(prefix) + parcBuffer_Remaining(prefix));
-//
-//                parcBuffer_Release(&sharedPrefix);
-//                parcBuffer_Release(&leftPrefix);
-//                parcBuffer_Release(&rightPrefix);
-//
-//                parcBuffer_Release(&prefix);
-//                return;
-//            } else { // nothing in common
-//                current = NULL; // does nothing.
-//            }
-//        }
-//    }
-//
-//    // Handle the insertion into the trie
-//    _PatriciaNode *newEdge = _patriciaNode_CreateLeaf(prefix, value);
-//
-//    if (current == NULL) {
-//        _PatriciaNode *target = prev == NULL ? trie->head : prev;
-//        _patriciaNode_AddEdge(target, newEdge);
-//    } else if (current->isLeaf) {
-//        _patriciaNode_AddEdge(current, newEdge);
-//    }
-//
-//    _patriciaNodeValue_Release(&value);
-//    parcBuffer_Release(&prefix);
+        if (!inserted) { // there's nothing in common with any child, so add to the previous edge
+            _patriciaNode_AddEdge(prev, newEdge);
+            parcBuffer_Release(&prefix);
+            return;
+        }
+    }
 }
 
 void *
@@ -338,6 +279,7 @@ patricia_Get(Patricia *trie, PARCBuffer *key)
     int elementsFound = 0;
     size_t labelLength = parcBuffer_Remaining(key);
     _PatriciaNode *current = trie->head;
+    _PatriciaNode *prev = NULL;
 
     PARCBuffer *prefix = parcBuffer_Slice(key);
     while (current != NULL && !current->isLeaf && elementsFound < labelLength) {
@@ -345,26 +287,39 @@ patricia_Get(Patricia *trie, PARCBuffer *key)
         current = NULL;
         for (int i = 0; i < curr->numChildren; i++) {
             _PatriciaNode *next = curr->children[i];
-            
+
+            int prefixCount = parcBuffer_Remaining(next->label);
             int sharedCount = _sharedPrefix(prefix, next->label);
-            if (sharedCount > 0) { // jump to the next level
-                current = next;
-                size_t nextLabelLength = parcBuffer_Remaining(next->label);
-                if (sharedCount < nextLabelLength) {
-                    parcBuffer_Release(&prefix);
-                    return NULL;
-                }
-                elementsFound += sharedCount;
+
+            // If we consumed all of the current node, go to the next layer
+            if (sharedCount == prefixCount ) {
                 parcBuffer_SetPosition(prefix, parcBuffer_Position(prefix) + sharedCount);
+                elementsFound += sharedCount;
+                prev = curr;
+                current = next;
                 break;
-            } 
+            }
+//            else if (sharedCount > 0) { // jump to the next level
+//                current = next;
+//                size_t nextLabelLength = parcBuffer_Remaining(next->label);
+//                if (sharedCount < nextLabelLength) {
+//                    parcBuffer_Release(&prefix);
+//                    return NULL;
+//                }
+//                elementsFound += sharedCount;
+//                parcBuffer_SetPosition(prefix, parcBuffer_Position(prefix) + sharedCount);
+//                prev = curr;
+//                break;
+//            }
         }
     }
 
     parcBuffer_Release(&prefix);
     
-    if (current == NULL) {
-        return NULL;
+    if (current == NULL && prev == NULL) {
+        return prev;
+    } else if (current == NULL) {
+        return _patriciaNodeValue_Value(prev->value);
     } else if (current->isLeaf && elementsFound <= labelLength) {
         return _patriciaNodeValue_Value(current->value);
     } else {

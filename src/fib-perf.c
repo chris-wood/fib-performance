@@ -259,20 +259,22 @@ _loadFIB(FIBOptions *options)
             name = newName;
         }
 
-        Bitmap *vector = bitmap_Create(options->numPorts);
-        assertNotNull(vector, "Could not allocate a PARCBitVector");
-        bitmap_Set(vector, num);
-        num = (num + 1) % options->numPorts;
+        if (name_GetSegmentCount(name) > 0) {
+            Bitmap *vector = bitmap_Create(options->numPorts);
+            assertNotNull(vector, "Could not allocate a PARCBitVector");
+            bitmap_Set(vector, num);
+            num = (num + 1) % options->numPorts;
 
-        // Insert into the FIB
-        struct timespec start = timerStart();
-        fib_Insert(fib, name, vector);
-        long elapsedTime = timerEnd(start);
+            // Insert into the FIB
+            struct timespec start = timerStart();
+            fib_Insert(fib, name, vector);
+            long elapsedTime = timerEnd(start);
 
-        // Record the insertion time
-        _appendTimedResult(timeResults, elapsedTime);
+            // Record the insertion time
+            _appendTimedResult(timeResults, elapsedTime);
 
-        index++;
+            index++;
+        }
     } while (true);
 
     return timeResults;
@@ -312,19 +314,21 @@ _testFIB(FIBOptions *options)
             name = newName;
         }
 
-        // Look up the FIB and time it.
-        struct timespec start = timerStart();
-        Bitmap *output = fib_LPM(fib, name);
-        long elapsedTime = timerEnd(start);
+        if (name_GetSegmentCount(name) > 0) {
+            // Look up the FIB and time it.
+            struct timespec start = timerStart();
+            Bitmap *output = fib_LPM(fib, name);
+            long elapsedTime = timerEnd(start);
 
-        if (output == NULL) {
-            numFalsePositives++;
+            if (output == NULL) {
+                numFalsePositives++;
+            }
+
+            // Record the insertion time
+            _appendTimedResult(timeResults, elapsedTime);
+
+            index++;
         }
-
-        // Record the insertion time
-        _appendTimedResult(timeResults, elapsedTime);
-
-        index++;
     } while (true);
 
     _addCount(timeResults, numFalsePositives);

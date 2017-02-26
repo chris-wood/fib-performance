@@ -12,4 +12,6 @@ void patricia_Destroy(Patricia **patricia);
 void patricia_Insert(Patricia *trie, PARCBuffer *key, void *item);
 void *patricia_Get(Patricia *trie, PARCBuffer *key);
 
+void patricia_Display(Patricia *trie);
+
 #endif // patricia_h_
