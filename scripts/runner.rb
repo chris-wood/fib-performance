@@ -76,12 +76,12 @@ trie_algorithms.each {|alg|
 
 # TBF FIB
 alg = "tbf"
-Ts = [2,3,4,5,6]
+Ts = [2, 3, 4, 5, 6]
 
 Ts.each{|t|
     numfilters.each{|k|
         filterWidths.each{|m|
-            fname = "#{alg}_#{suffix}_#{t}_#{k}_#{m}_out.txt"
+            fname = "#{alg}_#{t}_#{k}_#{m}_#{suffix}_out.txt"
             STDERR.puts "#{fib_perf} -l #{load_file} -t #{test_file} -x #{t} -f #{k} -s #{m} -a #{alg}"
             output = `#{fib_perf} -l #{load_file} -t #{test_file} -x #{t} -f #{k} -s #{m} -a #{alg}`
             STDERR.puts output

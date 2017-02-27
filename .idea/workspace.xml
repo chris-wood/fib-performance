@@ -35,16 +35,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d20d5bc1-1079-4a0d-94d9-968a82787ae0" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/experiment.rb" afterPath="$PROJECT_DIR$/scripts/experiment.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib-perf.c" afterPath="$PROJECT_DIR$/src/fib-perf.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fib_tbf.c" afterPath="$PROJECT_DIR$/src/fib_tbf.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/name.c" afterPath="$PROJECT_DIR$/src/name.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/name.h" afterPath="$PROJECT_DIR$/src/name.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/patricia.c" afterPath="$PROJECT_DIR$/src/patricia.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/patricia.h" afterPath="$PROJECT_DIR$/src/patricia.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/test_fib.c" afterPath="$PROJECT_DIR$/src/test/test_fib.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/test_patricia.c" afterPath="$PROJECT_DIR$/src/test/test_patricia.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/plotter.py" afterPath="$PROJECT_DIR$/scripts/plotter.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/runner.rb" afterPath="$PROJECT_DIR$/scripts/runner.rb" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -73,11 +65,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="fib_tbf.c" pinned="false" current-in-tab="true">
+      <file leaf-file-name="fib_tbf.c" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/fib_tbf.c">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="424">
-              <caret line="110" column="35" lean-forward="true" selection-start-line="110" selection-start-column="35" selection-end-line="110" selection-end-column="35" />
+              <caret line="110" column="35" lean-forward="false" selection-start-line="110" selection-start-column="35" selection-end-line="110" selection-end-column="35" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -98,8 +90,18 @@
       <file leaf-file-name="fib-perf.c" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/fib-perf.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="827">
-              <caret line="345" column="0" lean-forward="false" selection-start-line="345" selection-start-column="0" selection-end-line="345" selection-end-column="0" />
+            <state relative-caret-position="251">
+              <caret line="320" column="36" lean-forward="false" selection-start-line="320" selection-start-column="36" selection-end-line="320" selection-end-column="36" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="timer.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/timer.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="300">
+              <caret line="20" column="23" lean-forward="true" selection-start-line="20" selection-start-column="23" selection-end-line="20" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -115,11 +117,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_patricia.c" pinned="false" current-in-tab="false">
+      <file leaf-file-name="test_patricia.c" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/test_patricia.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="210" column="66" lean-forward="false" selection-start-line="210" selection-start-column="66" selection-end-line="210" selection-end-column="66" />
+            <state relative-caret-position="178">
+              <caret line="104" column="0" lean-forward="false" selection-start-line="104" selection-start-column="0" selection-end-line="104" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -150,16 +152,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="440">
               <caret line="743" column="12" lean-forward="false" selection-start-line="743" selection-start-column="12" selection-end-line="743" selection-end-column="12" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="patricia.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/patricia.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="21" lean-forward="false" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -609,16 +601,16 @@
       <workItem from="1486354978631" duration="1193000" />
       <workItem from="1487454226084" duration="100000" />
       <workItem from="1487454344599" duration="7629000" />
-      <workItem from="1487538174383" duration="26247000" />
+      <workItem from="1487538174383" duration="26901000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="47666000" />
+    <option name="totallyTimeSpent" value="48320000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="5" y="23" width="1676" height="1028" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14199395" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -630,7 +622,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3974359" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3974359" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -763,13 +755,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="11" column="30" lean-forward="false" selection-start-line="11" selection-start-column="30" selection-end-line="11" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/timer.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
         </state>
       </provider>
     </entry>
@@ -974,14 +959,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/fib-perf.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="827">
-          <caret line="345" column="0" lean-forward="false" selection-start-line="345" selection-start-column="0" selection-end-line="345" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/patricia.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -1030,14 +1007,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/test_patricia.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="210" column="66" lean-forward="false" selection-start-line="210" selection-start-column="66" selection-end-line="210" selection-end-column="66" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/fib.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="326">
@@ -1049,10 +1018,34 @@
     <entry file="file://$PROJECT_DIR$/src/fib_tbf.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="424">
-          <caret line="110" column="35" lean-forward="true" selection-start-line="110" selection-start-column="35" selection-end-line="110" selection-end-column="35" />
+          <caret line="110" column="35" lean-forward="false" selection-start-line="110" selection-start-column="35" selection-end-line="110" selection-end-column="35" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fib-perf.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="251">
+          <caret line="320" column="36" lean-forward="false" selection-start-line="320" selection-start-column="36" selection-end-line="320" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/timer.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" column="23" lean-forward="true" selection-start-line="20" selection-start-column="23" selection-end-line="20" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/test_patricia.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="178">
+          <caret line="104" column="0" lean-forward="false" selection-start-line="104" selection-start-column="0" selection-end-line="104" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

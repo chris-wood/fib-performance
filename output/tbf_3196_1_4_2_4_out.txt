@@ -1,0 +1,13 @@
+[31mAssert /home/chris/dev/CCNx_Distillery/src/Libparc/parc/algol/parc_URISegment.c:192 parcURISegment_Parse() !(*string == '/') Input parameter '/U92FGDKGMG8MUO8QOD2JIJ9Y19C32RSIWS/BB8LMBPVP5ZH58K2XBDKEEX' must NOT point to an initial '/' character.
+/home/chris/dev/CCNx_Distillery/usr/lib/libparc.so.1(parcURISegment_Parse+0x7c) [0x7f635a50adf5]
+/home/chris/dev/CCNx_Distillery/usr/lib/libparc.so.1(parcURIPath_Parse+0x92) [0x7f635a50a207]
+/home/chris/dev/CCNx_Distillery/usr/lib/libparc.so.1(parcURI_Parse+0x83) [0x7f635a5098d5]
+/home/chris/dev/CCNx_Distillery/usr/lib/libccnx_common.so.1(ccnxName_CreateFromCString+0x20) [0x7f635a76d89c]
+../b/fib_perf() [0x406a88]
+../b/fib_perf(name_CreateFromCString+0x57) [0x406dcf]
+../b/fib_perf() [0x40b324]
+../b/fib_perf() [0x40b6c8]
+../b/fib_perf(main+0x45) [0x40b7f0]
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf5) [0x7f6359cfbf45]
+../b/fib_perf() [0x403c29]
+[0m
