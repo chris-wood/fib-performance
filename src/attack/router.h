@@ -1,3 +1,9 @@
+#ifndef ROUTER_H_
+#define ROUTER_H_
+
+#include "../fib.h"
+#include "../name.h"
+#include "../bitmap.h"
 
 class Router
 {
@@ -15,10 +21,14 @@ public:
         numberOfNames = num;
     }
 
-    void Run(void *arg);
+    void Run();
 private:
     FIB *fib;
     int numberOfNames;
     int sourcefd;
     int sinkfd;
 };
+
+void *runRouter(void *arg);
+
+#endif // ROUTER_H_

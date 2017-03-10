@@ -2,7 +2,6 @@
 // Created by Christopher Wood on 3/5/17.
 //
 
-#include "../fib.h"
 #include "router.h"
 
 void
@@ -24,7 +23,7 @@ Router::ConnectSource(int sock)
 }
 
 void
-Router::Run(void *arg)
+Router::Run()
 {
     uint8_t nameBuffer[MAX_NAME_SIZE];
     for (int i = 0; i < numberOfNames; i++) {
@@ -55,4 +54,12 @@ Router::Run(void *arg)
             std::cerr << "failed to write name " << i << " to the sink socket" << std:endl;
         }
     }
+}
+
+void *
+runRouter(void *arg)
+{
+    Router *router = (Router *) arg;
+    router->Run();
+    return NULL;
 }

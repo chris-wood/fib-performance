@@ -16,7 +16,7 @@ AttackClient::LoadNameList(char *nameFile)
 }
 
 void
-AttackClient::Run(void *arg)
+AttackClient::Run()
 {
     // TODO(caw): finish me
     for (std::vector<Name *>::iterator itr = names.begin(); itr != names.end(); itr++) {
@@ -30,4 +30,12 @@ AttackClient::Run(void *arg)
         struct timespec start = timerStart();
         times.push_back(start);
     }
+}
+
+void *
+runClient(void *arg)
+{
+    AttackClient *client = (AttackClient *) arg;
+    client->Run();
+    return NULL;
 }

@@ -6,7 +6,11 @@
 #include "attack_client.h"
 #include "attack_server.h"
 
+#include <sys/socket.h>
+#include <iostream>
 #include <pthread.h>
+
+using namespace std;
 
 void
 ProcessResults(AttackClient *client, AttackServer *server)
@@ -16,10 +20,11 @@ ProcessResults(AttackClient *client, AttackServer *server)
 }
 
 int
-main(int argc, char *argv)
+main(int argc, char **argv)
 {
     // Create the router
-    Router *router = new Router();
+    // TODO(cawood): create the router
+    Router *router = new Router(NULL);
 
     // Create the upstream socket pair
     // XXX: http://osr507doc.xinuos.com/en/netguide/dusockD.socketpairs_codetext.html
@@ -50,23 +55,34 @@ main(int argc, char *argv)
 
     // Create the client and build the name list
     AttackClient *client = new AttackClient(sourcesockets[0]);
-    int numberOfNames = client->oadNameList(argv[2]);
+    int numberOfNames = client->LoadNameList(argv[2]);
 
     // Set the name limit on the router and server
     router->SetNumberOfNames(numberOfNames);
     server->SetNumberOfNames(numberOfNames);
 
     // Create threads for the client, server, and router
+    // TODO(cawood): maybe pass the run functions files that are used to write results when done?
     pthread_t serverThread;
-    rc = pthread_create(&serverThread, NULL, server->Run(), NULL);
+    int result;
+    result = pthread_create(&serverThread, NULL, runServer, server);
+    if (result != 0) {
+        std::cerr << "Unable to create the server thread" << std::endl;
+    }
     pthread_t routerThread;
-    rc = pthread_create(&routerThread, NULL, router->Run(), NULL);
+    result  = pthread_create(&routerThread, NULL, runRouter, router);
+    if (result != 0) {
+        std::cerr << "Unable to create the router thread" << std::endl;
+    }
     pthread_t clientThread;
-    rc = pthread_create(&clientThread, NULL, client->Run(), NULL);
+    result = pthread_create(&clientThread, NULL, runClient, client);
+    if (result != 0) {
+        std::cerr << "Unable to create the client thread" << std::endl;
+    }
 
     // Run the client to completion
     void *status;
-    int result = pthread_join(serverThread, &status);
+    result = pthread_join(serverThread, &status);
     if (result != 0) {
         std::cerr << "Unable to join on the server thread" << std::endl;
     }
