@@ -44,11 +44,11 @@ link_directories(
         /usr/local/lib
     )
 
-set(fibtest_SOURCES
+set(perf_SOURCES
         ${libfib_SOURCES}
         src/fib-perf.c)
 
-set(FIBTEST_LIBRARIES
+set(libfib_LIBRARIES
         ccnx_common
         ccnx_api_portal
         ccnx_api_notify
@@ -62,15 +62,25 @@ set(FIBTEST_LIBRARIES
 
 macro(AddTest testFile)
     add_executable(${ARGV0} src/test/${ARGV0}.c ${libfib_SOURCES})
-    target_link_libraries(${ARGV0} ${FIBTEST_LIBRARIES})
+    target_link_libraries(${ARGV0} ${libfib_LIBRARIES})
     add_test(${ARGV0} ${ARGV0})
     install(TARGETS ${ARGV0} DESTINATION bin)
 endmacro(AddTest)
 
-add_executable(fib_perf ${fibtest_SOURCES})
-set_target_properties(fib_perf PROPERTIES COMPILE_FLAGS "-Wall -pg")
-target_link_libraries(fib_perf ${FIBTEST_LIBRARIES})
-install(TARGETS fib_perf DESTINATION bin)
+macro(AddBinary mainFile)
+    add_executable(${ARGV0} ${ARGV1} ${libfib_SOURCES})
+    set_target_properties(${ARGV0} PROPERTIES COMPILE_FLAGS "-Wall -pg")
+    target_link_libraries(${ARGV0} ${libfib_LIBRARIES})
+    install(TARGETS ${ARGV0} DESTINATION bin)
+endmacro(AddBinary)
+
+#add_executable(fib_perf ${perf_SOURCES})
+#set_target_properties(fib_perf PROPERTIES COMPILE_FLAGS "-Wall -pg")
+#target_link_libraries(fib_perf ${libfib_LIBRARIES})
+#install(TARGETS fib_perf DESTINATION bin)
+
+AddBinary(perf src/fib-perf.c)
+AddBinary(attack src/attack/driver.cpp)
 
 enable_testing()
 

@@ -92,6 +92,20 @@ name_CreateFromCString(char *uri)
     return name;
 }
 
+Name *
+name_CreateFromBuffer(PARCBuffer *buffer)
+{
+    Name *name = parcMemory_Allocate(sizeof(Name));
+    if (name != NULL) {
+        name->uri = NULL;
+        name->wireFormat = parcBuffer_Acquire(buffer);
+
+        // XXX: this will fail because we have not allocated the offset and size arrays
+        _createSegmentIndex(name);
+    }
+    return name;
+}
+
 void
 name_Destroy(Name **nameP)
 {

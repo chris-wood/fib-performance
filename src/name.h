@@ -13,6 +13,7 @@ struct name;
 typedef struct name Name;
 
 Name *name_CreateFromCString(char *uri);
+Name *name_CreateFromBuffer(PARCBuffer *buffer);
 void name_Destroy(Name **nameP);
 
 Name *name_Hash(Name *name, Hasher *hasher, int hashSize);
