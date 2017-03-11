@@ -17,7 +17,7 @@ public:
     void SetNumberOfNames(int num) {
         numberOfNames = num;
     }
-private:
+
     int sockfd;
     int numberOfNames;
     std::vector<struct timespec> times;

@@ -16,8 +16,6 @@ class AttackClient
 
     void Run();
 
-    private:
-
     std::vector<Name *> names;
     std::vector<struct timespec> times;
     int sockfd;

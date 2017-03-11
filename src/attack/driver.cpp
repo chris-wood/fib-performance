@@ -8,6 +8,7 @@
 
 #include "../fib.h"
 #include "../bitmap.h"
+#include "../timer.h"
 
 #include <sys/socket.h>
 #include <iostream>
@@ -20,11 +21,27 @@ ProcessResults(AttackClient *client, AttackServer *server)
 {
     // XXX: compute the time of send vs time of receive for each name
     // XXX: the difference will grow since R becomes saturated
+    for (int i = 0; i < client->times.size(); i++) {
+        struct timespec start = client->times.at(i);
+        struct timespec end = server->times.at(i);
+        std::cout << timeDelta(start, end) << std::endl;
+    }
+}
+
+static void
+usage()
+{
+    printf("usage: drive <load_file> <test_file>");
 }
 
 int
 main(int argc, char **argv)
 {
+    if (argc != 3) {
+        usage();
+        exit(-1);
+    }
+
     // Create the router
     // TODO(cawood): create the router
     Router *router = new Router(NULL);
@@ -95,4 +112,6 @@ main(int argc, char **argv)
 
     // Cleanup and exit
     pthread_exit(NULL);
+
+    return 0;
 }
