@@ -39,6 +39,12 @@ set(libfib_SOURCES
         src/bitmap.c
     )
 
+set(attack_SOURCES
+        src/attack/attack_client.cpp
+        src/attack/attack_server.cpp
+        src/attack/router.cpp
+    )
+
 link_directories(
         ${CCNX_LIB}
         /usr/local/lib
@@ -68,7 +74,7 @@ macro(AddTest testFile)
 endmacro(AddTest)
 
 macro(AddBinary mainFile)
-    add_executable(${ARGV0} ${ARGV1} ${libfib_SOURCES})
+    add_executable(${ARGV0} ${ARGV1} ${libfib_SOURCES} ${attack_SOURCES})
     set_target_properties(${ARGV0} PROPERTIES COMPILE_FLAGS "-Wall -pg")
     target_link_libraries(${ARGV0} ${libfib_LIBRARIES})
     install(TARGETS ${ARGV0} DESTINATION bin)

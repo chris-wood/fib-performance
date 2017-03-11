@@ -3,8 +3,16 @@
 //
 
 #include <vector>
+#include <iostream>
+#include <stdint.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "../name.h"
+#include "../timer.h"
 #include "attack_client.h"
 
 int
@@ -24,7 +32,7 @@ AttackClient::Run()
 
         // Serialize and send the name
         PARCBuffer *nameWireFormat = name_GetWireFormat(name, name_GetSegmentCount(name));
-        send(sock, parcBuffer_Overlay(nameWireFormat), parcBuffer_Remaining(nameWireFormat), 0);
+        send(sockfd, parcBuffer_Overlay(nameWireFormat, 0), parcBuffer_Remaining(nameWireFormat), 0);
 
         // Record the time it was sent
         struct timespec start = timerStart();

@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef fib_h_
 #define fib_h_
 
@@ -34,9 +38,15 @@ typedef struct {
 } FIBInterface;
 
 FIB *fib_Create(void *instance, FIBInterface *interface);
+
 void fib_Destroy(FIB **fibP);
 
 Bitmap *fib_LPM(FIB *map, const Name *ccnxName);
+
 bool fib_Insert(FIB *map, const Name *ccnxName, Bitmap *vector);
 
 #endif // fib_h_
+
+#ifdef __cplusplus
+}
+#endif

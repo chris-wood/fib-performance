@@ -1,6 +1,14 @@
-#include "../timer.h"
+#include <stdint.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <iostream>
 
-#define MAX_NAME_SIZE sizeof(uint16)
+#include "../timer.h"
+#include "attack_server.h"
+
+#define MAX_NAME_SIZE sizeof(uint16_t)
 
 void
 AttackServer::Run()
@@ -8,14 +16,14 @@ AttackServer::Run()
     uint8_t nameBuffer[MAX_NAME_SIZE];
     for (int i = 0; i < numberOfNames; i++) {
         // Peek at the length of the name TLV
-        if (read(sockfd, nameBufferbuf, 4, 0) < 0) {
+        if (read(sockfd, nameBuffer, 4) < 0) {
             std::cerr << "failed to read the header of name " << i << " from the socket" << std::endl;
             return;
         }
 
         // Read the rest of the name
-        uin16_t length = (((uint16_t)nameBuffer[2]) << 8) | (uint16_t)nameBuffer[3];
-        if (read(sockfd, nameBufferbuf, length, 4) < 0) {
+        uint16_t length = (((uint16_t)nameBuffer[2]) << 8) | (uint16_t)nameBuffer[3];
+        if (read(sockfd, nameBuffer, length) < 0) {
             std::cerr << "failed to read the body of name " << i << " from the socket" << std::endl;
             return;
         }

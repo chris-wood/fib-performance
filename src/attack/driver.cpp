@@ -6,6 +6,9 @@
 #include "attack_client.h"
 #include "attack_server.h"
 
+#include "../fib.h"
+#include "../bitmap.h"
+
 #include <sys/socket.h>
 #include <iostream>
 #include <pthread.h>

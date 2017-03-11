@@ -1,6 +1,7 @@
-//
-// Created by Christopher Wood on 12/9/16.
-//
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #ifndef FIB_PERF_TIMER_H
 #define FIB_PERF_TIMER_H
@@ -13,3 +14,7 @@ Timestamp timerStart(void);
 long timerEnd(Timestamp startTime);
 
 #endif //FIB_PERF_TIMER_H
+
+#ifdef __cplusplus
+}
+#endif

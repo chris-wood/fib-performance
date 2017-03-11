@@ -1,6 +1,6 @@
-//
-// Created by caw on 11/29/16.
-//
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef FIB_PERF_MERGED_BLOOM_H
 #define FIB_PERF_MERGED_BLOOM_H
@@ -21,3 +21,7 @@ bool fibMergedFilter_Insert(FIBMergedFilter *filter, Name *name, Bitmap *vector)
 Bitmap *fibMergedFilter_LPM(FIBMergedFilter *filter, Name *name);
 
 #endif //FIB_PERF_MERGED_BLOOM_H
+
+#ifdef __cplusplus
+}
+#endif

@@ -9,7 +9,7 @@ class AttackClient
 {
     public:
     AttackClient(int sock) {
-        socket = sock;
+        sockfd = sock;
     }
 
     int LoadNameList(char *nameFile);
@@ -20,7 +20,7 @@ class AttackClient
 
     std::vector<Name *> names;
     std::vector<struct timespec> times;
-    int socket;
+    int sockfd;
     int numNames;
     char *prefix;
 };

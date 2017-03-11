@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef fib_tbf_h
 #define fib_tbf_h
 
@@ -14,4 +18,8 @@ extern FIBInterface *TBFAsFIB;
 bool fibTBF_Insert(FIBTBF *fib, const Name *name, Bitmap *vector);
 Bitmap *fibTBF_LPM(FIBTBF *fib, const Name *name);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif

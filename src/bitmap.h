@@ -2,6 +2,11 @@
 // Created by Christopher Wood on 12/9/16.
 //
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #ifndef FIB_PERF_BITMAP_H
 #define FIB_PERF_BITMAP_H
 
@@ -12,14 +17,25 @@ struct bitmap;
 typedef struct bitmap Bitmap;
 
 Bitmap *bitmap_Create(int size);
+
 void bitmap_Destroy(Bitmap **bitmapP);
+
 void bitmap_Display(Bitmap *bitmap);
 
 bool bitmap_Get(Bitmap *bitmap, int bit);
+
 bool bitmap_Contains(Bitmap *bitmap, Bitmap *other);
+
 bool bitmap_Equals(Bitmap *bitmap, Bitmap *other);
+
 void bitmap_Set(Bitmap *bitmap, int bit);
+
 void bitmap_SetVector(Bitmap *bitmap, Bitmap *other);
+
 void bitmap_Clear(Bitmap *bitmap, int bit);
 
 #endif //FIB_PERF_BITMAP_H
+
+#ifdef __cplusplus
+}
+#endif
