@@ -8,15 +8,13 @@
 #include "../timer.h"
 #include "attack_server.h"
 
-#define MAX_NAME_SIZE sizeof(uint16_t)
+#define MAX_NAME_SIZE 64000
 
 void
 AttackServer::Run()
 {
     uint8_t nameBuffer[MAX_NAME_SIZE];
     for (int i = 0; i < numberOfNames; i++) {
-        std::cout << "server processing name " << i << std::endl;
-
         // Peek at the length of the name TLV
         if (read(sockfd, nameBuffer, 2) < 0) {
             std::cerr << "failed to read the header of name " << i << " from the socket" << std::endl;
@@ -30,6 +28,7 @@ AttackServer::Run()
             return;
         }
 
+        // Record the time of receipt
         struct timespec now = timerStart();
         times.push_back(now);
     }

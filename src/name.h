@@ -44,6 +44,8 @@ uint8_t *name_GetBuffer(const Name *name);
 
 void name_AssertIsValid(const Name *name);
 
+void name_Display(const Name *name);
+
 PARCBuffer *name_XORSegment(const Name *name, int index, PARCBuffer *vector);
 
 #endif // FIB_PERF_NAME_H

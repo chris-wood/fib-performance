@@ -24,12 +24,10 @@ using namespace std;
 void
 ProcessResults(AttackClient *client, AttackServer *server)
 {
-    // XXX: compute the time of send vs time of receive for each name
-    // XXX: the difference will grow since R becomes saturated
     for (int i = 0; i < client->times.size(); i++) {
         struct timespec start = client->times.at(i);
         struct timespec end = server->times.at(i);
-        std::cout << timeDelta(start, end) << std::endl;
+        std::cout << i << "," << timeDelta(start, end) << std::endl;
     }
 }
 

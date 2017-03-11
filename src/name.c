@@ -59,9 +59,10 @@ _countSegmentsFromWireFormat(PARCBuffer *buffer)
     uint8_t *overlay = parcBuffer_Overlay(buffer, 0);
     int offset = 0;
     int limit = parcBuffer_Remaining(buffer);
+
     int segments = 0;
     while (offset < limit) {
-        uint16_t length = ((uint16_t)overlay[2]) << 8 | (uint16_t)overlay[3];
+        uint16_t length = (((uint16_t)overlay[offset + 2]) << 8) | (uint16_t)overlay[offset + 3];
         offset += 4 + length;
         segments++;
     }
@@ -72,27 +73,20 @@ static void
 _createSegmentIndex(Name *name)
 {
     int offset = 0;
-    int totalSize = parcBuffer_Remaining(name->wireFormat);
     int segmentIndex = 0;
 
-    size_t position = parcBuffer_Position(name->wireFormat);
-
-    while (offset < totalSize) {
+    uint8_t *base = parcBuffer_Overlay(name->wireFormat, 0);
+    for (int i = 0; i < name->numSegments; i++) {
+        // Set the component offset
         name->offsets[segmentIndex] = offset;
 
-        // Swallow the type
-        parcBuffer_GetUint16(name->wireFormat);
-
-        // Extract the size
-        uint16_t size = parcBuffer_GetUint16(name->wireFormat);
-
+        // Extract and set the size of this component
+        uint16_t size = (((uint16_t)base[offset + 2]) << 8) | (uint16_t)base[offset + 3];
         name->sizes[segmentIndex++] = size;
 
-        parcBuffer_SetPosition(name->wireFormat, parcBuffer_Position(name->wireFormat) + size);
+        // Advance past this name component
         offset += 4 + size;
     }
-
-    parcBuffer_SetPosition(name->wireFormat, position);
 }
 
 Name *
@@ -172,12 +166,6 @@ bool
 name_IsHashed(const Name *name)
 {
     return name->isHashed;
-}
-
-void
-name_Display(const Name *name)
-{
-    printf("%s\n", name->uri);
 }
 
 char *
@@ -267,4 +255,15 @@ name_XORSegment(const Name *name, int index, PARCBuffer *vector)
         result[i] = vectorBuffer[i] ^ sourceSegment[i];
     }
     return xor;
+}
+
+void
+name_Display(const Name *name)
+{
+    printf("Number of segments: %d\n", name->numSegments);
+    printf("Offsets and sizes:\n");
+    for (size_t i = 0; i < name->numSegments; i++) {
+        printf("\t %d: %d\n", name->offsets[i], name->sizes[i]);
+    }
+    printf("\n");
 }

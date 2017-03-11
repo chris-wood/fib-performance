@@ -28,11 +28,8 @@ AttackClient::LoadNames(NameReader *reader)
 void
 AttackClient::Run()
 {
-    int i = 0;
     uint8_t sizeBuffer[2];
     for (std::vector<Name *>::iterator itr = names.begin(); itr != names.end(); itr++) {
-        std::cout << "client processing name " << i++ << std::endl;
-
         Name *name = *itr;
 
         // Serialize and send the name
@@ -42,14 +39,14 @@ AttackClient::Run()
 
         sizeBuffer[0] = (nameLength >> 8) & 0xFF;
         sizeBuffer[1] = (nameLength >> 0) & 0xFF;
-        std::cout << "sending a name of length " << nameLength << std::endl;
-
-        send(sockfd, (void *) sizeBuffer, sizeof(sizeBuffer), 0);
-        send(sockfd, (void *) nameBuffer, nameLength, 0);
 
         // Record the time it was sent
         struct timespec start = timerStart();
         times.push_back(start);
+
+        // Send it
+        send(sockfd, (void *) sizeBuffer, sizeof(sizeBuffer), 0);
+        send(sockfd, (void *) nameBuffer, nameLength, 0);
     }
 }
 

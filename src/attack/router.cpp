@@ -24,7 +24,7 @@ Router::ConnectSource(int sock)
     sourcefd = sock;
 }
 
-#define MAX_NAME_SIZE sizeof(uint16_t)
+#define MAX_NAME_SIZE 64000
 
 void
 Router::LoadNames(NameReader *reader)
@@ -33,7 +33,6 @@ Router::LoadNames(NameReader *reader)
     int capacity = 10;
     while (nameReader_HasNext(reader)) {
         Name *name = nameReader_Next(reader);
-        printf("Inserting: %s\n", name_GetNameString(name));
         Bitmap *vector = bitmap_Create(32);
         bitmap_Set(vector, index++);
         fib_Insert(fib, name, vector);
@@ -46,8 +45,6 @@ Router::Run()
 {
     uint8_t nameBuffer[MAX_NAME_SIZE];
     for (int i = 0; i < numberOfNames; i++) {
-        std::cout << "router processing name " << i << std::endl;
-
         // Peek at the length of the name TLV
         if (read(sourcefd, nameBuffer, 2) < 0) {
             std::cerr << "failed to read the header of name " << i << " from the socket" << std::endl;
@@ -56,7 +53,6 @@ Router::Run()
 
         // Read the rest of the name
         uint16_t length = (((uint16_t)nameBuffer[0]) << 8) | (uint16_t)nameBuffer[1];
-        std::cout << "reading a name of length " << length << std::endl;
         if (read(sourcefd, nameBuffer + 2, length) < 0) {
             std::cerr << "failed to read the contents of name " << i << " from the socket" << std::endl;
             return;
@@ -69,6 +65,8 @@ Router::Run()
         // Index the name into the FIB -- don't do anything with it though.
         // We're just estimating the time it takes to perform this operation
         Bitmap *output = fib_LPM(fib, name);
+        name_Destroy(&name);
+        parcBuffer_Release(&wireFormat);
         // XXX: assert the outut is not NULL
         // XXX: use the output bitmap to send to the right socket(s)
 
