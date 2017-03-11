@@ -73,15 +73,13 @@ fibNaive_Insert(FIBNaive *fib, const Name *name, Bitmap *vector)
 
     _fibNative_ExpandMapsToSize(fib, numSegments);
 
-    for (size_t i = 0; i < numSegments; i++) {
-        PARCBuffer *buffer = name_GetWireFormat(name, i + 1);
-        if (name_IsHashed(name)) {
-            map_InsertHashed(fib->maps[i], buffer, (void *) vector);
-        } else {
-            map_Insert(fib->maps[i], buffer, (void *) vector);
-        }
-        parcBuffer_Release(&buffer);
+    PARCBuffer *buffer = name_GetWireFormat(name, numSegments);
+    if (name_IsHashed(name)) {
+        map_InsertHashed(fib->maps[numSegments - 1], buffer, (void *) vector);
+    } else {
+        map_Insert(fib->maps[numSegments - 1], buffer, (void *) vector);
     }
+    parcBuffer_Release(&buffer);
 
     return true;
 }

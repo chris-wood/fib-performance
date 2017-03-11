@@ -2,6 +2,7 @@
 #define ATTACK_CLIENT_H_
 
 #include <vector>
+#include "../name_reader.h"
 
 using namespace std;
 
@@ -12,7 +13,7 @@ class AttackClient
         sockfd = sock;
     }
 
-    int LoadNameList(char *nameFile);
+    int LoadNames(NameReader *reader);
 
     void Run();
 

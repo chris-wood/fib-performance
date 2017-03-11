@@ -57,7 +57,7 @@ _addCount(TimedResultSet *set, int count)
     set->count = count;
 }
 
-PARCBufferComposer *
+static PARCBufferComposer *
 readLine(FILE *fp)
 {
     PARCBufferComposer *composer = parcBufferComposer_Create();

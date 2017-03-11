@@ -6,9 +6,14 @@
 #include "attack_client.h"
 #include "attack_server.h"
 
+#include <parc/algol/parc_SafeMemory.h>
+#include <parc/algol/parc_BufferComposer.h>
+#include <parc/statistics/parc_BasicStats.h>
+
 #include "../fib.h"
 #include "../bitmap.h"
 #include "../timer.h"
+#include "../fib_cisco.h"
 
 #include <sys/socket.h>
 #include <iostream>
@@ -42,12 +47,16 @@ main(int argc, char **argv)
         exit(-1);
     }
 
-    // Create the router
-    // TODO(cawood): create the router
-    Router *router = new Router(NULL);
+    // Create the router FIB
+    FIBCisco *ciscoFIB = fibCisco_Create(3);
+    FIB *fib = fib_Create(ciscoFIB, CiscoFIBAsFIB);
+
+    // Create the router and populate it with names
+    Router *router = new Router(fib);
+    NameReader *loadReader = nameReader_CreateFromFile(argv[1], NULL);
+    router->LoadNames(loadReader);
 
     // Create the upstream socket pair
-    // XXX: http://osr507doc.xinuos.com/en/netguide/dusockD.socketpairs_codetext.html
     int sinksockets[2] = {0};
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sinksockets) < 0) {
         std::cerr << "Failed to create the sink socket pair" << std::endl;
@@ -55,16 +64,12 @@ main(int argc, char **argv)
     }
 
     // Create the server
-    AttackServer *server = new AttackServer(sinksockets[1]);
+    AttackServer *server = new AttackServer(sinksockets[0]);
 
     // Create the BitVector corresponding to this socket
     // The size of the output bitmap is not important
     Bitmap *outputMap = bitmap_Create(16);
     bitmap_Set(outputMap, 1);
-
-    // Use the load file to populate the router with names
-    char *loadFile = argv[1];
-    // XXX: insert each prefix into the router, with the bit vector from above
 
     // Create the source socket
     int sourcesockets[2] = {0};
@@ -75,11 +80,18 @@ main(int argc, char **argv)
 
     // Create the client and build the name list
     AttackClient *client = new AttackClient(sourcesockets[0]);
-    int numberOfNames = client->LoadNameList(argv[2]);
+    NameReader *reader = nameReader_CreateFromFile(argv[2], NULL);
+    int numberOfNames = client->LoadNames(reader);
+
+    // Connect the router to the sockets
+    router->ConnectSource(sourcesockets[1]);
+    router->ConnectSink(sinksockets[1]);
 
     // Set the name limit on the router and server
     router->SetNumberOfNames(numberOfNames);
     server->SetNumberOfNames(numberOfNames);
+
+    std::cout << "Routers loaded -- starting the threads" << std::endl;
 
     // Create threads for the client, server, and router
     // TODO(cawood): maybe pass the run functions files that are used to write results when done?

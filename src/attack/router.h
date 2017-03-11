@@ -4,6 +4,7 @@
 #include "../fib.h"
 #include "../name.h"
 #include "../bitmap.h"
+#include "../name_reader.h"
 
 class Router
 {
@@ -12,7 +13,7 @@ public:
         fib = theFib;
     }
 
-    void InsertNamePrefix(Name *prefix, Bitmap *vector);
+    void LoadNames(NameReader *reader);
 
     void ConnectSource(int sock);
     void ConnectSink(int sock);
@@ -22,7 +23,7 @@ public:
     }
 
     void Run();
-private:
+
     FIB *fib;
     int numberOfNames;
     int sourcefd;

@@ -37,6 +37,7 @@ set(libfib_SOURCES
         src/prefix_bloom.c
         src/timer.c
         src/bitmap.c
+        src/name_reader.c
     )
 
 set(attack_SOURCES

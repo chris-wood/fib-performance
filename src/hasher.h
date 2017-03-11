@@ -30,6 +30,8 @@ void hasher_Destroy(Hasher **hasherP);
 
 PARCBuffer *hasher_Hash(Hasher *hasher, PARCBuffer *input);
 
+PARCBuffer *hasher_HashTruncated(Hasher *hasher, PARCBuffer *input, int limit);
+
 PARCBuffer *hasher_HashArray(Hasher *hasher, size_t length, uint8_t input[length]);
 
 Bitmap *hasher_HashToVector(Hasher *hasher, PARCBuffer *input, int range);

@@ -16,23 +16,35 @@
 #include "attack_client.h"
 
 int
-AttackClient::LoadNameList(char *nameFile)
+AttackClient::LoadNames(NameReader *reader)
 {
-    // XXX: read the name list from the file
-
-    return 0;
+    while (nameReader_HasNext(reader)) {
+        Name *name = nameReader_Next(reader);
+        names.push_back(name);
+    }
+    return names.size();
 }
 
 void
 AttackClient::Run()
 {
-    // TODO(caw): finish me
+    int i = 0;
     for (std::vector<Name *>::iterator itr = names.begin(); itr != names.end(); itr++) {
+        std::cout << "client processing name " << i++ << std::endl;
+
         Name *name = *itr;
 
         // Serialize and send the name
         PARCBuffer *nameWireFormat = name_GetWireFormat(name, name_GetSegmentCount(name));
-        send(sockfd, parcBuffer_Overlay(nameWireFormat, 0), parcBuffer_Remaining(nameWireFormat), 0);
+        uint8_t *nameBuffer = (uint8_t *) parcBuffer_Overlay(nameWireFormat, 0);
+        size_t nameLength = parcBuffer_Remaining(nameWireFormat);
+
+        for (size_t i = 0; i < nameLength; i++) {
+            printf("%02x ", nameBuffer[i]);
+        }
+        printf("\n");
+
+        send(sockfd, (void *) nameBuffer, nameLength, 0);
 
         // Record the time it was sent
         struct timespec start = timerStart();

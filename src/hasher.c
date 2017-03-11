@@ -28,7 +28,7 @@ hasher_Destroy(Hasher **hasherP)
 {
     Hasher *hasher = *hasherP;
     hasher->interface->Destroy(&hasher->instance);
-    free(hasherP);
+    free(hasher);
     *hasherP = NULL;
 }
 
@@ -54,4 +54,12 @@ Bitmap *
 hasher_HashArrayToVector(Hasher *hasher, size_t length, uint8_t input[length], int range)
 {
     return hasher->interface->HashArrayToVector(hasher, length, input, range);
+}
+
+PARCBuffer *
+hasher_HashTruncated(Hasher *hasher, PARCBuffer *input, int limit)
+{
+    PARCBuffer *hash = hasher_Hash(hasher, input);
+    parcBuffer_SetLimit(hash, limit);
+    return hash;
 }
