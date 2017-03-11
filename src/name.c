@@ -23,16 +23,18 @@ struct name {
     int *sizes;
 };
 
-static void
-_encodeNameToWireFormat(Name *name)
+static PARCBuffer *
+_encodeNameToWireFormat(char *uri)
 {
-    CCNxName *ccnxName = ccnxName_CreateFromCString(name->uri);
-    if (ccnxName != NULL) {
-        name->numSegments = ccnxName_GetSegmentCount(ccnxName);
-        name->offsets = parcMemory_Allocate(sizeof(int) * name->numSegments);
-        name->sizes = parcMemory_Allocate(sizeof(int) * name->numSegments);
-        name->isHashed = false;
+    PARCBuffer *buffer = NULL;
+    CCNxName *ccnxName = ccnxName_CreateFromCString(uri);
 
+    if (ccnxName_GetSegmentCount(ccnxName) == 0) {
+        ccnxName_Release(&ccnxName);
+        return NULL;
+    }
+
+    if (ccnxName != NULL) {
         CCNxCodecTlvEncoder *codec = ccnxCodecTlvEncoder_Create();
         ccnxCodecTlvEncoder_Initialize(codec);
 
@@ -40,22 +42,20 @@ _encodeNameToWireFormat(Name *name)
         assertTrue(numBytes > 0, "Failed to encode the name: %lu", numBytes);
 
         ccnxCodecTlvEncoder_Finalize(codec);
-        PARCBuffer *buffer = ccnxCodecTlvEncoder_CreateBuffer(codec);
+        buffer = ccnxCodecTlvEncoder_CreateBuffer(codec);
         parcBuffer_SetPosition(buffer, parcBuffer_Position(buffer) + 4); // skip past the TL container header
 
-        ccnxCodecTlvEncoder_Destroy(&codec);
-
-        name->wireFormat = parcBuffer_Acquire(buffer);
-        parcBuffer_Release(&buffer);
         ccnxName_Release(&ccnxName);
-
-        assertTrue(parcBuffer_IsValid(name->wireFormat), "Expected the wire format to be created correctly");
+        assertTrue(parcBuffer_IsValid(buffer), "Expected the wire format to be created correctly");
     }
+    return buffer;
 }
 
 static int
-_countSegmentsFromWireFormat(PARCBuffer *buffer)
+_countSegmentsFromWireFormat(Name *name)
 {
+    PARCBuffer *buffer = name->wireFormat;
+
     uint8_t *overlay = parcBuffer_Overlay(buffer, 0);
     int offset = 0;
     int limit = parcBuffer_Remaining(buffer);
@@ -92,13 +92,13 @@ _createSegmentIndex(Name *name)
 Name *
 name_CreateFromCString(char *uri)
 {
-    Name *name = parcMemory_Allocate(sizeof(Name));
-    if (name != NULL) {
+    PARCBuffer *buffer = _encodeNameToWireFormat(uri);
+    if (buffer != NULL) {
+        Name *name = name_CreateFromBuffer(buffer);
         name->uri = parcMemory_StringDuplicate(uri, strlen(uri));
-        _encodeNameToWireFormat(name);
-        _createSegmentIndex(name);
+        return name;
     }
-    return name;
+    return NULL;
 }
 
 Name *
@@ -108,7 +108,7 @@ name_CreateFromBuffer(PARCBuffer *buffer)
     if (name != NULL) {
         name->uri = NULL;
         name->wireFormat = parcBuffer_Acquire(buffer);
-        name->numSegments = _countSegmentsFromWireFormat(buffer);
+        name->numSegments = _countSegmentsFromWireFormat(name);
         name->offsets = parcMemory_Allocate(sizeof(int) * name->numSegments);
         name->sizes = parcMemory_Allocate(sizeof(int) * name->numSegments);
         _createSegmentIndex(name);

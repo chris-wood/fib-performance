@@ -34,7 +34,7 @@ ProcessResults(AttackClient *client, AttackServer *server)
 static void
 usage()
 {
-    printf("usage: drive <load_file> <test_file>");
+    std::cout << "usage: drive <load_file> <test_file>" << std::endl;
 }
 
 int
