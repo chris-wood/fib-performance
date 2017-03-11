@@ -29,6 +29,7 @@ void
 AttackClient::Run()
 {
     int i = 0;
+    uint8_t sizeBuffer[2];
     for (std::vector<Name *>::iterator itr = names.begin(); itr != names.end(); itr++) {
         std::cout << "client processing name " << i++ << std::endl;
 
@@ -39,11 +40,11 @@ AttackClient::Run()
         uint8_t *nameBuffer = (uint8_t *) parcBuffer_Overlay(nameWireFormat, 0);
         size_t nameLength = parcBuffer_Remaining(nameWireFormat);
 
-        for (size_t i = 0; i < nameLength; i++) {
-            printf("%02x ", nameBuffer[i]);
-        }
-        printf("\n");
+        sizeBuffer[0] = (nameLength >> 8) & 0xFF;
+        sizeBuffer[1] = (nameLength >> 0) & 0xFF;
+        std::cout << "sending a name of length " << nameLength << std::endl;
 
+        send(sockfd, (void *) sizeBuffer, sizeof(sizeBuffer), 0);
         send(sockfd, (void *) nameBuffer, nameLength, 0);
 
         // Record the time it was sent

@@ -53,6 +53,21 @@ _encodeNameToWireFormat(Name *name)
     }
 }
 
+static int
+_countSegmentsFromWireFormat(PARCBuffer *buffer)
+{
+    uint8_t *overlay = parcBuffer_Overlay(buffer, 0);
+    int offset = 0;
+    int limit = parcBuffer_Remaining(buffer);
+    int segments = 0;
+    while (offset < limit) {
+        uint16_t length = ((uint16_t)overlay[2]) << 8 | (uint16_t)overlay[3];
+        offset += 4 + length;
+        segments++;
+    }
+    return segments;
+}
+
 static void
 _createSegmentIndex(Name *name)
 {
@@ -99,8 +114,9 @@ name_CreateFromBuffer(PARCBuffer *buffer)
     if (name != NULL) {
         name->uri = NULL;
         name->wireFormat = parcBuffer_Acquire(buffer);
-
-        // XXX: this will fail because we have not allocated the offset and size arrays
+        name->numSegments = _countSegmentsFromWireFormat(buffer);
+        name->offsets = parcMemory_Allocate(sizeof(int) * name->numSegments);
+        name->sizes = parcMemory_Allocate(sizeof(int) * name->numSegments);
         _createSegmentIndex(name);
     }
     return name;

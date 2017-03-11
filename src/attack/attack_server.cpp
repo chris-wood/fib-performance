@@ -18,13 +18,13 @@ AttackServer::Run()
         std::cout << "server processing name " << i << std::endl;
 
         // Peek at the length of the name TLV
-        if (read(sockfd, nameBuffer, 4) < 0) {
+        if (read(sockfd, nameBuffer, 2) < 0) {
             std::cerr << "failed to read the header of name " << i << " from the socket" << std::endl;
             return;
         }
 
         // Read the rest of the name
-        uint16_t length = (((uint16_t)nameBuffer[2]) << 8) | (uint16_t)nameBuffer[3];
+        uint16_t length = (((uint16_t)nameBuffer[0]) << 8) | (uint16_t)nameBuffer[1];
         if (read(sockfd, nameBuffer, length) < 0) {
             std::cerr << "failed to read the body of name " << i << " from the socket" << std::endl;
             return;

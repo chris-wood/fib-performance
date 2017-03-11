@@ -24,7 +24,7 @@ Router::ConnectSource(int sock)
     sourcefd = sock;
 }
 
-#define MAX_NAME_SIZE 1000
+#define MAX_NAME_SIZE sizeof(uint16_t)
 
 void
 Router::LoadNames(NameReader *reader)
@@ -49,32 +49,32 @@ Router::Run()
         std::cout << "router processing name " << i << std::endl;
 
         // Peek at the length of the name TLV
-        if (read(sourcefd, nameBuffer, 4) < 0) {
+        if (read(sourcefd, nameBuffer, 2) < 0) {
             std::cerr << "failed to read the header of name " << i << " from the socket" << std::endl;
             return;
         }
 
         // Read the rest of the name
-        uint16_t length = (((uint16_t)nameBuffer[2]) << 8) | (uint16_t)nameBuffer[3];
-        int remaining = 0;
-        int numread = read(sourcefd, nameBuffer, length);
-
-//        if ( < 0) {
-//            std::cerr << "failed to read the body of name " << i << " from the socket" << std::endl;
-//            return;
-//        }
+        uint16_t length = (((uint16_t)nameBuffer[0]) << 8) | (uint16_t)nameBuffer[1];
+        std::cout << "reading a name of length " << length << std::endl;
+        if (read(sourcefd, nameBuffer + 2, length) < 0) {
+            std::cerr << "failed to read the contents of name " << i << " from the socket" << std::endl;
+            return;
+        }
 
         // Reconstruct the name
-        PARCBuffer *nameBuffer = parcBuffer_Wrap(nameBuffer, length + 4, 0, length + 4);
-        Name *name = name_CreateFromBuffer(nameBuffer);
+        PARCBuffer *wireFormat = parcBuffer_Wrap(nameBuffer + 2, length, 0, length);
+        Name *name = name_CreateFromBuffer(wireFormat);
 
-        // Index the name into the FIB
+        // Index the name into the FIB -- don't do anything with it though.
+        // We're just estimating the time it takes to perform this operation
         Bitmap *output = fib_LPM(fib, name);
         // XXX: assert the outut is not NULL
         // XXX: use the output bitmap to send to the right socket(s)
 
         // Blindly write the name to the output socket
-        if (write(sinkfd, nameBuffer, length + 4) < 0) {
+        write(sinkfd, nameBuffer, 2); // write the size and then the rest of the name
+        if (write(sinkfd, nameBuffer + 2, length) < 0) {
             std::cerr << "failed to write name " << i << " to the sink socket" << std::endl;
         }
     }
