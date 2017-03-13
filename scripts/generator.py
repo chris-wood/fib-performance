@@ -71,31 +71,31 @@ NUM_SEGMENTS_STDEV = 8.14
 SEGMENT_LENGTH_MEAN = 10.39
 SEGMENT_LENGTH_STDEV = 30.02
 
-def segment_sampler(number):
+def segment_sampler(number, weight = 1.0):
     global NUM_SEGMENTS_MEAN
     global NUM_SEGMENTS_STDEV
 
-    value = int(random.normalvariate(NUM_SEGMENTS_MEAN, NUM_SEGMENTS_STDEV)) # values from Unibas data set -- fixed for now
+    value = int(random.normalvariate(NUM_SEGMENTS_MEAN * weight, NUM_SEGMENTS_STDEV)) # values from Unibas data set -- fixed for now
     delta = value - number
     count = 0
     while delta < 0:
         count += 1
-        value = int(random.normalvariate(NUM_SEGMENTS_MEAN + count, NUM_SEGMENTS_STDEV)) # values from Unibas data set -- fixed for now
+        value = int(random.normalvariate((NUM_SEGMENTS_MEAN * weight)+ count, NUM_SEGMENTS_STDEV)) # values from Unibas data set -- fixed for now
         delta = value - number
     return delta
 
-def segment_length_sampler():
+def segment_length_sampler(weight = 1.0):
     global SEGMENT_LENGTH_MEAN
     global SEGMENT_LENGTH_STDEV
 
-    value = int(random.normalvariate(SEGMENT_LENGTH_MEAN, SEGMENT_LENGTH_STDEV)) # values from Unibas data set -- fixed for now
+    value = int(random.normalvariate((SEGMENT_LENGTH_MEAN * 1.0), SEGMENT_LENGTH_STDEV)) # values from Unibas data set -- fixed for now
     count = 0
     while value < 0:
         count += 1
-        value = int(random.normalvariate(SEGMENT_LENGTH_MEAN + count, SEGMENT_LENGTH_STDEV)) # values from Unibas data set -- fixed for now
+        value = int(random.normalvariate((SEGMENT_LENGTH_MEAN * 1.0) + count, SEGMENT_LENGTH_STDEV)) # values from Unibas data set -- fixed for now
     return value
 
-def generate_test(load, increase_factor):
+def generate_test(load, increase_factor, component_weight = 1.0, number_weight = 1.0):
     base_names = []
     count = 0
     for line in sys.stdin:
@@ -111,7 +111,7 @@ def generate_test(load, increase_factor):
 
     for i in range(total):
         index = random.randint(0, count - 1)
-        name = extend_name(base_names[index], segment_sampler, segment_length_sampler)
+        name = extend_name(base_names[index], lambda n : segment_sampler(n, number_weight), lambda : segment_length_sampler(component_weight))
         print name
 
 def usage(args):
@@ -129,7 +129,13 @@ def main(args):
         generate_load(load)
     elif cmd == "test":
         factor = int(args[3])
-        generate_test(load, factor)
+        component_expansion = 1.0
+        number_expansion = 1.0
+        if len(args) >= 5:
+            component_expansion = float(args[4])
+        if len(args) >= 6:
+            number_expansion = float(args[5])
+        generate_test(load, factor, component_expansion, number_expansion)
     else:
         usage(args)
 
