@@ -18,14 +18,14 @@ AttackServer::Run()
         // Peek at the length of the name TLV
         if (read(sockfd, nameBuffer, 2) < 0) {
             std::cerr << "failed to read the header of name " << i << " from the socket" << std::endl;
-            return;
+            continue;
         }
 
         // Read the rest of the name
         uint16_t length = (((uint16_t)nameBuffer[0]) << 8) | (uint16_t)nameBuffer[1];
         if (read(sockfd, nameBuffer, length) < 0) {
             std::cerr << "failed to read the body of name " << i << " from the socket" << std::endl;
-            return;
+            continue;
         }
 
         // Record the time of receipt

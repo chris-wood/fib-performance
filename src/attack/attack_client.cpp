@@ -29,6 +29,7 @@ void
 AttackClient::Run()
 {
     uint8_t sizeBuffer[2];
+    int index = 0;
     for (std::vector<Name *>::iterator itr = names.begin(); itr != names.end(); itr++) {
         Name *name = *itr;
 
@@ -45,8 +46,14 @@ AttackClient::Run()
         times.push_back(start);
 
         // Send it
-        send(sockfd, (void *) sizeBuffer, sizeof(sizeBuffer), 0);
-        send(sockfd, (void *) nameBuffer, nameLength, 0);
+        if (send(sockfd, (void *) sizeBuffer, sizeof(sizeBuffer), 0) != sizeof(sizeBuffer)) {
+//            std::cerr << "failed to send packet " << index << std::endl;
+        }
+        if (send(sockfd, (void *) nameBuffer, nameLength, 0) != nameLength) {
+//            std::cerr << "failed to send packet " << index << std::endl;
+//            perror("Error!");
+        }
+        index++;
     }
 }
 

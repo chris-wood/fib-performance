@@ -3,7 +3,9 @@
 //
 
 #include "router.h"
+#include "../timer.h"
 #include <iostream>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
@@ -26,56 +28,104 @@ Router::ConnectSource(int sock)
 
 #define MAX_NAME_SIZE 64000
 
-void
+int
 Router::LoadNames(NameReader *reader)
+{
+    return LoadHashedNames(reader, NULL);
+}
+
+int
+Router::LoadTestNames(NameReader *reader)
+{
+    return LoadHashedTestNames(reader, NULL);
+}
+
+int
+Router::LoadHashedNames(NameReader *reader, Hasher *hasher)
 {
     int index = 0;
     int capacity = 10;
     while (nameReader_HasNext(reader)) {
         Name *name = nameReader_Next(reader);
+
+        if (hasher != NULL) {
+            Name *newName = name_Hash(name, hasher, 32);
+            name_Destroy(&name);
+            name = newName;
+        }
+
         Bitmap *vector = bitmap_Create(32);
-        bitmap_Set(vector, index++);
+        bitmap_Set(vector, index % capacity);
         fib_Insert(fib, name, vector);
-        index &= capacity - 1;
+        index++;
     }
+    return index;
+}
+
+int
+Router::LoadHashedTestNames(NameReader *reader, Hasher *hasher)
+{
+    while (nameReader_HasNext(reader)) {
+        Name *name = nameReader_Next(reader);
+
+        if (hasher != NULL) {
+            Name *newName = name_Hash(name, hasher, 32);
+            name_Destroy(&name);
+            name = newName;
+        }
+
+        names.push_back(name);
+    }
+    return names.size();
 }
 
 void
 Router::Run()
 {
     uint8_t nameBuffer[MAX_NAME_SIZE];
-    for (int i = 0; i < numberOfNames; i++) {
-        // Peek at the length of the name TLV
-        if (read(sourcefd, nameBuffer, 2) < 0) {
-            std::cerr << "failed to read the header of name " << i << " from the socket" << std::endl;
-            return;
-        }
 
-        // Read the rest of the name
-        uint16_t length = (((uint16_t)nameBuffer[0]) << 8) | (uint16_t)nameBuffer[1];
-        if (read(sourcefd, nameBuffer + 2, length) < 0) {
-            std::cerr << "failed to read the contents of name " << i << " from the socket" << std::endl;
-            return;
-        }
+    for (std::vector<Name *>::iterator itr = names.begin(); itr != names.end(); itr++) {
+        Name *name = *itr;
+
+        // Serialize and send the name
+        PARCBuffer *nameWireFormat = name_GetWireFormat(name, name_GetSegmentCount(name));
+        uint8_t *nameBuffer = (uint8_t *) parcBuffer_Overlay(nameWireFormat, 0);
+        size_t nameLength = parcBuffer_Remaining(nameWireFormat);
 
         // Reconstruct the name
-        PARCBuffer *wireFormat = parcBuffer_Wrap(nameBuffer + 2, length, 0, length);
-        Name *name = name_CreateFromBuffer(wireFormat);
+        Name *constructedName = name_CreateFromBuffer(nameWireFormat);
 
         // Index the name into the FIB -- don't do anything with it though.
         // We're just estimating the time it takes to perform this operation
         Bitmap *output = fib_LPM(fib, name);
         name_Destroy(&name);
-        parcBuffer_Release(&wireFormat);
         // XXX: assert the outut is not NULL
         // XXX: use the output bitmap to send to the right socket(s)
 
-        // Blindly write the name to the output socket
-        write(sinkfd, nameBuffer, 2); // write the size and then the rest of the name
-        if (write(sinkfd, nameBuffer + 2, length) < 0) {
-            std::cerr << "failed to write name " << i << " to the sink socket" << std::endl;
-        }
+        // Record the time it was done being processed
+        struct timespec now = timerStart();
+        outTimes.push_back(now);
     }
+}
+
+void
+Router::ProcessInputs()
+{
+    for (std::vector<Name *>::iterator itr = names.begin(); itr != names.end(); itr++) {
+        Name *name = *itr;
+
+        // Record the time it started being processed
+        struct timespec start = timerStart();
+        inTimes.push_back(start);
+    }
+}
+
+void *
+processInputs(void *arg)
+{
+    Router *router = (Router *) arg;
+    router->ProcessInputs();
+    return NULL;
 }
 
 void *

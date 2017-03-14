@@ -7,9 +7,9 @@ attacker = ARGV[0]
 url_file = ARGV[1]
 
 # Change these as needed to control the lifetime and accuracy of the experiment
-expansion = 5
-component_expansion = 10.0
-number_expansion = 10.0
+expansion = 3
+component_expansion = 15.0
+number_expansion = 15.0
 num_experiments = 1
 fractions = [1].map {|n| n * 0.01}
 
@@ -28,9 +28,10 @@ counts.each{|count|
         load_data.shuffle!
         test_data.shuffle!
 
-        tmp_load = "/tmp/load_tmp_#{count}_#{n}.txt"
-        tmp_test = "/tmp/test_tmp_#{count}_#{n}.txt"
-        attack_out = "attack_#{n}_#{expansion}.txt"
+        tmp_load = "load_tmp_#{count}_#{n}.txt"
+        tmp_test = "test_tmp_#{count}_#{n}.txt"
+        attack_out = "attack_#{n}_#{expansion}_#{component_expansion}_#{number_expansion}.txt"
+        attack_out_hash = "attack_#{n}_#{expansion}_#{component_expansion}_#{number_expansion}_hash.txt"
 
         File.open(tmp_load, 'w') { |file| load_data.each{|line| file.write(line + "\n")} }
         File.open(tmp_test, 'w') { |file| test_data.each{|line| file.write(line + "\n")} }
@@ -43,7 +44,9 @@ counts.each{|count|
             file.write(out)
         }
 
-        File.delete tmp_load
-        File.delete tmp_test
+        out = `#{attacker} #{tmp_load} #{tmp_test} 1`
+        File.open(attack_out_hash, 'w') { |file|
+            file.write(out)
+        }
     }
 }

@@ -65,7 +65,7 @@ def parse_files(files):
         except:
             debug("Error parsing: %s" % fname)
 
-widths = [4, 8, 12, 16, 20, 24, 28, 32]
+widths = [4, 8, 16, 32]
 hash_algorithms = ["naive", "cisco"]
 hash_alg_names = ["Naive", "Cisco"]
 
@@ -97,8 +97,8 @@ hybrid_alg_names = []
 for w in filters:
     for m in filter_widths:
         for T in trie_depths:
-            hybrid_algorithms.append("tbf-%d-%d-%d" % (w, m, T))
-            hybrid_alg_names.append("TBF[%d-%d-%d]" % (w, m, T))
+            hybrid_algorithms.append("tbf-%d-%d-%d" % (T, w, m))
+            hybrid_alg_names.append("TBF[%d-%d-%d]" % (T, w, m))
 
 debug("parsing...")
 parse_files(sys.argv[1:])
@@ -115,6 +115,7 @@ def compute_values(alg):
     stdevs = [0.0] * len(widths)
 
     for i, width in enumerate(widths):
+        print alg, i, width, lookup_hashed[alg]
         hashed_mean = lookup_hashed[alg][i][0]
         mean = lookups[alg][0][0]
         means[i] = ((float(mean) - hashed_mean) / hashed_mean) * 100.0
@@ -211,6 +212,8 @@ def plot_filter_improvement(fname, algorithms, alg_names):
     indices = np.arange(len(widths))
     for i, alg in enumerate(algorithms):
         values, errs = compute_values(alg)
+        values = map(lambda v : abs(v), values)
+        errs = map(lambda e : abs(e), errs)
         rects_set = ax.bar(indices + (i * width), values, width, color=colors[i % len(colors)], align="center", log=True) # log=True
         rects.append(rects_set)
 
@@ -281,7 +284,6 @@ for i in range(len(trie_algorithms)):
     process_algorithm_set(caesar_algorithms, trie_alg, trie_name)
     process_algorithm_set(caesar_filter_algorithms, trie_alg, trie_name)
     process_algorithm_set(merged_filter_algorithms, trie_alg, trie_name)
-
 # Compare to the hybrid TBF algorithm
 for i in range(len(hybrid_algorithms)):
     hybrid_alg = hybrid_algorithms[i]

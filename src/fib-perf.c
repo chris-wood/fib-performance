@@ -149,7 +149,7 @@ parseCommandLineOptions(int argc, char **argv)
                     sscanf(optarg, "%u", &(options->trieDepth));
                     break;
                 case 's':
-                    sscanf(optarg, "%u", &(options->numFilters));
+                    sscanf(optarg, "%u", &(options->filterSize));
                     break;
                 case 'n':
                     sscanf(optarg, "%u", &(options->maxNameLength));

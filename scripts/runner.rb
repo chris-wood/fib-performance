@@ -9,6 +9,7 @@ fib_perf = ARGV[0]
 load_file = ARGV[1]
 test_file = ARGV[2]
 suffix = ARGV[3]
+index = ARGV[4]
 
 table_algorithms = ["naive", "cisco"]
 filter_algorithms = ["caesar", "caesar-filter", "merged-filter"]
@@ -51,13 +52,13 @@ filter_algorithms.each {|alg|
             File.open(fname, 'a') { |file| file.write(output) }
 
             digestWidths.each {|width|
-                if width >= m
+                # if width >= m
                     STDERR.puts "#{fib_perf} -l #{load_file} -t #{test_file} -d #{width} -f #{k} -s #{m} -a #{alg}"
                     output_hashed = `#{fib_perf} -l #{load_file} -t #{test_file} -d #{width} -f #{k} -s #{m} -a #{alg}`
                     STDERR.puts output_hashed
                     puts output_hashed
                     File.open(fname, 'a') { |file| file.write(output_hashed) }
-                end
+                # end
             }
         }
     }
