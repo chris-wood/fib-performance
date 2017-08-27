@@ -8,8 +8,8 @@ url_file = ARGV[1]
 
 # Change these as needed to control the lifetime and accuracy of the experiment
 expansion = 5
-num_experiments = 1 # 100
-fractions = [0.001] #, 5, 10].map {|n| n * 0.01}
+num_experiments = 5 # 100
+fractions = (1..10).map {|n| n * 0.001}
 
 # Count the number of lines in the file
 lines = `wc -l #{url_file}`.split(" ")[0].to_i
