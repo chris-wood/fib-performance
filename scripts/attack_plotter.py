@@ -31,6 +31,7 @@ ax.set_xlabel('Name Index')
 # ax.set_xticks(indices + width)
 #ax.set_yscale('log')
 # ax.set_xticklabels(tuple(widths))
+ax.legend(loc=2)
 # ax.legend((rects[0][0], rects[1][0]), (hash_alg_names[0], hash_alg_names[1]), loc=1)
 
 plt.grid(True)

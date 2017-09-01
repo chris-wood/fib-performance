@@ -200,7 +200,10 @@ def plot_hash_improvement(fname, hash_algorithms, hash_alg_names):
     ax.set_xticklabels(tuple(widths))
     ax.legend((rects[0][0], rects[1][0]), (hash_alg_names[0], hash_alg_names[1]), loc=1)
 
-    plt.grid(True)
+    # plt.gcf().subplots_adjust(left=0.15)
+
+    plt.gcf().subplots_adjust(bottom=0.25)
+    plt.grid(linestyle='dotted')
     plt.savefig(fname)
     #plt.show()
 
@@ -228,7 +231,8 @@ def plot_filter_improvement(fname, algorithms, alg_names):
     ax.legend((rects[0][0], rects[1][0], rects[2][0], rects[3][0], rects[4][0]), \
         (alg_names[0], alg_names[1], alg_names[2], alg_names[3], alg_names[4]), loc=1)
 
-    plt.grid(True)
+    plt.gcf().subplots_adjust(bottom=0.25)
+    plt.grid(linestyle='dotted')
     plt.savefig(fname)
     #plt.show()
 
@@ -248,26 +252,30 @@ def plot_relative_hash_performance(fname, algA, nameA, algB, nameB):
     ax.set_ylabel('Mean Lookup Time [ns]')
     ax.set_xlabel('Algorithm')
     ax.set_xticks(indices)
-    plt.xticks(rotation=45)
-    plt.gcf().subplots_adjust(bottom=0.13)
+    plt.xticks(rotation=25)
+    plt.gcf().subplots_adjust(bottom=0.25)
     #ax.set_yscale('log')
 
     labels = [nameA, nameB] + map(lambda w : "%s[%d]" % (nameB, w), widths)
     debug(labels)
     ax.set_xticklabels(tuple(labels))
 
-    plt.grid(True)
+    plt.grid(linestyle='dotted')
     plt.savefig(fname)
     #plt.show()
 
-# Plot the improvements gained in hash-based FIBs using the hash-based name scheme
+# # Plot the improvements gained in hash-based FIBs using the hash-based name scheme
 plot_hash_improvement("hash.pdf",hash_algorithms, hash_alg_names)
-
 
 # XXX: need to trim the filter algorithms based on k -- there's too much going on!
 plot_filter_improvement("caesar.pdf", caesar_algorithms, caesar_alg_names)
 plot_filter_improvement("caesar_filter.pdf", caesar_filter_algorithms, caesar_filter_alg_names)
 plot_filter_improvement("merged_filter.pdf", merged_filter_algorithms, merged_filter_alg_names)
+
+plots = [("patricia", "naive"), ("patricia", "cisco"), ("patricia", "caesar-4-16"), \
+         ("patricia", "caesar-filter-4-16"), ("patricia", "merged-filter-4-16"),\
+         ("tbf-3-4-16", "caesar-4-16"), ("tbf-3-4-16", "caesar-filter-4-16"),\
+         ("tbf-3-4-16", "merged-filter-4-16")]
 
 # Compare to the trie algorithms
 for i in range(len(trie_algorithms)):
@@ -278,22 +286,28 @@ for i in range(len(trie_algorithms)):
         for j in range(len(algorithms)):
             other_alg = algorithms[j]
             other_name = algorithms[j]
-            plot_relative_hash_performance("%s_vs_%s.pdf" % (trie_alg, other_alg), trie_alg, trie_name, other_alg, other_name)
+            name = "%s_vs_%s.pdf" % (trie_alg, other_alg)
+            if (trie_alg, other_alg) in plots:
+                plot_relative_hash_performance(name, trie_alg, trie_name, other_alg, other_name)
 
     process_algorithm_set(hash_algorithms, trie_alg, trie_name)
     process_algorithm_set(caesar_algorithms, trie_alg, trie_name)
     process_algorithm_set(caesar_filter_algorithms, trie_alg, trie_name)
     process_algorithm_set(merged_filter_algorithms, trie_alg, trie_name)
+
 # Compare to the hybrid TBF algorithm
 for i in range(len(hybrid_algorithms)):
     hybrid_alg = hybrid_algorithms[i]
     hybrid_name = hybrid_alg_names[i]
 
-    def process_algorithm_set(algorithms, trie_alg, trie_name):
+    def process_algorithm_set(algorithms, hybrid_alg, hybrid_name):
         for j in range(len(algorithms)):
             other_alg = algorithms[j]
             other_name = algorithms[j]
-            plot_relative_hash_performance("%s_vs_%s.pdf" % (trie_alg, other_alg), trie_alg, trie_name, other_alg, other_name)
+            name = "%s_vs_%s.pdf" % (hybrid_alg, other_alg)
+            # if "tbf-4-6-8_vs_merged-filter-3-32" in name:
+            if (hybrid_alg, other_alg) in plots:
+                plot_relative_hash_performance(name, hybrid_alg, hybrid_name, other_alg, other_name)
 
     process_algorithm_set(hash_algorithms, hybrid_alg, hybrid_name)
     process_algorithm_set(caesar_algorithms, hybrid_alg, hybrid_name)
