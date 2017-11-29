@@ -1,4 +1,4 @@
-# fiblib
+# libfib: Library of CCN FIB Implementations
 
 fiblib is a library of FIB data structure implementations for experimental and evaluation purposes. It also includes useful functions for wrapping packet data, such as names. It has a dependency on some PARC CCNx libraries. Phasing those out is part of future work. 
 
